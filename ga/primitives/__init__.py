@@ -54,4 +54,4 @@ def table() -> str:
     return "\n".join(rows)
 
 
-from . import generic, plans_gb, soi, raster   # noqa: E402,F401  (registration on import)
+from . import generic, plans_gb, soi, raster, claude_reader   # noqa: E402,F401  (registration on import)

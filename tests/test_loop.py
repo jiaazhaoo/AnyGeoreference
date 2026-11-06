@@ -69,3 +69,16 @@ def test_planner_sees_no_coordinates_and_is_bounded():
     assert "POLYGON" not in json.dumps(seen) and "transform" not in json.dumps(seen)
     capped = run(SHEET, r, Planner(choose, max_steps=10, max_cost=0.005))
     assert any(t.get("stopped") == "cost cap" for t in capped.trace) and not capped.cues
+
+
+def test_step_session_roundtrip(tmp_path):
+    from ga.session import StepSession
+    r = registry()
+    ses = StepSession.start(tmp_path / "s", SHEET, "plans_gb")
+    o = ses.options(r)
+    assert "read_sheet" in [x["name"] for x in o["options"]] and "gazetteer" not in [x["name"] for x in o["options"]]
+    ses.choose(r, "read_sheet", "cues first", chooser="test")
+    ses.choose(r, "gazetteer", "names -> areas", chooser="test")
+    st = ses.load()
+    assert st.cues and st.candidates and [t["chose"] for t in st.trace if t["tool"] == "planner"] == ["read_sheet", "gazetteer"]
+    assert (tmp_path / "s" / "choices.jsonl").exists()

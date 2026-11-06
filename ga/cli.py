@@ -31,7 +31,26 @@ def main(argv=None) -> int:
     r.add_argument("--planner", action="store_true", help="let an LLM choose the tools (DEEPSEEK_BASE_URL / DEEPSEEK_API_KEY)")
     r.add_argument("--max-cost", type=float, default=0.5)
     r.add_argument("--trace", help="append the trace to this JSONL")
+    st_ = sub.add_parser("step", help="advance a stepwise session: show options, or choose a tool")
+    st_.add_argument("--session", required=True)
+    st_.add_argument("--start-kind"); st_.add_argument("--image"); st_.add_argument("--record", default="{}"); st_.add_argument("--meta", default="{}")
+    st_.add_argument("--choose"); st_.add_argument("--why", default=""); st_.add_argument("--chooser", default="person")
     a = ap.parse_args(argv)
+    if a.cmd == "step":
+        from .session import StepSession
+        if a.start_kind:
+            record, meta = json.loads(a.record), json.loads(a.meta)
+            with open(a.image, "rb") as f:
+                head = f.read(1 << 20)
+            sheet = Sheet(Path(a.image).stem, kinds.KINDS[a.start_kind].kind, a.image, digest_bytes(head), record, meta)
+            ses = StepSession.start(a.session, sheet, a.start_kind)
+        else:
+            ses = StepSession(a.session)
+        reg = kinds.registry_for(ses.kind())
+        if a.choose:
+            print(json.dumps(ses.choose(reg, a.choose, a.why, a.chooser), default=str))
+        print(json.dumps(ses.options(reg), default=str, ensure_ascii=False)[:6000])
+        return 0
     if a.cmd == "kinds":
         for k, rec in kinds.KINDS.items():
             miss = kinds.unavailable(k)

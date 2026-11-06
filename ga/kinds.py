@@ -11,7 +11,7 @@ PLANS_GB = Recipe(
     name="plans_gb", kind="planning_drawing",
     profile=Profile("UK planning application drawing (site / location plan)", (), ("black", "red"), ("road", "number", "place", "grid"),
                     printed_grid="national-grid", scale_hint="1:1250 / 1:2500", era="1948-", measured_by={"text_kinds": "OCR + label rules"}),
-    cues=("road", "number", "grid", "place"),
+    cues=("road", "number", "grid", "place"),            # read by Claude (claude_read) and by OCR + label rules
     references=("gazetteer", "address-register", "road-network", "basemap"),
     matchers=("text_anchor_fit", "grid_figures", "structure_match_orb"),
     verifications=("address_in_footprint", "overlay_agreement", "snap_faces", "hypothesis_agreement"),
@@ -62,7 +62,7 @@ KINDS = {r.name: r for r in (PLANS_GB, SOI_1INCH, UNLABELLED_RASTER)}
 
 # the ordered composition each kind runs (the FixedPlan); the Planner picks from the same names
 SPECS = {
-    "plans_gb": AdapterSpec("plans_gb", (Step("ocr_cached"), Step("road_and_place_labels"), Step("gazetteer_search"), Step("grid_figures"),
+    "plans_gb": AdapterSpec("plans_gb", (Step("claude_read"), Step("ocr_cached"), Step("road_and_place_labels"), Step("gazetteer_search"), Step("grid_figures"),
                                         Step("text_anchor_fit"), Step("edge_structure"), Step("reference_render", {"res_m": 1.0}),
                                         Step("structure_match_orb", {"min_inliers": 10}), Step("overlay_agreement"),
                                         Step("address_in_footprint"), Step("hypothesis_agreement")), PLANS_GB.policy_rules, "lib-v0"),
