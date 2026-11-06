@@ -97,7 +97,23 @@ def osm_reference(state, layers=None):
     import shapely.wkt
     g = shapely.wkt.loads(state.candidates[0].area_wkt)
     w, s, e, n = g.bounds
-    data = osm.fetch((s, w, n, e), state.sheet.meta.get("cache_dir", "/tmp/ga-osm"))
+    import requests, time as _t
+    mirrors = [m for m in os.environ.get("OSM_OVERPASS_URLS", "https://overpass-api.de/api/interpreter,https://lz4.overpass-api.de/api/interpreter,"
+                                         "https://z.overpass-api.de/api/interpreter,https://overpass.kumi.systems/api/interpreter").split(",") if m]
+    data, last = None, None
+    for attempt in range(2):
+        for m in mirrors:
+            osm.OVERPASS = m
+            try:
+                data = osm.fetch((w, s, e, n), state.sheet.meta.get("cache_dir", "/tmp/ga-osm"))
+                break
+            except (requests.HTTPError, requests.ConnectionError, requests.Timeout, ValueError) as err:   # noqa: PERF203
+                last = f"{m}: {err}"[:120]; _t.sleep(3)
+        if data is not None:
+            break
+    if data is None:
+        state.evidence.append(Evidence("osm_fetch_failed", True, "deterministic", "basemap", note=last or "no mirror answered"))
+        return []
     return [Layer(state.sheet.digest, "reference_vectors", "vectors", data, frame="EPSG:4326", meta={"bbox": (s, w, n, e)})]
 
 
