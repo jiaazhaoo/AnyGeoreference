@@ -10,10 +10,10 @@ def test_knowledge_retrieval():
     idx = Index()
     assert len(idx.cards) >= 10
     top = [c.id for _, c in idx.retrieve("printed graticule corner coordinates polynomial residual", kind="historical_map", cues=["grid"], k=3)]
-    assert top[0] == "graticule-sheets"
+    assert top[0] in ("family-survey-graticule", "matcher-graticule-corners")
     top = [c.id for _, c in idx.retrieve("house numbers road names address register", kind="planning_drawing", cues=["number"], k=3)]
-    assert "drawings-text-anchors" in top
-    assert "graticule-sheets" not in [c.id for _, c in idx.retrieve("anything", kind="planning_drawing", k=20)]   # kind filter
+    assert "matcher-text-anchors" in top
+    assert "family-survey-graticule" not in [c.id for _, c in idx.retrieve("anything", kind="planning_drawing", k=40)]   # kind filter
 
 
 def test_plan_validation_and_truth_rank():

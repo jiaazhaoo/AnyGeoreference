@@ -50,6 +50,23 @@ Contract (from ga/primitives/__init__.py and ga/model.py, read them first):
 Start by reading ga/model.py, ga/primitives/__init__.py and ga/primitives/generic.py."""
 
 CLS = {"cue": "Cue", "candidate": "Candidate", "hypothesis": "Hypothesis", "evidence": "Evidence", "layer": "Layer"}
+FAMILIES = ("sheet-reader", "record-text", "gazetteer", "address-register", "road-network", "basemap", "geometry")
+
+
+def family_of(spec: dict) -> str:
+    """The evidence family a plan names for a missing primitive, normalised: planners write the knowledge card's id or a
+    word ('landmark gazetteer') where the contract wants one of the seven families."""
+    f = str(spec.get("family", "")).lower()
+    if f in FAMILIES:
+        return f
+    blob = f + " " + str(spec.get("method", "")).lower() + " " + str(spec.get("name", "")).lower()
+    for key, fam in (("address", "address-register"), ("gazetteer", "gazetteer"), ("landmark", "gazetteer"), ("place", "gazetteer"),
+                     ("road", "road-network"), ("street", "road-network"), ("record", "record-text"),
+                     ("reader", "sheet-reader"), ("ocr", "sheet-reader"), ("spotter", "sheet-reader"),
+                     ("render", "basemap"), ("basemap", "basemap"), ("tile", "basemap"), ("raster", "basemap"), ("image match", "basemap")):
+        if key in blob:
+            return fam
+    return "geometry"
 
 
 def _worktree(name: str) -> Path:
@@ -64,7 +81,7 @@ def build_primitive(spec: dict, knowledge: str, model: str = "claude-sonnet-5", 
     consumes = tuple(spec.get("consumes") or ())
     produces = spec.get("produces", "evidence")
     wt = _worktree(name)
-    task = TASK.format(name=name, why=spec.get("why", ""), consumes=list(consumes), produces=produces, family=spec.get("family", "geometry"),
+    task = TASK.format(name=name, why=spec.get("why", ""), consumes=list(consumes), produces=produces, family=family_of(spec),
                        method=spec.get("method", ""), knowledge=knowledge, produces_cls=CLS.get(produces, "Evidence"),
                        consumes_tuple=repr(consumes), py=PY)
     env = {"HOME": os.environ.get("HOME", ""), "PATH": os.environ.get("PATH", ""), "TERM": "xterm",
@@ -99,8 +116,22 @@ def build_primitive(spec: dict, knowledge: str, model: str = "claude-sonnet-5", 
     return rec
 
 
-def ensure_capabilities(plan, knowledge: str, log: Path | None = None) -> list[dict]:
-    """Build every primitive the plan says is missing and that its recipe actually names; return the build records."""
+def knowledge_for_build(spec: dict, k: int = 4) -> str:
+    """The cards a builder reads: retrieved for the missing primitive's own name, family and method (the capability
+    card that says how it is built comes first), plus the contract card."""
+    from .knowledge import Index
+    idx = Index()
+    q = " ".join([str(spec.get("name", "")).replace("_", " "), str(spec.get("family", "")), str(spec.get("why", "")), str(spec.get("method", ""))])
+    hits = [c for _, c in idx.retrieve(q, k=k)]
+    contract = idx.by_id("build-a-primitive")
+    if contract and contract not in hits:
+        hits.append(contract)
+    return "\n\n".join(f"[{c.id}] ({c.method})\n{c.text}" for c in hits)
+
+
+def ensure_capabilities(plan, knowledge: str | None = None, log: Path | None = None) -> list[dict]:
+    """Build every primitive the plan says is missing and that its recipe actually names; return the build records.
+    `knowledge` None means: retrieve the cards for each primitive from the knowledge base."""
     from .primitives import LIBRARY
     wanted = {s.primitive for s in plan.recipe.steps}
     recs = []
@@ -108,5 +139,5 @@ def ensure_capabilities(plan, knowledge: str, log: Path | None = None) -> list[d
         nm = re.sub(r"[^a-z0-9_]", "_", str(m.get("name", "")).lower())
         if not nm or nm in LIBRARY or nm not in wanted:
             continue
-        recs.append(build_primitive(dict(m, name=nm), knowledge, log=log))
+        recs.append(build_primitive(dict(m, name=nm), knowledge if knowledge is not None else knowledge_for_build(m), log=log))
     return recs

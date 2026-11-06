@@ -58,9 +58,12 @@ First numbers (2026-11-06, data stays out of the repository):
 ### The main agent
 
 Give it one to three similar sheets. It reads each (Claude), profiles the batch (what cues all sheets share, what
-varies), retrieves from a curated knowledge base (the recipes, our findings, the literature's conclusions), and
-writes the plan: a recipe over the library, where truth will come from and how far it is trusted, the evaluation,
-the stop rules, what primitives are missing, the risks. With one sheet it says so: no batch agreement, deliveries
+varies), retrieves from the knowledge base (`docs/KNOWLEDGE.md`: 75 cards, what a professional georeferencer
+knows about map families, reading, reference data, geodesy, transforms, matchers, verification, truth, failure
+modes, cost and the literature, with our measured findings), reads the capability catalogue (which known methods
+the library implements, which are known to be buildable), and writes the plan: a recipe over the library, where
+truth will come from and how far it is trusted, the evaluation, the stop rules, the missing primitives with a
+method each (the builder writes them), the risks. With one sheet it says so: no batch agreement, deliveries
 need an external truth. `python -m ga.cli plan --kind ... --images a b c`. Two first plans are in `docs/FINDINGS.md`.
 
 ### Blind test

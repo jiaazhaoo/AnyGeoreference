@@ -56,6 +56,15 @@ calibrator. v0: `plans_gb` (planning drawings, Great Britain), implemented by wr
 georeferencing functions (grid-figure reading, road-name fits, gazetteer seeding, raster matching, snapping).
 Next: `microfilm`, `historical_map` (open data: OSM / archive scans).
 
+## 5b. Knowledge (`ga/knowledge/`)
+
+The planner and the builder read a curated knowledge base before acting (`KNOWLEDGE.md`): 75 cards in 13 sections,
+retrieved by TF-IDF with kind and cue filters, plus a capability catalogue derived from the cards that states for
+every known method which library primitives implement it and whether a missing one is buildable. The rule the
+cards and the planner prompt share: a method the knowledge names and the library lacks is built (one function,
+one output kind, a synthetic test, a worktree, a review branch), not abstained on; a method the knowledge marks
+not buildable is a typed abstention.
+
 ## 6. Benchmark (`benchmark/`)
 
 Layered by kind; truth = a polygon whose location is confirmed externally (a client's pass on a delivered polygon,

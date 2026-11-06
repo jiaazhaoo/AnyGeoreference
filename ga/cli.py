@@ -23,6 +23,9 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="ga")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("kinds"); sub.add_parser("primitives")
+    kn = sub.add_parser("knowledge", help="query the knowledge base, or list its sections and the capability catalogue")
+    kn.add_argument("query", nargs="?", default=""); kn.add_argument("--kind"); kn.add_argument("--cues", default="")
+    kn.add_argument("-k", type=int, default=5); kn.add_argument("--catalogue", action="store_true"); kn.add_argument("--full", action="store_true")
     r = sub.add_parser("run")
     r.add_argument("--kind", required=True, choices=sorted(kinds.KINDS))
     r.add_argument("--image", required=True)
@@ -86,6 +89,19 @@ def main(argv=None) -> int:
                           "hypotheses": [(h["matcher"], round(h["score"], 2)) for h in st["hypotheses"]],
                           "evidence": [(e["name"], e["value"]) for e in st["evidence"]], "cost": st["cost"], "steps": st["steps"],
                           "options": [o["name"] for o in opts["options"]], "full": str(Path(a.session) / "options.json")}, default=str))
+        return 0
+    if a.cmd == "knowledge":
+        from .knowledge import Index
+        idx = Index()
+        if a.catalogue:
+            print(idx.catalogue()); return 0
+        if not a.query:
+            for sec, ids in idx.sections().items():
+                print(f"{sec:<12} {len(ids):2d}  {', '.join(ids)}")
+            print(f"{len(idx.cards)} cards, {sum(len(c.text.split()) for c in idx.cards)} words")
+            return 0
+        for score, c in idx.retrieve(a.query, kind=a.kind, cues=[x for x in a.cues.split(",") if x], k=a.k):
+            print(f"{score:6.2f}  [{c.id}]  {c.method}" + (f"\n{c.text}\n" if a.full else ""))
         return 0
     if a.cmd == "kinds":
         for k, rec in kinds.KINDS.items():

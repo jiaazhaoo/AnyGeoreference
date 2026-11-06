@@ -1,8 +1,10 @@
 ---
-id: building-a-primitive
+id: build-a-primitive
 kinds: [any]
 cues: []
 method: how a missing primitive is built, tested and registered
+tags: [build, primitive, generated, contract, register, synthetic test, worktree, no coordinates from a model]
+see: [build-capability-determination, build-readers-and-references, operate-abstention-reasons]
 ---
 When the plan needs a capability the library lacks, build it; do not abstain for want of a tool that is known to
 be buildable. A primitive is one Python function `name(state, **params) -> list` in `ga/primitives/generated/<name>.py`
@@ -14,5 +16,7 @@ produces, about, impl, "generated", requires=(...)))` with family one of sheet-r
 address-register / road-network / basemap / geometry. It must never produce coordinates from a model, only from
 data and computation. It ships with a test in `tests/generated/test_<name>.py` that runs on synthetic data in
 under a second (no network, no GPU, no real data), and it may reuse the reference data readers already in the
-library (OS Open Names sqlite, the Zoomstack road GeoPackage through the pipeline's `roads_near`, the address
-register). After the test passes it is imported into the library and the plan that asked for it runs.
+library (a names sqlite, a road GeoPackage through the pipeline's `roads_near`, the address register). After the
+test passes it is imported into the library and the plan that asked for it runs. The builder is a session with
+Read, Write, Edit and the test runner in its own git worktree; the branch stays for a person to review; the loop
+never edits itself at run time.

@@ -31,18 +31,33 @@ def profile_batch(sheets: list[Sheet], readings: list[dict]) -> dict:
         kinds = Counter(c.get("kind") for c in r.get("cues", []))
         per.append({"sheet": s.id, "width": s.meta.get("width"), "height": s.meta.get("height"), "cue_kinds": dict(kinds),
                     "north_arrow": r.get("north_arrow"), "scale": r.get("scale"), "site_marking": r.get("site_marking"),
-                    "note": r.get("note"), "record": dict(s.record)})
+                    "note": r.get("note"), "record": dict(s.record),
+                    "sample_cues": [{"kind": c.get("kind"), "text": c.get("text")} for c in r.get("cues", [])[:12]]})
     common = set.intersection(*[set(p["cue_kinds"]) for p in per]) if per else set()
     union = set().union(*[set(p["cue_kinds"]) for p in per]) if per else set()
     return {"n_sheets": len(per), "kind_hint": sheets[0].kind if sheets else "", "cue_kinds_common": sorted(common),
             "cue_kinds_any": sorted(union), "variation": sorted(union - common), "sheets": per}
 
 
-def plan_batch(sheets: list[Sheet], readings: list[dict], model: str = "claude-sonnet-5", cache: str | None = None, k: int = 6) -> tuple[Plan, dict, dict]:
-    prof = profile_batch(sheets, readings)
+def knowledge_for(prof: dict, k: int = 8) -> tuple[str, list[str]]:
+    """What the main agent reads before planning: the cards retrieved for the batch profile (the routing card always
+    first), then the capability catalogue (every known method, which primitives implement it today, what is known to
+    be buildable). The catalogue is what turns a missing primitive into a build instead of an abstention."""
     idx = Index()
-    query = " ".join([prof["kind_hint"], " ".join(prof["cue_kinds_any"])] + [str(p.get("note") or "") for p in prof["sheets"]])
+    query = " ".join([prof["kind_hint"], " ".join(prof["cue_kinds_any"]) * 2] + [str(p.get("note") or "") for p in prof["sheets"]]
+                     + [c.get("text", "") for p in prof["sheets"] for c in p.get("sample_cues", [])])
     kind = None if prof["kind_hint"] in ("", "unknown") else prof["kind_hint"]      # a blind batch: no kind filter on the knowledge
-    knowledge = idx.context(query, kind=kind, cues=prof["cue_kinds_any"], k=k)
+    hits = [c for _, c in idx.retrieve(query, kind=kind, cues=prof["cue_kinds_any"], k=k)]
+    routing = idx.by_id("routing-by-cues")
+    if routing and routing not in hits:
+        hits = [routing] + hits[:-1]
+    text = "\n\n".join(f"[{c.id}] ({c.method})\n{c.text}" for c in hits)
+    text += "\n\nCAPABILITY CATALOGUE (known methods; 'NOT in library' + 'buildable: yes' means name it in missing_primitives with a method and use it in the recipe):\n" + idx.catalogue()
+    return text, [c.id for c in hits]
+
+
+def plan_batch(sheets: list[Sheet], readings: list[dict], model: str = "claude-sonnet-5", cache: str | None = None, k: int = 8) -> tuple[Plan, dict, dict]:
+    prof = profile_batch(sheets, readings)
+    knowledge, ids = knowledge_for(prof, k)
     plan, raw = make_plan(prof, knowledge, len(sheets), lambda system, user: ask_json(system, user, model=model, cache=cache))
-    return plan, raw, {"profile": prof, "knowledge": knowledge, "knowledge_ids": [c.id for _, c in idx.retrieve(query, kind, prof["cue_kinds_any"], k)]}
+    return plan, raw, {"profile": prof, "knowledge": knowledge, "knowledge_ids": ids}
