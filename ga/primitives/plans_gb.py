@@ -219,6 +219,49 @@ for p in (
     register(p)
 
 
+# -- place lookup (asked for by the main agent on blind inputs) -----------------------------------------------------
+def place_lookup(state, radius_m: float = 1500.0, kinds=("place", "landmark", "road"), max_names: int = 12):
+    """Place and landmark names read off the sheet -> OS Open Names -> one candidate area: the cluster of hits that
+    sit closest together (the sheet's names belong to one place; homonyms elsewhere in Britain do not cluster).
+    Radius grows with the kind of place found (a city needs more than a hamlet)."""
+    import sqlite3
+    import numpy as np
+    db = os.environ.get("E2E_OPEN_NAMES", "/data/reference/base-data/opname_csv_gb/os_open_names_uk.sqlite")
+    names = []
+    for c in state.cues:
+        if c.kind in kinds and len(c.text.strip()) >= 4:
+            names.append(c.text.strip())
+    names = list(dict.fromkeys(names))[:max_names]
+    if not names:
+        return []
+    con = sqlite3.connect(db)
+    hits = []
+    for n in names:
+        for r in con.execute("SELECT NAME1, TYPE, LOCAL_TYPE, GEOMETRY_X, GEOMETRY_Y FROM open_names WHERE NAME1 = ? COLLATE NOCASE LIMIT 20", (n,)):
+            hits.append((n, r[1], r[2], float(r[3]), float(r[4])))
+    if not hits:
+        state.evidence.append(Evidence("place_lookup_miss", names[:6], "record", "gazetteer"))
+        return []
+    P = np.array([[h[3], h[4]] for h in hits])
+    # the densest cluster: for each hit, how many distinct names fall within 5 km; keep the best hit's neighbourhood
+    best, best_n = None, -1
+    for i, h in enumerate(hits):
+        d = np.hypot(*(P - P[i]).T)
+        n_names = len({hits[j][0] for j in np.nonzero(d <= 5000)[0]})
+        if n_names > best_n:
+            best, best_n = i, n_names
+    core = [hits[j] for j in np.nonzero(np.hypot(*(P - P[best]).T) <= 5000)[0]]
+    cx, cy = float(np.mean([h[3] for h in core])), float(np.mean([h[4] for h in core]))
+    big = any(h[2] in ("City", "Town") for h in core)
+    r = max(radius_m, 4000.0 if big else radius_m, float(np.max(np.hypot(*(np.array([[h[3], h[4]] for h in core]) - [cx, cy]).T))) + 500)
+    wkt = f"POLYGON(({cx-r} {cy-r},{cx+r} {cy-r},{cx+r} {cy+r},{cx-r} {cy+r},{cx-r} {cy-r}))"
+    return [Candidate(state.sheet.digest, "gazetteer", wkt, "EPSG:27700", tuple(sorted({h[0] for h in core})), min(1.0, best_n / 4),
+                      note=f"{best_n} names cluster within 5 km; radius {r:.0f} m; types {sorted({h[2] for h in core})[:4]}")]
+
+
+register(Primitive("place_lookup", "gazetteer", True, ("cue",), "candidate",
+                   "place / landmark / road names on the sheet -> OS Open Names -> the densest cluster as one candidate area", place_lookup, "plans_gb", requires=("OS Open Names",)))
+
 # -- the production pipeline's learned matcher -------------------------------------------------------------------
 def plan_minima_match(state, sigma_m: float = 250.0, windows: int = 40, deadline_s: float = 180.0, thetas=None, min_score: float = 15.0):
     """MINIMA (LoFTR) sliding-window match of the drawing against OS base-map tiles around the candidate area: the
