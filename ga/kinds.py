@@ -35,7 +35,7 @@ SOI_1INCH = Recipe(
                     ("place", "elevation", "gothic"), printed_grid="graticule", scale_hint="1:63360", era="1910-1945",
                     measured_by={"colour_plates": "plates.separate", "printed_grid": "frame.detect"}),
     cues=("grid", "place"),
-    references=("basemap",),
+    references=("record-text", "basemap"),
     matchers=("control_point_fit", "structure_match"),
     verifications=("residual_check", "cross_edition_agreement", "overlay_agreement"),
     policy_rules=(
@@ -70,7 +70,7 @@ SPECS = {
     "plans_gb": AdapterSpec("plans_gb", (Step("claude_read"), Step("ocr_cached"), Step("road_and_place_labels"), Step("gazetteer_search"), Step("grid_figures"),
                                         Step("text_anchor_fit"), Step("plan_minima_match"), Step("edge_structure"), Step("reference_render", {"res_m": 1.0}),
                                         Step("overlay_agreement"), Step("address_in_footprint"), Step("hypothesis_agreement")), PLANS_GB.policy_rules, "lib-v0"),
-    "soi_1inch": AdapterSpec("soi_1inch", (Step("graticule_frame"), Step("control_point_fit", {"model": "poly2", "crs": "EPSG:4326", "min_points": 6}),
+    "soi_1inch": AdapterSpec("soi_1inch", (Step("sheet_index_lookup"), Step("graticule_frame"), Step("control_point_fit", {"model": "poly2", "crs": "EPSG:4326", "min_points": 6}),
                                           Step("residual_check", {"bound": 60.0, "geographic": True}), Step("plate_separation"), Step("line_structure"),
                                           Step("osm_reference"), Step("structure_match"), Step("hypothesis_agreement"),
                                           Step("cross_edition_agreement")), SOI_1INCH.policy_rules, "lib-v0"),

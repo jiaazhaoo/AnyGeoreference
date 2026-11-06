@@ -76,6 +76,22 @@ reader had already flagged as carrying nothing that places it: the policy now ab
 read. Rules fitted on these ten are marked provisional in `ga/kinds.py`; the production flow, with road-name checks
 not bound here, accepts six of the same ten. Per-case rows: `per-case rows kept with the private benchmark`.
 
+**The main agent's first plans, 2026-11-06.** Given one to three sheets, a reading of each, six retrieved
+knowledge cards and the primitive library, Claude (headless) wrote the plan: recipe, ranked truth sources,
+evaluation, stop rules, missing primitives, risks.
+- *One drawing with house numbers:* the recipe matched the hand-written one (read, labels, gazetteer with the
+  record's address, text anchors with a 3-inlier floor and a 2 mm–2 m scale bound, address inside the footprint,
+  the learned matcher as a second hypothesis, matcher agreement); truth = two external authorities (the register for
+  the anchors, the record's own address point), explicitly "no batch agreement with one sheet"; tolerance 10 m; a
+  risk it raised that the hand-written policy had not: the register is not fully independent of the anchor fit.
+- *Three 1943 survey sheets:* pilot on the richest sheet, check on the other two by adjacency; truth ranked
+  OSM structure (0.55) above self-consistency (0.5) and batch agreement (0.45); tolerance 500 m; the one-line-off
+  frame risk quoted from the knowledge base; and two primitives it asked for: a sheet-index lookup (sheet code ->
+  printed bounds; it existed in the source project and is now in the library) and a datum shift from the printed
+  survey datum to WGS84 (declared: the real gap behind the 30–650 m offsets we measured against the archive).
+- Both plans passed parameters the primitives do not have (`sheets`, `read_for`, `datum_note`); the library now
+  drops them at run time and lists them in the plan's problems, so a plan is never refused for a stray parameter.
+
 **Retrieval wants the whole page; matching wants the sheet.** Restricting OCR to the plan crop dropped the
 gazetteer's candidate areas from 9 of 10 to 3 of 10; keeping page-wide words for retrieval and on-sheet words for
 anchoring restored them.

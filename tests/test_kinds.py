@@ -45,7 +45,7 @@ def test_each_kind_runs_with_stubs():
     stubs.update({"ocr_words": cues, "ocr_cached": cues, "claude_read": lambda s: [], "address_in_footprint": lambda s: [], "edge_structure": layer("edges", "mask"), "reference_render": layer("reference_render", "mask"), "overlay_agreement": lambda s: [], "graticule_frame": cues, "road_and_place_labels": lambda s: [], "graticule_frame": cues,
                   "gazetteer_search": lambda s: [], "snap_faces": lambda s: [Evidence("snap_iou", 0.9, "deterministic", "geometry")],
                   "plate_separation": layer("black", "mask"), "line_structure": layer("line_structure", "polylines"),
-                  "osm_reference": lambda s: [], "cross_edition_agreement": lambda s: [],
+                  "osm_reference": lambda s: [], "cross_edition_agreement": lambda s: [], "sheet_index_lookup": lambda s: [],
                   "edge_structure": layer("edges", "mask"), "reference_render": layer("reference_render", "mask"),
                   "overlay_agreement": lambda s: [Evidence("overlay_agreement", 0.7, "deterministic", "basemap")],
                   "hint_area": lambda s: []})

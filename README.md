@@ -55,6 +55,14 @@ First numbers (2026-11-06, data stays out of the repository):
 | planning drawing | ten frozen benchmark drawings; cues from Claude's reading plus cached OCR; OS Open Names, the local address register, the pipeline's learned matcher on OS tiles (GPU) | the client's graded polygon | hypotheses on 9 of 10, within 100 m on 5; the matcher's score alone would accept a 736 m miss, so acceptance needs the address point inside the footprint as a second family: 3 accepted (7, 13, 86 m), 0 wrong, the rest to review or abstained (the floor plan abstains because nothing on it places it). The production flow, with road-name checks not bound here, accepts 6 of the same 10 |
 | historical map, six sheets | six sheets from two series and three decades, pixels only | the archive's georeference, 100 m at the centre | under the rule "accept only with a second evidence family": 3 accepted (2 within 65 m of the archive, 1 at 654 m where our two matchers agree with each other, not with the archive), 3 to review (two frame reads one graticule line off at 9 km, caught; one false alarm at 61 m). Without the rule: 6 accepted, 3 wrong. `docs/FINDINGS.md` |
 
+### The main agent
+
+Give it one to three similar sheets. It reads each (Claude), profiles the batch (what cues all sheets share, what
+varies), retrieves from a curated knowledge base (the recipes, our findings, the literature's conclusions), and
+writes the plan: a recipe over the library, where truth will come from and how far it is trusted, the evaluation,
+the stop rules, what primitives are missing, the risks. With one sheet it says so: no batch agreement, deliveries
+need an external truth. `python -m ga.cli plan --kind ... --images a b c`. Two first plans are in `docs/FINDINGS.md`.
+
 ### Planner against the fixed plan
 
 Ten drawings, the same tools and cache, truth from the client's grading; the planner is Claude through the

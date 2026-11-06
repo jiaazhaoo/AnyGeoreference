@@ -7,7 +7,7 @@ import sys
 import numpy as np
 import shapely.geometry
 
-from ..model import Cue, Hypothesis, Layer
+from ..model import Candidate, Cue, Hypothesis, Layer
 from . import Primitive, register
 from evalcore import Evidence
 
@@ -206,12 +206,31 @@ def cross_edition_agreement(state, tol_m: float = 100.0):
             Evidence("editions_distance_m", round(centre, 1), "deterministic", "geometry", note=f"corners {[round(c, 1) for c in corners]}")]
 
 
+def sheet_index_lookup(state):
+    """The sheet code in the record (053BSW, 53B/3 ...) -> the printed neatline bounds as a candidate area. The
+    main agent asked for this primitive on the three-sheet batch: the strongest textual anchor a survey sheet has,
+    independent of any reading of its place names."""
+    _, sheets, *_ = _soi()
+    code = state.sheet.record.get("sheet_code") or state.sheet.meta.get("sheet_code")
+    if not code:
+        return []
+    try:
+        sh = sheets.parse(code)
+    except (ValueError, KeyError) as e:
+        state.evidence.append(Evidence("sheet_code_unknown", str(e)[:80], "record", "record-text"))
+        return []
+    poly = shapely.geometry.box(sh.west, sh.south, sh.east, sh.north)
+    return [Candidate(state.sheet.digest, "record-text", poly.wkt, "EPSG:4326", (code,), 0.9, note="printed neatline bounds from the sheet index")]
+
+
 for p in (
     Primitive("graticule_frame", "sheet-reader", True, (), "cue", "neatline + graticule nodes with their printed lon/lat", graticule_frame, "soi", requires=("autogeoref", "opencv")),
     Primitive("plate_separation", "sheet-reader", True, (), "layer", "colour-plate masks: black / red / blue inks", plate_separation, "soi", requires=("autogeoref", "opencv")),
     Primitive("line_structure", "sheet-reader", True, ("layer",), "layer", "skeletonised, traced linework of a plate as polylines", line_structure, "soi", requires=("autogeoref", "scikit-image")),
     Primitive("osm_reference", "basemap", True, ("candidate",), "layer", "OSM skeleton (rail, canals, rivers, roads, villages) for the candidate area", osm_reference, "soi", requires=("autogeoref", "Overpass")),
     Primitive("structure_match", "basemap", True, ("layer",), "hypothesis", "MINIMA-LoFTR match of the sheet's linework against rendered OSM, window by window -> GCPs -> robust polynomial", structure_match, "soi", requires=("autogeoref", "MINIMA weights", "torch", "Overpass")),
+    Primitive("sheet_index_lookup", "record-text", True, (), "candidate", "survey sheet code in the record -> printed neatline bounds as the candidate area", sheet_index_lookup, "soi", requires=("autogeoref",)),
+    Primitive("datum_shift", "geometry", True, ("hypothesis",), "hypothesis", "shift a placement from the printed survey datum (e.g. Everest 1830) to WGS84 (declared: needs a transformation the region's authority publishes)", None, "soi"),
     Primitive("cross_edition_agreement", "geometry", True, ("hypothesis",), "evidence", "the same sheet in another edition, placed independently (its footprint in the meta): do the placements agree", cross_edition_agreement, "soi"),
 ):
     register(p)
