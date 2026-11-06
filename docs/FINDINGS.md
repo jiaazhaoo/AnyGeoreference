@@ -66,6 +66,16 @@ policy keeps them for review; on the numbered sheet the text-anchor fit (7 m) st
 works, not what the matcher can do: the production run of the same ten cases, on GPU with its road-name seeding,
 accepts six. A GPU rerun with production parameters is queued for when the GPU is free.
 
+**The learned matcher on GPU, ten drawings, 2026-11-06.** Production window count (100), 300 s a case, seeded by
+the gazetteer candidate, rotation from the read north arrow, scale from the read scale. Hypotheses on 9 of 10;
+within 100 m of the graded polygon on 5 (7, 13, 86, 90, 99 m), within 500 m on 7. The matcher's own score is not
+a safe gate: at the pipeline's bar of 50 it accepts four, one of them 736 m off; with the address point inside the
+footprint as a second family it accepts two, both right (13 m, 86 m), and with the text-anchor fit (11 of 12
+inliers, address inside) a third at 7 m. It also "placed" the floor plan 998 m away at score 26, a sheet the
+reader had already flagged as carrying nothing that places it: the policy now abstains when no location cue was
+read. Rules fitted on these ten are marked provisional in `ga/kinds.py`; the production flow, with road-name checks
+not bound here, accepts six of the same ten. Per-case rows: `per-case rows kept with the private benchmark`.
+
 **Retrieval wants the whole page; matching wants the sheet.** Restricting OCR to the plan crop dropped the
 gazetteer's candidate areas from 9 of 10 to 3 of 10; keeping page-wide words for retrieval and on-sheet words for
 anchoring restored them.

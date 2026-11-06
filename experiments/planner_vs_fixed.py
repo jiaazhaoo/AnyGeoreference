@@ -26,7 +26,7 @@ def policy_for(kind: str) -> Policy:
     rules = []
     for r in kinds.KINDS[kind].policy_rules:
         expr = r["when"]
-        rules.append(Rule(r["id"], (lambda f, e=expr: bool(eval(e, {}, {**{k: None for k in ("snap_iou", "address_inside", "address_in_footprint", "address_to_centre_m", "matchers_agree", "record_distance_m",
+        rules.append(Rule(r["id"], (lambda f, e=expr: bool(eval(e, {}, {**{k: None for k in ("snap_iou", "address_inside", "address_in_footprint", "address_to_centre_m", "matchers_agree", "record_distance_m", "best_matcher", "best_score", "n_location_cues",
                                                                       "residual_within_bound", "editions_agree", "overlay_agreement", "n_candidates")}, **f}))),
                           r["to"], (r["from"],) if "from" in r else None, when_text=expr))
     return Policy(f"{kind}-rules", "v0", rules)

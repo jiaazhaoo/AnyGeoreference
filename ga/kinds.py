@@ -16,7 +16,12 @@ PLANS_GB = Recipe(
     matchers=("text_anchor_fit", "grid_figures", "plan_minima_match", "structure_match_orb"),
     verifications=("address_in_footprint", "overlay_agreement", "snap_faces", "hypothesis_agreement"),
     policy_rules=(
+        # provisional, fitted on ten graded drawings (2026-11-06, docs/FINDINGS.md): a learned-matcher score >= 50
+        # alone accepted a 736 m miss; with the address point inside the footprint it accepted 2, both right
+        {"id": "no_location_cues", "when": "n_location_cues == 0", "to": "abstain"},
         {"id": "snap_and_address", "when": "(snap_iou or 0) >= 0.86 and address_inside", "to": "accept"},
+        {"id": "anchors_and_address", "when": "best_matcher == 'text_anchor_fit' and (best_score or 0) >= 0.75 and address_in_footprint", "to": "accept"},
+        {"id": "learned_match_and_address", "when": "best_matcher == 'plan_minima_match' and (best_score or 0) >= 0.5 and address_in_footprint", "to": "accept"},
         {"id": "address_and_overlay", "when": "address_in_footprint and (overlay_agreement or 0) >= 0.3", "to": "accept"},
         {"id": "two_matchers_agree", "when": "matchers_agree and address_in_footprint", "to": "accept"},
         {"id": "far_from_record", "when": "(address_to_centre_m or 0) > 2000", "from": "accept", "to": "review"},

@@ -20,7 +20,11 @@ class Decider:
     def facts(self, state: State) -> dict:
         es = EvidenceSet(state.evidence)
         f = es.facts()
+        kinds = [c.kind for c in state.cues]
         f.update({"n_hypotheses": len(state.hypotheses), "best_score": state.hypotheses[0].score if state.hypotheses else None,
+                  "best_matcher": state.hypotheses[0].matcher if state.hypotheses else None,
+                  "n_location_cues": sum(1 for k in kinds if k in ("road", "number", "place", "grid", "landmark")),
+                  "n_candidates": len(state.candidates),
                   "families": es.independent([e.name for e in state.evidence]), "cost": state.cost})
         return f
 
