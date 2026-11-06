@@ -122,3 +122,27 @@ prompt. Replay: `blind/commons/results_street_map.json`.
 **Retrieval wants the whole page; matching wants the sheet.** Restricting OCR to the plan crop dropped the
 gazetteer's candidate areas from 9 of 10 to 3 of 10; keeping page-wide words for retrieval and on-sheet words for
 anchoring restored them.
+
+**The knowledge base, 2026-11-06.** The 13 cards the planner had read so far were our own findings; a planner
+reading them could not know that a street-name matcher exists in the trade, so the two easy blind inputs
+abstained until I wrote the matcher by hand. The knowledge base is now what a professional georeferencer knows,
+written as 75 cards in 13 sections (`docs/KNOWLEDGE.md`): map families and what places each, reading, reference
+data, geodesy (projections, datums, meridians, units), transforms, one card per matcher, verification families,
+truth and tolerance, failure modes, operation (stopping, cost, abstention reasons, delivery, evaluation design),
+building, literature. Capability cards carry `primitives`, `buildable`, `effort`, `ingredients`, and a catalogue
+derived from them tells the planner which methods the library implements today and which are known to be
+buildable. The four blind inputs were planned again with it, no kind hint, and two of them with the street-name
+primitives hidden from the library (`GA_HIDE_PRIMITIVES`) to test whether the main agent now asks for the build:
+
+| input | library | retrieved | plan |
+|---|---|---|---|
+| 1823 town plan | full | routing, town plans, toponym constellation, marginalia, orientation and scale, insets | street-name route (junction locate, road-name fit), ORB structure as the second matcher, held-out place names inside, overlay margin against shifted poses; tolerance 150 m; risks name the 1736 inset and the compass rose; no missing primitive |
+| USGS 1903 sheet | full | routing, survey graticule, small-scale, marginalia, tolerance by scale | graticule bounds, poly fit, residual, **datum shift**, places inside; tolerance 32 m from the 0.5 mm rule; abstain rule names the one-line-off frame; risk: the sheet predates NAD27 |
+| oblique photograph | full | routing, oblique photos, photo landmarks, aerial vertical | reads, then one missing primitive `matcher_photo_landmarks` with a four-sentence method (gazetteer lookup, cluster, bearing resection when three landmarks resolve); accept never for a transform; abstain with reason "oblique perspective"; delivers a located Candidate |
+| suburb render | street-name primitives **hidden** | routing, road networks, street names as geometry, text anchors, town plans | names all three hidden primitives as missing with implementable methods (name normalisation and token ratio, junction votes within 150 m, distance-transform rasters per road, 5 degree x log-scale sweep, ICP on inliers, held-out places weighted by rarity) and puts them in the recipe at their steps; ORB structure agreement as the second family |
+
+Before the knowledge base, the same agent on the 1823 plan chose the learned image matcher and asked for a
+"historical-epoch base-map renderer". The difference is not the model: it is that the method is now written down
+with its ingredients, and the catalogue says the library lacks it and that it is buildable. Plans still pass
+parameters outside the primitives' contracts (dropped and listed); contract granularity remains the open item.
+Replays: `blind/plans_kb2/*.json` (data folder).
