@@ -41,8 +41,8 @@ def test_each_kind_runs_with_stubs():
         return [Cue(state.sheet.digest, "grid", f"{i*10},{i*10}", (i, i, i + 1, i + 1), "stub") for i in range(8)]
     def layer(name, kind):
         return lambda state: [Layer(state.sheet.digest, name, kind, np.zeros((10, 10), np.uint8))]
-    stubs = {n: hyp for n in ("structure_match", "text_anchor_fit")}
-    stubs.update({"ocr_words": cues, "road_and_place_labels": lambda s: [], "grid_figures": cues, "graticule_frame": cues,
+    stubs = {n: hyp for n in ("structure_match", "structure_match_orb", "text_anchor_fit", "grid_figures")}
+    stubs.update({"ocr_words": cues, "ocr_cached": cues, "address_in_footprint": lambda s: [], "graticule_frame": cues, "road_and_place_labels": lambda s: [], "graticule_frame": cues,
                   "gazetteer_search": lambda s: [], "snap_faces": lambda s: [Evidence("snap_iou", 0.9, "deterministic", "geometry")],
                   "plate_separation": layer("black", "mask"), "line_structure": layer("line_structure", "polylines"),
                   "osm_reference": lambda s: [], "cross_edition_agreement": lambda s: [],

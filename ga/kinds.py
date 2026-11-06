@@ -14,7 +14,7 @@ PLANS_GB = Recipe(
     cues=("road", "number", "grid", "place"),
     references=("gazetteer", "address-register", "road-network", "basemap"),
     matchers=("text_anchor_fit", "control_point_fit", "structure_match"),
-    verifications=("snap_faces", "hypothesis_agreement", "overlay_agreement"),
+    verifications=("address_in_footprint", "snap_faces", "hypothesis_agreement"),
     policy_rules=(
         {"id": "snap_and_address", "when": "snap_iou >= 0.86 and address_inside", "to": "accept"},
         {"id": "two_matchers_agree", "when": "matchers_agree", "to": "accept"},
@@ -45,7 +45,7 @@ UNLABELLED_RASTER = Recipe(
                     measured_by={"text_kinds": "OCR finds nothing usable"}),
     cues=(),
     references=("record-text", "basemap"),
-    matchers=("structure_match",),
+    matchers=("structure_match_orb",),
     verifications=("overlay_agreement", "hypothesis_agreement"),
     policy_rules=(
         {"id": "overlay_strong", "when": "overlay_agreement >= 0.6", "to": "accept"},
@@ -58,15 +58,14 @@ KINDS = {r.name: r for r in (PLANS_GB, SOI_1INCH, UNLABELLED_RASTER)}
 
 # the ordered composition each kind runs (the FixedPlan); the Planner picks from the same names
 SPECS = {
-    "plans_gb": AdapterSpec("plans_gb", (Step("ocr_words"), Step("road_and_place_labels"), Step("grid_figures"), Step("gazetteer_search"),
-                                        Step("text_anchor_fit"), Step("control_point_fit", {"model": "similarity", "crs": "EPSG:27700"}),
-                                        Step("snap_faces"), Step("hypothesis_agreement")), PLANS_GB.policy_rules, "lib-v0"),
+    "plans_gb": AdapterSpec("plans_gb", (Step("ocr_cached"), Step("road_and_place_labels"), Step("gazetteer_search"), Step("grid_figures"),
+                                        Step("text_anchor_fit"), Step("address_in_footprint"), Step("hypothesis_agreement")), PLANS_GB.policy_rules, "lib-v0"),
     "soi_1inch": AdapterSpec("soi_1inch", (Step("graticule_frame"), Step("control_point_fit", {"model": "poly2", "crs": "EPSG:4326", "min_points": 6}),
                                           Step("residual_check", {"bound": 60.0, "geographic": True}), Step("plate_separation"), Step("line_structure"),
                                           Step("osm_reference"), Step("structure_match"), Step("hypothesis_agreement"),
                                           Step("cross_edition_agreement")), SOI_1INCH.policy_rules, "lib-v0"),
     "unlabelled_raster": AdapterSpec("unlabelled_raster", (Step("hint_area"), Step("edge_structure"), Step("reference_render"),
-                                                          Step("structure_match"), Step("overlay_agreement")), UNLABELLED_RASTER.policy_rules, "lib-v0"),
+                                                          Step("structure_match_orb"), Step("overlay_agreement")), UNLABELLED_RASTER.policy_rules, "lib-v0"),
 }
 
 
