@@ -70,5 +70,5 @@ def summary(state: State, verdict) -> dict:
             "candidate_note": state.candidates[0].note[:120] if state.candidates else None,
             "hypothesis": {"matcher": h.matcher, "score": round(h.score, 3), "note": h.note[:160], "site_wkt": h.site_wkt[:200]} if h else None,
             "evidence": [{"name": e.name, "value": e.value, "family": e.family} for e in state.evidence],
-            "steps": [(t["tool"], t.get("produced", t.get("skipped", "")) ) for t in state.trace],
+            "steps": [(t["tool"], t.get("error") or t.get("skipped") or t.get("produced", "")) for t in state.trace],
             "cost": round(state.cost, 4), "seconds": round(state.seconds, 1)}

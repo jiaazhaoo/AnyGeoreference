@@ -97,6 +97,8 @@ def library_summary() -> list[dict]:
 def _steps(recipe) -> tuple[Step, ...]:
     """Recipe items as the agent wrote them: dicts keyed primitive / name / tool, or bare names."""
     out = []
+    if isinstance(recipe, dict):                                   # {"steps": [...]} as the plan's own to_dict prints it
+        recipe = recipe.get("steps", [])
     for s in recipe if isinstance(recipe, list) else []:
         if isinstance(s, str):
             out.append(Step(s, {}))
