@@ -27,6 +27,10 @@ def _e2e():
     return labels, plan, gazetteer, grid_ticks, names_locate, abp_local
 
 
+def _on_sheet(c: Cue) -> bool:
+    return not c.reader.endswith("_page")
+
+
 def _line(c: Cue) -> dict:
     x0, y0, x1, y1 = c.bbox
     return {"text": c.text, "conf": c.confidence, "x": (x0 + x1) / 2, "y": (y0 + y1) / 2, "h": max(1.0, y1 - y0)}
@@ -57,9 +61,10 @@ def ocr_cached(state):
         for it in r["results"]:
             x0, y0, x1, y1 = it["bbox"]
             bx = (x0 * sx - cx0, y0 * sy - cy0, x1 * sx - cx0, y1 * sy - cy0)
-            if crop and not (bx[0] >= -5 and bx[1] >= -5 and bx[2] <= crop[2] - crop[0] + 5 and bx[3] <= crop[3] - crop[1] + 5):
-                continue                                        # a word outside the crop is not on this sheet
-            out.append(Cue(state.sheet.digest, "text", it["text"].strip(), bx, "ocr_cached", float(it.get("confidence", 1.0))))
+            inside = (not crop) or (bx[0] >= -5 and bx[1] >= -5 and bx[2] <= crop[2] - crop[0] + 5 and bx[3] <= crop[3] - crop[1] + 5)
+            # a word elsewhere on the page (title block, notes) still names streets and places for retrieval; only
+            # words on the sheet itself may anchor a placement: the reader name tells the matchers apart
+            out.append(Cue(state.sheet.digest, "text", it["text"].strip(), bx, "ocr_cached" if inside else "ocr_cached_page", float(it.get("confidence", 1.0))))
     return out
 
 
@@ -74,11 +79,15 @@ def ocr_words(state, maxside: int = 2600):
 def road_and_place_labels(state):
     """Road / place / number cues from the text cues, by the pipeline's label rules."""
     _, plan, *_ = _e2e()
-    lines = [_line(c) for c in state.cues if c.kind == "text"]
-    out = [_cue(state, lab, "road", "road_and_place_labels") for lab in plan.road_labels(lines)]
-    out += [_cue(state, lab, "place", "road_and_place_labels") for lab in plan.place_labels(lines)]
     import re
-    out += [_cue(state, l, "number", "road_and_place_labels") for l in lines if re.fullmatch(r"\d{1,3}[A-Za-z]?", l["text"])]
+    out = []
+    for on_sheet in (True, False):
+        lines = [_line(c) for c in state.cues if c.kind == "text" and _on_sheet(c) == on_sheet]
+        tag = "road_and_place_labels" if on_sheet else "road_and_place_labels_page"
+        out += [_cue(state, lab, "road", tag) for lab in plan.road_labels(lines)]
+        out += [_cue(state, lab, "place", tag) for lab in plan.place_labels(lines)]
+        if on_sheet:
+            out += [_cue(state, l, "number", tag) for l in lines if re.fullmatch(r"\d{1,3}[A-Za-z]?", l["text"])]
     return out
 
 
@@ -123,7 +132,7 @@ def _footprint(state, T6) -> str:
 def grid_figures(state):
     """National-grid figures printed along the drawing's edges -> a similarity (the pipeline's grid_ticks.fit)."""
     _, _, _, grid_ticks, *_ = _e2e()
-    lines = [_line(c) for c in state.cues if c.kind == "text"]
+    lines = [_line(c) for c in state.cues if c.kind == "text" and _on_sheet(c)]
     near = None
     if state.candidates:
         import shapely.wkt
@@ -140,8 +149,8 @@ def grid_figures(state):
 def text_anchor_fit(state, tol_m: float = 6.0, search_m: float = 16000.0):
     """House numbers x road names on the sheet -> address points from the local register -> RANSAC similarity."""
     labels, _, _, _, _, abp_local = _e2e()
-    nums = [c for c in state.cues if c.kind == "number"]
-    roads = sorted({c.text.upper() for c in state.cues if c.kind == "road"})
+    nums = [c for c in state.cues if c.kind == "number" and _on_sheet(c)]
+    roads = sorted({c.text.upper() for c in state.cues if c.kind == "road"})      # road names from anywhere on the page
     if not nums or not roads:
         return []
     if state.candidates:
