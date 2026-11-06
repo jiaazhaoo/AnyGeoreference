@@ -62,7 +62,7 @@ SPECS = {
                                         Step("text_anchor_fit"), Step("control_point_fit", {"model": "similarity", "crs": "EPSG:27700"}),
                                         Step("snap_faces"), Step("hypothesis_agreement")), PLANS_GB.policy_rules, "lib-v0"),
     "soi_1inch": AdapterSpec("soi_1inch", (Step("graticule_frame"), Step("control_point_fit", {"model": "poly2", "crs": "EPSG:4326", "min_points": 6}),
-                                          Step("residual_check", {"bound": 0.0005}), Step("plate_separation"), Step("line_structure"),
+                                          Step("residual_check", {"bound": 60.0, "geographic": True}), Step("plate_separation"), Step("line_structure"),
                                           Step("osm_reference"), Step("structure_match"), Step("hypothesis_agreement"),
                                           Step("cross_edition_agreement")), SOI_1INCH.policy_rules, "lib-v0"),
     "unlabelled_raster": AdapterSpec("unlabelled_raster", (Step("hint_area"), Step("edge_structure"), Step("reference_render"),

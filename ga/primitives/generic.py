@@ -86,7 +86,7 @@ def control_point_fit(state, model: str = "affine", crs: str = "EPSG:4326", min_
                        note=f"{model}; n={len(src)}; rms={rms:.4g}; coeffs={coeffs.tolist()}")]
 
 
-def residual_check(state, bound: float = 15.0, unit: str = "crs"):
+def residual_check(state, bound: float = 15.0, unit: str = "crs", geographic: bool = False):
     """Residual of the best hypothesis at the grid cues, as evidence. `bound` is in CRS units (or metres if the
     hypothesis note says so); the recipe sets it per kind."""
     if not state.hypotheses:
@@ -104,9 +104,14 @@ def residual_check(state, bound: float = 15.0, unit: str = "crs"):
         coeffs = np.array([[c, f], [a, d], [b, e]])
         model = "affine"
     pred = apply_transform(coeffs, src, model)
-    res = np.linalg.norm(pred - dst, axis=1)
+    d = pred - dst
+    if geographic:                                              # lon/lat degrees -> metres at the sheet's latitude
+        lat0 = float(np.mean(dst[:, 1]))
+        d = d * np.array([111320.0 * math.cos(math.radians(lat0)), 110574.0])
+        unit = "m"
+    res = np.linalg.norm(d, axis=1)
     rms = float(np.sqrt(np.mean(res ** 2)))
-    return [Evidence("residual_rms", rms, "deterministic", "geometry"),
+    return [Evidence("residual_rms", rms, "deterministic", "geometry", note=unit),
             Evidence("residual_within_bound", bool(rms <= bound), "deterministic", "geometry", note=f"bound {bound} {unit}")]
 
 

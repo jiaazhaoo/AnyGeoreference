@@ -21,24 +21,53 @@ def _soi():
 
 
 def _img(state):
+    """BGR pixels of the sheet. A GeoTIFF is read with rasterio (its georeference is NOT used: the loop must earn
+    the placement itself); anything else with OpenCV."""
     import cv2
-    img = cv2.imread(state.sheet.image)
+    path = state.sheet.image
+    if path.lower().endswith((".tif", ".tiff")):
+        import rasterio
+        with rasterio.open(path) as ds:
+            arr = ds.read([1, 2, 3]) if ds.count >= 3 else np.repeat(ds.read([1]), 3, axis=0)
+        return np.ascontiguousarray(arr.transpose(1, 2, 0)[..., ::-1])
+    img = cv2.imread(path)
     if img is None:
-        raise FileNotFoundError(state.sheet.image)
+        raise FileNotFoundError(path)
     return img
 
 
 def graticule_frame(state):
     """Neatline + 5' graticule nodes -> grid cues 'lon,lat' at their pixel (sheet code from the record)."""
     frame, sheets, *_ = _soi()
+    from autogeoref import georef as soi_georef
+    import math
     code = state.sheet.record.get("sheet_code") or state.sheet.meta.get("sheet_code")
     if not code:
         return []
     sh = sheets.parse(code)
-    fr = frame.detect(_img(state), sh.n_cols, sh.n_rows, getattr(sh, "ratio", None))
-    out = []
-    for (px, py), (lon, lat) in zip(fr.nodes_px, fr.nodes_ll):
-        out.append(Cue(state.sheet.digest, "grid", f"{lon},{lat}", (px - 1, py - 1, px + 1, py + 1), "graticule_frame"))
+    dlon, dlat = sh.size_deg
+    lat0 = (sh.north + sh.south) / 2
+    step = soi_georef.GRID_MIN
+    img = _img(state)
+    n_cols, n_rows = round(dlon * 60 / step), round(dlat * 60 / step)
+    # the neatline's pixel aspect depends on what the pixels are: paper (metric, cos(lat) squeezes longitude) or a
+    # raster already resampled to degrees (1 : 1). "auto" tries paper first, then degrees, and records which held.
+    ratios = {"paper": math.cos(math.radians(lat0)) * dlon / dlat, "degrees": dlon / dlat}
+    want = state.sheet.meta.get("pixel_space", "auto")
+    tried, fr, used = [], None, None
+    for name in ([want] if want in ratios else ["paper", "degrees"]):
+        try:
+            fr = frame.detect(img, n_cols, n_rows, ratios[name]); used = name
+            break
+        except RuntimeError as e:                               # noqa: PERF203
+            tried.append(f"{name}: {e}")
+    if fr is None:
+        return []
+    px, ll = soi_georef.gcps(fr, sh)
+    out = [Cue(state.sheet.digest, "grid", f"{lon},{lat}", (float(x) - 1, float(y) - 1, float(x) + 1, float(y) + 1), "graticule_frame")
+           for (x, y), (lon, lat) in zip(px, ll)]
+    state.layers.append(Layer(state.sheet.digest, "frame", "points", fr.corners, meta={"skew_deg": fr.skew_deg, "fit_rms_px": fr.fit_rms_px,
+                                                                                    "n_nodes": len(px), "pixel_space": used, "tried": tried}))
     return out
 
 
