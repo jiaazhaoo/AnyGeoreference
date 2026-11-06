@@ -175,6 +175,10 @@ def text_anchor_fit(state, tol_m: float = 6.0, search_m: float = 16000.0):
     r = labels.ransac(anchors, tol_m=tol_m)
     if not r:
         return []
+    # a degenerate fit (anchors that collapse to one point give scale 0) is not a placement; plausible metres per
+    # pixel for a scanned drawing lie between 2 mm and 2 m (one graded drawing: 4/10 inliers, mpp 0.0, 92 m off)
+    if not (0.002 <= float(r.get("m_per_px") or 0) <= 2.0):
+        return []
     T6 = _sim6(r["T"])
     return [Hypothesis(state.sheet.digest, T6, _footprint(state, T6), "EPSG:27700", float(len(r["inliers"]) / r["n_anchors"]), "text_anchor_fit",
                        (0,) if state.candidates else (), note=f"inliers {len(r['inliers'])}/{r['n_anchors']}; rms {r['rms_m']} m; mpp {r['m_per_px']}; rot {r['rotation_deg']}")]
