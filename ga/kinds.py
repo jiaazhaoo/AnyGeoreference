@@ -34,7 +34,10 @@ SOI_1INCH = Recipe(
     matchers=("control_point_fit", "structure_match"),
     verifications=("residual_check", "cross_edition_agreement", "overlay_agreement"),
     policy_rules=(
-        {"id": "residual_ok", "when": "residual_within_bound", "to": "accept"},
+        # a small residual at the graticule nodes proves self-consistency only: a frame read one graticule line off
+        # keeps a 20 m residual and lands 9 km away (053ASE 1943 edition, 2026-11-06). Accept needs a second family.
+        {"id": "residual_and_structure", "when": "residual_within_bound and matchers_agree == True", "to": "accept"},
+        {"id": "residual_and_edition", "when": "residual_within_bound and editions_agree == True", "to": "accept"},
         {"id": "editions_disagree", "when": "editions_agree == False", "from": "accept", "to": "review"},
     ),
     expected_accuracy_m=(5.0, 30.0), expected_cost_per_sheet=0.0,
