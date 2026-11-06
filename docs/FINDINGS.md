@@ -11,6 +11,12 @@ independently, disagreed with it by 6.7 km; the OSM structure match accepted 0 o
 nodes therefore proves consistency, not correctness. Change: the historical-map policy accepts only with a second
 evidence family (structure match agreeing, or another edition agreeing); residual alone sends the sheet to review.
 
+**Six sheets under the second-family rule.** Two series, three decades, 49 graticule nodes read on every sheet.
+Against the archive's georeference at 100 m: 3 accepted (2 within 65 m of the archive, 1 at 654 m where both of
+our matchers agree with each other and disagree with the archive), 3 sent to review (the two one-line-off reads at
+9 km, which the rule caught, and one false alarm at 61 m whose two matchers sat 200 m apart). Without the rule all
+six were accepted, three of them wrong. Replay: `/data/lab/projects/georeference-anything/soi/bench_soi6_scorecard.json`.
+
 **The archive's own georeference carries the printed-coordinate datum.** On the sheet that was read correctly,
 the loop's placement sits 33 m rms from the archive's, and the printed coordinates themselves sit 31 m from it:
 the archive reproduces the printed (Everest-datum) coordinates with a small warp. The OSM structure match (168

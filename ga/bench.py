@@ -57,24 +57,29 @@ def score(verdicts: Mapping[str, Verdict], truth: Mapping[str, TruthCase]) -> di
             continue
         d = _centre_dist_m(v.placement.site_wkt, t.wkt, t.crs)
         ok = d is not None and d <= t.tolerance_m
+        if v.action != "accept":                                  # a hypothesis sent to a person is not a placement acted on
+            rows.append({"case": c, "outcome": "review", "would_be": "right" if ok else "wrong", "dist_m": d, "p": v.probability, "cost": v.cost})
+            continue
         rows.append({"case": c, "outcome": "right" if ok else "wrong", "dist_m": d, "p": v.probability, "cost": v.cost})
     n = len(rows)
-    placed = [r for r in rows if r["outcome"] != "abstain"]
+    placed = [r for r in rows if r["outcome"] in ("right", "wrong")]
+    reviewed = [r for r in rows if r["outcome"] == "review"]
     right = [r for r in placed if r["outcome"] == "right"]
     wrong = [r for r in placed if r["outcome"] == "wrong"]
     probs = [r["p"] for r in placed if r["p"] is not None]; outs = [r["outcome"] == "right" for r in placed if r["p"] is not None]
     return {"n": n, "placed": len(placed), "placed_right": stats.rate(len(right), n), "placed_wrong": stats.rate(len(wrong), n),
-            "abstained": stats.rate(n - len(placed), n), "wrong_among_placed": stats.rate(len(wrong), len(placed)) if placed else None,
+            "reviewed": stats.rate(len(reviewed), n), "reviewed_would_be_wrong": sum(1 for r in reviewed if r.get("would_be") == "wrong"),
+            "abstained": stats.rate(n - len(placed) - len(reviewed), n), "wrong_among_placed": stats.rate(len(wrong), len(placed)) if placed else None,
             "cost_total": round(sum(r["cost"] for r in rows), 4),
             "calibration": stats.ece(probs, outs) if len(probs) >= 10 else None, "rows": rows}
 
 
 def actions_of(verdicts: Mapping[str, Verdict]) -> dict[str, str]:
     """What geo-eval's Gate consumes: accept when placed, review when abstained."""
-    return {c: ("accept" if v.placement is not None else "review") for c, v in verdicts.items()}
+    return {c: ("accept" if (v.placement is not None and v.action == "accept") else "review") for c, v in verdicts.items()}
 
 
 def labels_for_gate(scored: dict) -> dict[str, str]:
     """For the Gate's missed-error rule: a placed-wrong case is the thing that must not rise, so it is labelled
     'wrong' and its action was 'accept'; everything else is 'right'."""
-    return {r["case"]: ("wrong" if r["outcome"] == "wrong" else "right") for r in scored["rows"]}
+    return {r["case"]: ("wrong" if r["outcome"] == "wrong" or r.get("would_be") == "wrong" else "right") for r in scored["rows"]}

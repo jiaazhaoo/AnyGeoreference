@@ -15,6 +15,10 @@ def test_score_and_gate_view():
              "c": TruthCase("c", "POLYGON((0 0,10 0,10 10,0 10,0 0))", "EPSG:27700", 20)}
     verdicts = {"a": _v("a", "POLYGON((2 2,12 2,12 12,2 12,2 2))"), "b": _v("b", "POLYGON((500 500,510 500,510 510,500 510,500 500))"), "c": _v("c", None)}
     s = score(verdicts, truth)
-    assert s["placed_right"]["k"] == 1 and s["placed_wrong"]["k"] == 1 and s["abstained"]["k"] == 1
+    assert s["placed_right"]["k"] == 1 and s["placed_wrong"]["k"] == 1 and s["abstained"]["k"] == 1 and s["reviewed"]["k"] == 0
     assert actions_of(verdicts) == {"a": "accept", "b": "accept", "c": "review"}
     assert labels_for_gate(s) == {"a": "right", "b": "wrong", "c": "right"}
+    from dataclasses import replace
+    verdicts["b"] = replace(verdicts["b"], action="review")        # the wrong one sent to a person: counted as caught
+    s = score(verdicts, truth)
+    assert s["placed_wrong"]["k"] == 0 and s["reviewed"]["k"] == 1 and s["reviewed_would_be_wrong"] == 1
