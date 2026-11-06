@@ -271,11 +271,21 @@ def _road_labels(state):
 
 
 def _town_xy(state):
+    """The area to search: the first candidate; else the record's town hint; else the densest cluster of the sheet's
+    own names (roads, places, landmarks) in the national names set, which is appended as a candidate so the trace
+    shows it. A fixed default town would make a generic system silently local."""
+    import shapely.wkt
     if state.candidates:
-        import shapely.wkt
         g = shapely.wkt.loads(state.candidates[0].area_wkt).centroid
         return (g.x, g.y)
-    return tuple(state.sheet.meta.get("town_xy") or (435000.0, 387000.0))
+    if state.sheet.meta.get("town_xy"):
+        return tuple(state.sheet.meta["town_xy"])
+    found = place_lookup(state, kinds=("place", "landmark", "road"), max_names=24)
+    if found:
+        state.add("candidate", found)
+        g = shapely.wkt.loads(found[0].area_wkt).centroid
+        return (g.x, g.y)
+    return None
 
 
 def road_junction_locate(state, search_m: float = 16000.0, radius_m: float = 1200.0):
@@ -287,6 +297,9 @@ def road_junction_locate(state, search_m: float = 16000.0, radius_m: float = 120
     if len(labs) < 2:
         return []
     town = _town_xy(state)
+    if town is None:
+        state.evidence.append(Evidence("no_search_area", len(labs), "deterministic", "road-network", note="no candidate, no town hint, names cluster nowhere"))
+        return []
     city = names_locate.city_roads(town, plan.roads_near, r=search_m)
     names = names_locate.city_names([l["name"] for l in labs], city)
     if len(names) < 2:
@@ -318,6 +331,8 @@ def road_name_fit(state, theta_step: float = 5.0, inlier_m: float = 60.0, min_in
     if len(labs) < 3:
         return []
     near = _town_xy(state)
+    if near is None:
+        return []
     roads = plan.roads_near(near[0], near[1], r=search_m)
     if not roads:
         return []

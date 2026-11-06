@@ -37,8 +37,18 @@ class Primitive:
     def tool(self, **params) -> Tool:
         if self.impl is None:
             raise RuntimeError(f"primitive {self.name!r} is declared but not implemented here")
+        import inspect
         impl = self.impl
         known = {k: v for k, v in params.items() if k in self.accepted_params()}    # a planner may name params the primitive has not got
+        required = [k for k, v in inspect.signature(impl).parameters.items() if k != "state" and v.default is inspect.Parameter.empty
+                    and v.kind in (inspect.Parameter.POSITIONAL_OR_KEYWORD, inspect.Parameter.KEYWORD_ONLY)]
+        missing = [k for k in required if k not in known]
+        if missing:                                                               # the plan did not give what the primitive needs: a fact, not a crash
+            def _skip(state, _m=tuple(missing), _n=self.name):
+                from evalcore import Evidence
+                state.evidence.append(Evidence(f"{_n}_missing_params", list(_m), "deterministic", self.family, note="the plan gave no value for these required params"))
+                return []
+            return Tool(self.name, self.consumes, self.produces, self.family, self.deterministic, self.cost_estimate, _skip, self.about + " (missing params)")
         return Tool(self.name, self.consumes, self.produces, self.family, self.deterministic, self.cost_estimate,
                     lambda state, _p=known: impl(state, **_p), self.about)
 

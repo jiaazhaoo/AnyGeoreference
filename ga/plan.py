@@ -94,12 +94,29 @@ def library_summary() -> list[dict]:
              "cost": p.cost_estimate, "about": p.about, "implemented": p.available(), "params": sorted(p.accepted_params())} for p in LIBRARY.values()]
 
 
+def _steps(recipe) -> tuple[Step, ...]:
+    """Recipe items as the agent wrote them: dicts keyed primitive / name / tool, or bare names."""
+    out = []
+    for s in recipe if isinstance(recipe, list) else []:
+        if isinstance(s, str):
+            out.append(Step(s, {}))
+        elif isinstance(s, dict):
+            nm = s.get("primitive") or s.get("name") or s.get("tool") or ""
+            params = s.get("params") if isinstance(s.get("params"), dict) else {}
+            if nm:
+                out.append(Step(str(nm), dict(params)))
+    return tuple(out)
+
+
+def _missing(items) -> list[dict]:
+    return [m if isinstance(m, dict) else {"name": str(m)} for m in (items if isinstance(items, list) else [])]
+
+
 def make_plan(profile: Mapping, knowledge: str, n_sheets: int, ask: Callable[[str, str], dict]) -> tuple[Plan, dict]:
     user = json.dumps({"n_sheets": n_sheets, "profile": profile, "knowledge": knowledge, "library": library_summary()}, ensure_ascii=False)
     a = ask(SYSTEM, user)
-    steps = tuple(Step(s.get("primitive", ""), dict(s.get("params", {}))) for s in a.get("recipe", []) if isinstance(s, dict))
-    plan = Plan(AdapterSpec("planned", steps, (), "lib-v0"), list(a.get("truth_sources", [])), dict(a.get("evaluation", {})),
-                dict(a.get("stop_rules", {})), list(a.get("missing_primitives", [])), list(a.get("risks", [])), str(a.get("why", "")), n_sheets)
+    plan = Plan(AdapterSpec("planned", _steps(a.get("recipe", [])), (), "lib-v0"), list(a.get("truth_sources", [])), dict(a.get("evaluation", {})),
+                dict(a.get("stop_rules", {})), _missing(a.get("missing_primitives", [])), list(a.get("risks", [])), str(a.get("why", "")), n_sheets)
     return plan, a
 
 
@@ -107,9 +124,9 @@ def revise_plan(plan: Plan, results: list[dict], ask: Callable[[str, str], dict]
     """The improvement loop's one step: the main agent sees what its plan did and either stops or revises the recipe."""
     user = json.dumps({"plan": plan.to_dict(), "results": results, "library": library_summary()}, ensure_ascii=False, default=str)
     a = ask(REVISE, user)
-    if a.get("action") != "revise" or not a.get("recipe"):
+    steps = _steps(a.get("recipe", []))
+    if a.get("action") != "revise" or not steps:
         return None, a
-    steps = tuple(Step(s.get("primitive", ""), dict(s.get("params", {}))) for s in a.get("recipe", []) if isinstance(s, dict))
     new = Plan(AdapterSpec("revised", steps, (), "lib-v0"), plan.truth_sources, plan.evaluation, plan.stop_rules,
-               list(a.get("missing_primitives", [])), plan.risks, str(a.get("why", "")), plan.n_sheets)
+               _missing(a.get("missing_primitives", [])), plan.risks, str(a.get("why", "")), plan.n_sheets)
     return new, a

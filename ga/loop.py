@@ -63,7 +63,12 @@ def step(state: State, registry: ToolRegistry, name: str) -> dict:
         state.trace.append(rec)
         return rec
     t0 = time.time()
-    objs = t.run(state)
+    try:
+        objs = t.run(state)
+    except Exception as e:                                                        # noqa: BLE001  a failing tool is a fact in the trace, not the end of the sheet
+        rec = {"tool": name, "error": f"{type(e).__name__}: {str(e)[:200]}", "produced": 0, "kind": t.produces, "cost": 0.0, "seconds": round(time.time() - t0, 3)}
+        state.trace.append(rec)
+        return rec
     n = state.add(t.produces, objs)
     rec = {"tool": name, "produced": n, "kind": t.produces, "cost": t.cost_estimate if not t.deterministic else 0.0,
            "seconds": round(time.time() - t0, 3)}
