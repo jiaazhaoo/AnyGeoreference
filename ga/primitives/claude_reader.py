@@ -26,7 +26,7 @@ def claude_read(state, reads_dir: str | None = None, headless: bool = False, mod
         from ..claude_cli import ask_json
         w, h = state.sheet.meta.get("width", 0), state.sheet.meta.get("height", 0)
         data = ask_json("You read scanned maps and drawings for a georeferencing system.",
-                        PROMPT.format(w=w, h=h) + f"\nRead the image file at this path with your Read tool: {state.sheet.image}",
+                        PROMPT.replace("{w}", str(w)).replace("{h}", str(h)) + f"\nRead the image file at this path with your Read tool: {state.sheet.image}",
                         model=model, max_turns=3, allowed_tools="Read", timeout=400)
         d.mkdir(parents=True, exist_ok=True)
         data["reader"] = f"claude headless ({model})"

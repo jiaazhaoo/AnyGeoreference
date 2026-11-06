@@ -34,3 +34,17 @@ def test_plan_validation_and_truth_rank():
     p2, _ = make_plan(prof, "knowledge", 3, lambda s, u: weak)
     pr = p2.problems()
     assert any("made_up" in x for x in pr) and any("no matcher" in x for x in pr) and any("unverified" in x for x in pr) and not p2.can_accept()
+
+
+def test_parse_json_answer_variants():
+    from ga.claude_cli import parse_json_answer
+    assert parse_json_answer('```json\n{"a": 1}\n```')["a"] == 1
+    assert parse_json_answer('Here: {"a": {"b": 2}} done')["a"]["b"] == 2
+    assert parse_json_answer('"{\\"a\\": 3}"')["a"] == 3
+
+
+def test_unknown_params_are_reported_and_dropped():
+    from ga.primitives import LIBRARY
+    assert LIBRARY["control_point_fit"].unknown_params({"model": "affine", "bogus": 1}) == ["bogus"]
+    t = LIBRARY["control_point_fit"].tool(model="affine", bogus=1)        # does not raise
+    assert t.name == "control_point_fit"

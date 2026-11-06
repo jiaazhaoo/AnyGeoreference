@@ -25,12 +25,22 @@ class Primitive:
     def available(self) -> bool:
         return self.impl is not None
 
+    def accepted_params(self) -> set[str]:
+        import inspect
+        if self.impl is None:
+            return set()
+        return {k for k in inspect.signature(self.impl).parameters if k != "state"}
+
+    def unknown_params(self, params: dict) -> list[str]:
+        return [k for k in params if k not in self.accepted_params()]
+
     def tool(self, **params) -> Tool:
         if self.impl is None:
             raise RuntimeError(f"primitive {self.name!r} is declared but not implemented here")
         impl = self.impl
+        known = {k: v for k, v in params.items() if k in self.accepted_params()}    # a planner may name params the primitive has not got
         return Tool(self.name, self.consumes, self.produces, self.family, self.deterministic, self.cost_estimate,
-                    lambda state, _p=params: impl(state, **_p), self.about)
+                    lambda state, _p=known: impl(state, **_p), self.about)
 
 
 LIBRARY: dict[str, Primitive] = {}

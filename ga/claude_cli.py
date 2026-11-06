@@ -13,6 +13,28 @@ DEFAULT_CONFIG = "/data/lab/projects/georeference-anything/claude-config"
 DEFAULT_WORKDIR = "/tmp/ga-planner-cwd"
 
 
+def parse_json_answer(text: str) -> dict:
+    """The one JSON object in a model's answer, tolerant of code fences, prose around it, and an answer that is a
+    JSON string containing JSON (double-encoded)."""
+    t = text.strip()
+    if t.startswith("```"):
+        t = t.strip("`").strip()
+        if t.lower().startswith("json"):
+            t = t[4:]
+    for cand in (t, t[t.find("{"):t.rfind("}") + 1] if "{" in t else ""):
+        if not cand:
+            continue
+        try:
+            obj = json.loads(cand)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(obj, str):
+            obj = json.loads(obj)
+        if isinstance(obj, dict):
+            return obj
+    raise ValueError(f"no JSON object in the answer: {text[:120]}")
+
+
 def ask_json(system: str, user: str, model: str = "claude-sonnet-5", cache: str | Path | None = None, timeout: int = 300,
              max_turns: int = 1, allowed_tools: str | None = None, workdir: str | None = None) -> dict:
     key = hashlib.sha256(json.dumps([model, system, user, allowed_tools], sort_keys=True).encode()).hexdigest()
@@ -33,8 +55,7 @@ def ask_json(system: str, user: str, model: str = "claude-sonnet-5", cache: str 
     res = json.loads(out.stdout)
     if res.get("is_error"):
         raise RuntimeError(res.get("result", "claude cli error"))
-    text = res["result"]
-    answer = json.loads(text[text.index("{"):text.rindex("}") + 1])
+    answer = parse_json_answer(res["result"])
     if cache:
         with open(cache, "a") as f:
             f.write(json.dumps({"key": key, "answer": answer, "usage": {"cost_usd": res.get("total_cost_usd"), "duration_ms": res.get("duration_ms")}, "model": model}) + "\n")

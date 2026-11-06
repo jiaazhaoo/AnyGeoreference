@@ -56,6 +56,11 @@ class Plan:
             out.append("no matcher: nothing produces a hypothesis")
         if "evidence" not in kinds_out:
             out.append("no verification: nothing produces evidence")
+        for st in self.recipe.steps:
+            if st.primitive in LIBRARY and LIBRARY[st.primitive].available():
+                unk = LIBRARY[st.primitive].unknown_params(dict(st.params))
+                if unk:
+                    out.append(f"{st.primitive}: params not in its contract, dropped at run time: {unk}")
         if self.n_sheets == 1 and any(t.get("kind") == "batch_agreement" for t in self.truth_sources):
             out.append("batch agreement claimed for a single sheet")
         if not self.can_accept():
