@@ -63,6 +63,6 @@ def test_each_kind_runs_with_stubs():
 
 def test_unavailable_is_explicit():
     missing = kinds.unavailable("soi_1inch")
-    assert "structure_match" in missing                # declared, not implemented here: never silently skipped
+    assert "cross_edition_agreement" in missing        # declared, not implemented here: never silently skipped
     with pytest.raises(RuntimeError):
         kinds.registry_for("soi_1inch")
