@@ -57,6 +57,15 @@ registry declares the matcher's input only as "layer", not "a sheet structure la
 lessons: on this sample the planner adds judgement about when to stop, not placements; and a planner is only as
 good as the input/output types the tools declare. Replay: `experiments/planner_vs_fixed_plans10/report.json`.
 
+**The pipeline's learned matcher, bound and run on CPU (degraded), 2026-11-06.** MINIMA sliding-window matching
+against OS tiles was bound as `plan_minima_match` (seed = the candidate area, rotation from a read north arrow,
+scale from a read scale). With the GPU held by a production job it ran on CPU with 40 windows and no road-name
+seed: 6 of 10 cases in the hour before the run timed out, 5 to 23 minutes a case. It produced hypotheses on three
+(scores 16–20 against the pipeline's acceptance bar of 50): 148 m and 291 m from the truth, address outside, so the
+policy keeps them for review; on the numbered sheet the text-anchor fit (7 m) stayed best. This says the binding
+works, not what the matcher can do: the production run of the same ten cases, on GPU with its road-name seeding,
+accepts six. A GPU rerun with production parameters is queued for when the GPU is free.
+
 **Retrieval wants the whole page; matching wants the sheet.** Restricting OCR to the plan crop dropped the
 gazetteer's candidate areas from 9 of 10 to 3 of 10; keeping page-wide words for retrieval and on-sheet words for
 anchoring restored them.
