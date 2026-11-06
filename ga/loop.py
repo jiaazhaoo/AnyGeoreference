@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Iterable
 
-from .model import Candidate, Cue, Hypothesis, Sheet
+from .model import Candidate, Cue, Hypothesis, Layer, Sheet
 from .tools.registry import ToolRegistry
 
 
@@ -18,6 +18,7 @@ class State:
     candidates: list[Candidate] = field(default_factory=list)
     hypotheses: list[Hypothesis] = field(default_factory=list)
     evidence: list = field(default_factory=list)          # evalcore.Evidence
+    layers: list[Layer] = field(default_factory=list)
     trace: list[dict] = field(default_factory=list)
     cost: float = 0.0
     seconds: float = 0.0
@@ -28,6 +29,7 @@ class State:
         if self.candidates: out.add("candidate")
         if self.hypotheses: out.add("hypothesis")
         if self.evidence: out.add("evidence")
+        if self.layers: out.add("layer")
         return out
 
     def summary(self) -> dict:
@@ -37,11 +39,16 @@ class State:
                 "candidates": [{"source": c.source, "answers": list(c.answers), "score": c.score} for c in self.candidates],
                 "hypotheses": [{"matcher": h.matcher, "score": h.score} for h in self.hypotheses],
                 "evidence": [{"name": e.name, "value": e.value, "family": e.family} for e in self.evidence],
+                "layers": [{"name": l.name, "kind": l.kind, "frame": l.frame} for l in self.layers],
                 "cost": round(self.cost, 4), "steps": [t["tool"] for t in self.trace]}
+
+    def layer(self, name: str) -> Layer | None:
+        return next((l for l in reversed(self.layers) if l.name == name), None)
 
     def add(self, kind: str, objs: Iterable) -> int:
         objs = list(objs)
-        target = {"cue": self.cues, "candidate": self.candidates, "hypothesis": self.hypotheses, "evidence": self.evidence}[kind]
+        target = {"cue": self.cues, "candidate": self.candidates, "hypothesis": self.hypotheses, "evidence": self.evidence,
+                  "layer": self.layers}[kind]
         target.extend(objs)
         if kind == "hypothesis":
             self.hypotheses.sort(key=lambda h: h.score, reverse=True)

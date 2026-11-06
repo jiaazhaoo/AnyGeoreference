@@ -35,29 +35,40 @@ Freeze    RecipeVersion; else revise Recipe and pilot again
    a gazetteer or register, or agreement across editions of the same sheet. A recipe without a passed pilot is
    marked unverified and cannot be frozen.
 
-## Primitive library (v0, drawn from the two kinds already placed)
+## Primitive library (v0, generated from `ga/primitives`)
 
-| primitive | family | from which kind |
-|---|---|---|
-| colour-plate separation | sheet-reader (deterministic) | historical map |
-| OCR of labels and notes | sheet-reader | both |
-| printed grid / graticule reading | sheet-reader | historical map (printed coordinates), planning drawing (grid figures) |
-| road-name / place-name reading by a VLM | sheet-reader (model) | planning drawing |
-| gazetteer search | gazetteer | both |
-| address-register lookup | address-register | planning drawing |
-| road-network candidate search | road-network | planning drawing |
-| control-point fit (affine / similarity / polynomial) | geometry | historical map |
-| raster-to-vector match against a base map | basemap | planning drawing |
-| snap to map faces, containment, IoU | geometry | planning drawing |
-| cross-edition agreement | geometry | historical map |
+| primitive | family | deterministic | consumes → produces | source | implemented |
+|---|---|---|---|---|---|
+| control_point_fit | geometry | yes | cue → hypothesis | generic | yes |
+| residual_check | geometry | yes | hypothesis, cue → evidence | generic | yes |
+| hypothesis_agreement | geometry | yes | hypothesis → evidence | generic | yes |
+| ocr_words | sheet-reader | yes | – → cue | plans_gb | yes |
+| road_and_place_labels | sheet-reader | yes | cue → cue | plans_gb | yes |
+| grid_figures | sheet-reader | yes | cue → cue | plans_gb | yes |
+| vlm_read_names | sheet-reader | no | – → cue | plans_gb | declared |
+| gazetteer_search | gazetteer | yes | cue → candidate | plans_gb | yes |
+| text_anchor_fit | geometry | yes | cue → hypothesis | plans_gb | yes |
+| snap_faces | geometry | yes | hypothesis → evidence | plans_gb | yes |
+| graticule_frame | sheet-reader | yes | – → cue | soi | yes |
+| plate_separation | sheet-reader | yes | – → layer | soi | yes |
+| line_structure | sheet-reader | yes | layer → layer | soi | yes |
+| osm_reference | basemap | yes | candidate → layer | soi | yes |
+| structure_match | basemap | yes | layer → hypothesis | soi | declared |
+| cross_edition_agreement | geometry | yes | hypothesis → evidence | soi | declared |
+| edge_structure | sheet-reader | yes | – → layer | raster | yes |
+| hint_area | record-text | yes | – → candidate | raster | yes |
+| reference_render | basemap | yes | candidate → layer | raster | declared |
+| overlay_agreement | basemap | yes | hypothesis, layer → evidence | raster | yes |
 
-## The two recipes that exist
+"declared" = in the library with its contract but no implementation on this machine (needs the bound repository, weights or a key); a recipe may still name it, and `kinds.unavailable()` says so before any run.
 
-| | planning drawing (GB) | historical map (Survey of India, 1 inch) |
-|---|---|---|
-| cues | road names, house numbers, grid figures, north arrow | printed corner coordinates, graticule, place names |
-| references | OS Open Names, address register, road network, OS base map | the printed grid itself, modern vector data, satellite imagery |
-| matcher | text-anchor fit; raster-to-vector | control-point fit from printed coordinates, then correction |
-| verification | snap to faces, address inside, trace vs polygon | residual at check points (9 m on the pilot sheet), overlay against modern features |
-| truth | client's verdict on delivered polygons; hand-drawn boundaries | published georeferencing by the archive; control points |
-| abstain when | no snap and no address agreement | residual over the kind's bound; grid unreadable |
+## The three kinds that exist (`ga/kinds.py`)
+
+| | planning drawing (GB) | historical map (Survey of India, 1 inch) | unlabelled raster (aerial / satellite / map extract) |
+|---|---|---|---|
+| cues | road names, house numbers, grid figures, north arrow | printed corner coordinates, graticule, place names | edges only; no text |
+| references | OS Open Names, address register, road network, OS base map | the printed grid itself, modern vector data, satellite imagery | a hint area from the record or the user; reference vectors rendered over it |
+| matcher | text-anchor fit; raster-to-vector | control-point fit from printed coordinates, then correction | structure match (linework / edges vs rendered reference) |
+| verification | snap to faces, address inside, trace vs polygon | residual at check points (9 m on the pilot sheet), overlay against modern features | overlay agreement; agreement between matchers |
+| truth | client's verdict on delivered polygons; hand-drawn boundaries | published georeferencing by the archive; control points | known tile footprints; control points |
+| abstain when | no snap and no address agreement | residual over the kind's bound; grid unreadable | no candidate area, or overlay under the bound |

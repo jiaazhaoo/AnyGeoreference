@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Mapping
 
 FAMILIES = ("sheet-reader", "record-text", "gazetteer", "address-register", "road-network", "basemap", "geometry")
-KINDS = ("cue", "candidate", "hypothesis", "evidence")
+KINDS = ("cue", "candidate", "hypothesis", "evidence", "layer")
 
 
 @dataclass

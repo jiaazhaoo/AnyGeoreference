@@ -49,9 +49,9 @@ IoU >= t and the address point lies inside" -> accept), converts the score to a 
 fitted on the benchmark's dev split, and abstains when no accept rule fired or the probability is under the kind's
 threshold. The policy is measured on the benchmark; its table is the explanation.
 
-## 5. Adapters (`adapters/`)
+## 5. Kinds (`ga/kinds.py`)
 
-An adapter binds a `kind` to: how to load the sheet, which tools exist for it (implementations), the policy, the
+A kind binds a recipe to: how to load the sheet, which tools exist for it (implementations), the policy, the
 calibrator. v0: `plans_gb` (planning drawings, Great Britain), implemented by wrapping the production pipeline's
 georeferencing functions (grid-figure reading, road-name fits, gazetteer seeding, raster matching, snapping).
 Next: `microfilm`, `historical_map` (open data: OSM / archive scans).

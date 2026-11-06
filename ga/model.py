@@ -76,6 +76,22 @@ class Hypothesis:
 
 
 @dataclass(frozen=True)
+class Layer:
+    """An intermediate product in sheet pixels or in a reference frame: a mask, traced polylines, a rendered
+    reference raster. Never a placement; matchers consume layers and produce hypotheses."""
+    sheet: str
+    name: str                                  # "ink_mask", "line_structure", "reference_render", ...
+    kind: str                                  # "mask" | "polylines" | "points" | "raster" | "vectors"
+    data: Any                                  # numpy array, list of arrays, or a path; the primitive documents which
+    frame: str = "sheet-pixels"                # "sheet-pixels" | "<crs>" | "metric-grid"
+    meta: Mapping[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self):
+        if self.kind not in ("mask", "polylines", "points", "raster", "vectors"):
+            raise ValueError(f"layer kind {self.kind!r}")
+
+
+@dataclass(frozen=True)
 class Verdict:
     sheet: str
     placement: Hypothesis | None               # None = abstain
