@@ -106,6 +106,19 @@ Four unseen inputs: one placed to 23 m, one held for review at the right area, t
 confident wrong placement. What the test exposed: the overlay check is weak on dense networks; landmark names need
 a lookup of their own; an 1823 street pattern needs a reference of its own epoch.
 
+**The two "easy" blind inputs were failing for a reason that was mine, 2026-11-06.** An 1823 town plan and an
+OSM-style suburb render both carry dozens of street names in a known city, and the library had no matcher that
+uses street names as geometry: the planner could only pick image matchers that cannot read an engraving. Two
+primitives fixed it: locate by where the sheet's named roads meet (the pipeline's junction vote), and fit the
+labels onto their named road centrelines (rotation x scale x translation swept in one vectorised pass over
+distance-transformed road rasters, then point-to-line ICP; no label angles needed). The reader was also told to
+list every street name it can read: 19 cues became 75 on the 1823 plan. Result: the 1823 plan placed with 13 of
+25 labels on their modern roads (median 59 m, scale 1.4 m/px, rotation 5°), 371 m from the city-centre point; the
+suburb render with 17 of 22 (median 32 m, 3.04 m/px), 125 m from the valley's gazetteer point; both accepted by
+a new `street_map` kind whose second family is place names found inside the footprint (2 of 7 and 5 of 6).
+Lesson: a planner is only as good as the library; when the obvious tool for a kind is missing, add the tool, not
+prompt. Replay: `blind/commons/results_street_map.json`.
+
 **Retrieval wants the whole page; matching wants the sheet.** Restricting OCR to the plan crop dropped the
 gazetteer's candidate areas from 9 of 10 to 3 of 10; keeping page-wide words for retrieval and on-sheet words for
 anchoring restored them.

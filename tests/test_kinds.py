@@ -11,10 +11,10 @@ from ga.primitives import LIBRARY, generic, table
 
 def test_library_and_three_kinds_validate():
     assert len(LIBRARY) >= 20
-    for k in ("plans_gb", "soi_1inch", "unlabelled_raster"):
+    for k in ("plans_gb", "soi_1inch", "unlabelled_raster", "street_map"):
         assert kinds.validate(k) == [], k
     assert "declared" in table()                      # some primitives are declared-only on purpose
-    assert set(kinds.KINDS) == {"plans_gb", "soi_1inch", "unlabelled_raster"}
+    assert set(kinds.KINDS) == {"plans_gb", "soi_1inch", "unlabelled_raster", "street_map"}
 
 
 def test_control_point_fit_recovers_affine():
@@ -42,14 +42,14 @@ def test_each_kind_runs_with_stubs():
     def layer(name, kind):
         return lambda state: [Layer(state.sheet.digest, name, kind, np.zeros((10, 10), np.uint8))]
     stubs = {n: hyp for n in ("structure_match", "structure_match_orb", "text_anchor_fit", "grid_figures", "plan_minima_match")}
-    stubs.update({"ocr_words": cues, "ocr_cached": cues, "claude_read": lambda s: [], "address_in_footprint": lambda s: [], "edge_structure": layer("edges", "mask"), "reference_render": layer("reference_render", "mask"), "overlay_agreement": lambda s: [], "graticule_frame": cues, "road_and_place_labels": lambda s: [], "graticule_frame": cues,
+    stubs.update({"ocr_words": cues, "ocr_cached": cues, "claude_read": cues, "address_in_footprint": lambda s: [], "edge_structure": layer("edges", "mask"), "reference_render": layer("reference_render", "mask"), "overlay_agreement": lambda s: [], "graticule_frame": cues, "road_and_place_labels": lambda s: [], "graticule_frame": cues,
                   "gazetteer_search": lambda s: [], "snap_faces": lambda s: [Evidence("snap_iou", 0.9, "deterministic", "geometry")],
                   "plate_separation": layer("black", "mask"), "line_structure": layer("line_structure", "polylines"),
                   "osm_reference": lambda s: [], "cross_edition_agreement": lambda s: [], "sheet_index_lookup": lambda s: [],
                   "edge_structure": layer("edges", "mask"), "reference_render": layer("reference_render", "mask"),
                   "overlay_agreement": lambda s: [Evidence("overlay_agreement", 0.7, "deterministic", "basemap")],
-                  "hint_area": lambda s: []})
-    for k in ("plans_gb", "soi_1inch", "unlabelled_raster"):
+                  "hint_area": lambda s: [], "place_lookup": lambda s: [], "road_junction_locate": lambda s: [], "road_name_fit": hyp, "places_in_footprint": lambda s: []})
+    for k in ("plans_gb", "soi_1inch", "unlabelled_raster", "street_map"):
         reg = kinds.registry_for(k, stubs)
         sheet = Sheet("s", kinds.KINDS[k].kind, "none.png", "sha256:s", meta={"width": 100, "height": 100})
         st = run(sheet, reg, FixedPlan(kinds.plan_for(k)))

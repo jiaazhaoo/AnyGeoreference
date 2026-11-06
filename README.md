@@ -25,7 +25,7 @@ The name is a direction, not a claim: generality comes from the tool and knowled
 | L2 recipe, per kind of map | how do sheets of this kind get placed at all | profile the samples, compose from a primitive library, generate the adapter, pilot with truth, freeze (`docs/RECIPE.md`) |
 | L3 production, per batch | how to place thousands without an accident | a control layer: budget, caps, sentinel, rollback |
 
-Two kinds are placed today: planning drawings (Great Britain) and 1-inch historical survey sheets (South Asia). A user who brings a third kind goes through L2.
+Four kinds are placed today: planning drawings, historical survey sheets, unlabelled rasters (synthetic so far) and street maps with names. A user who brings another kind goes through L2.
 
 ## The loop
 
@@ -66,9 +66,10 @@ need an external truth. `python -m ga.cli plan --kind ... --images a b c`. Two f
 ### Blind test
 
 Four inputs the system had never seen, no kind hint: a 1903 USGS sheet (placed to 23 m rms by a generic graticule
-reader the agent asked for), an 1823 engraved town plan (right area, abstained, as the plan predicted), an OSM-style
-suburb render (right area, one weak hypothesis 1 km off held for review, not accepted), an oblique photograph
-(abstained: nothing on it places it). No confident wrong placement. Details in `docs/FINDINGS.md`.
+reader the agent asked for), an 1823 engraved town plan and an OSM-style suburb render (first abstained / held:
+the library lacked a street-name matcher; with road-name fitting added, both placed and accepted, 13/25 and 17/22
+labels on their roads), an oblique photograph (abstained: nothing on it places it). No confident wrong placement.
+Details in `docs/FINDINGS.md`.
 
 ### Planner against the fixed plan
 

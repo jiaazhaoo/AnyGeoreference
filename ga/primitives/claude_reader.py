@@ -16,7 +16,7 @@ from . import Primitive, register
 PROMPT = """Read this scanned map or drawing. Return one JSON object only:
 {"cues": [{"kind": "road|number|place|landmark|arrow|scale|grid|text", "text": "...", "bbox": [x0, y0, x1, y1], "confidence": 0..1}],
  "north_arrow": "up|rotated N deg|none", "scale": "1:500|none", "site_marking": "red line|hatched|none|...", "note": "one sentence"}
-bbox in image pixels (the image is {w} x {h}). Road names and house numbers matter most. Never give coordinates on the Earth."""
+bbox in image pixels (the image is {w} x {h}). Road names and house numbers matter most: list EVERY street or road name you can read, up to 80, each with its own bbox; then places, landmarks, numbers. Never give coordinates on the Earth."""
 
 
 def claude_read(state, reads_dir: str | None = None, headless: bool = False, model: str = "claude-sonnet-5"):

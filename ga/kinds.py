@@ -63,7 +63,23 @@ UNLABELLED_RASTER = Recipe(
     expected_accuracy_m=(5.0, 50.0), expected_cost_per_sheet=0.0,
     note="no text: only structure; a candidate area must come from the record or a hint, else abstain")
 
-KINDS = {r.name: r for r in (PLANS_GB, SOI_1INCH, UNLABELLED_RASTER)}
+STREET_MAP = Recipe(
+    name="street_map", kind="street_map",
+    profile=Profile("a town plan, street map or rendered map carrying street and place names, any era", (), (), ("road", "place", "landmark"),
+                    printed_grid="none", measured_by={"text_kinds": "model reading"}),
+    cues=("road", "place", "landmark"),
+    references=("gazetteer", "road-network"),
+    matchers=("road_name_fit",),
+    verifications=("places_in_footprint", "hypothesis_agreement"),
+    policy_rules=(
+        # fitted on two blind inputs (2026-11-06): an 1823 engraved plan and an OSM-style render; provisional
+        {"id": "no_location_cues", "when": "n_location_cues == 0", "to": "abstain"},
+        {"id": "roads_and_places", "when": "best_matcher == 'road_name_fit' and (best_score or 0) >= 0.5 and (places_in_footprint or 0) >= 2", "to": "accept"},
+    ),
+    expected_accuracy_m=(30.0, 400.0), expected_cost_per_sheet=0.0,
+    note="labels on their named roads is the matcher; place names inside the footprint is the second family; old maps get a wider tolerance")
+
+KINDS = {r.name: r for r in (PLANS_GB, SOI_1INCH, UNLABELLED_RASTER, STREET_MAP)}
 
 # the ordered composition each kind runs (the FixedPlan); the Planner picks from the same names
 SPECS = {
@@ -74,6 +90,8 @@ SPECS = {
                                           Step("residual_check", {"bound": 60.0, "geographic": True}), Step("plate_separation"), Step("line_structure"),
                                           Step("osm_reference"), Step("structure_match"), Step("hypothesis_agreement"),
                                           Step("cross_edition_agreement")), SOI_1INCH.policy_rules, "lib-v0"),
+    "street_map": AdapterSpec("street_map", (Step("claude_read", {"headless": True}), Step("place_lookup"), Step("road_junction_locate"), Step("road_name_fit"),
+                                            Step("places_in_footprint"), Step("hypothesis_agreement")), STREET_MAP.policy_rules, "lib-v0"),
     "unlabelled_raster": AdapterSpec("unlabelled_raster", (Step("hint_area"), Step("edge_structure"), Step("reference_render"),
                                                           Step("structure_match_orb"), Step("overlay_agreement")), UNLABELLED_RASTER.policy_rules, "lib-v0"),
 }

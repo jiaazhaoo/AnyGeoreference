@@ -259,6 +259,174 @@ def place_lookup(state, radius_m: float = 1500.0, kinds=("place", "landmark", "r
                       note=f"{best_n} names cluster within 5 km; radius {r:.0f} m; types {sorted({h[2] for h in core})[:4]}")]
 
 
+# -- road names as geometry: locate by junctions, fit labels onto their named roads ---------------------------------
+def _road_labels(state):
+    out = []
+    for c in state.cues:
+        if c.kind == "road" and len(c.text.strip()) >= 3:
+            x0, y0, x1, y1 = c.bbox
+            out.append({"name": c.text.strip().upper(), "text": c.text, "x": (x0 + x1) / 2, "y": (y0 + y1) / 2, "h": max(1.0, y1 - y0), "angle": 0.0,
+                        "conf": c.confidence})
+    return out
+
+
+def _town_xy(state):
+    if state.candidates:
+        import shapely.wkt
+        g = shapely.wkt.loads(state.candidates[0].area_wkt).centroid
+        return (g.x, g.y)
+    return tuple(state.sheet.meta.get("town_xy") or (435000.0, 387000.0))
+
+
+def road_junction_locate(state, search_m: float = 16000.0, radius_m: float = 1200.0):
+    """Where the sheet's named roads meet: every pair of names read off the sheet that are roads of the area and
+    meet within 150 m votes for a point; the densest cluster of votes is the candidate (the pipeline's names_locate).
+    Needs at least two road names; the area to search comes from the first candidate (a place lookup) or the meta."""
+    _, plan, _, _, names_locate, _ = _e2e()
+    labs = _road_labels(state)
+    if len(labs) < 2:
+        return []
+    town = _town_xy(state)
+    city = names_locate.city_roads(town, plan.roads_near, r=search_m)
+    names = names_locate.city_names([l["name"] for l in labs], city)
+    if len(names) < 2:
+        state.evidence.append(Evidence("road_names_in_area", len(names), "deterministic", "road-network", note=f"of {len(labs)} read"))
+        return []
+    r = names_locate.locate(sorted(names), city, junction_m=150.0, min_pairs=1)
+    if not r:
+        return []
+    x, y, rad = r["x"], r["y"], radius_m
+    wkt = f"POLYGON(({x-rad} {y-rad},{x+rad} {y-rad},{x+rad} {y+rad},{x-rad} {y+rad},{x-rad} {y-rad}))"
+    return [Candidate(state.sheet.digest, "road-network", wkt, "EPSG:27700", tuple(sorted(names))[:12], min(1.0, r["pairs"] / 6),
+                      note=f"{r['pairs']} name pairs meet here, {r['rival_pairs']} elsewhere; {len(names)} of {len(labs)} names are roads of the area")]
+
+
+def road_name_fit(state, theta_step: float = 5.0, inlier_m: float = 60.0, min_inliers: int = 4, search_m: float = 2500.0,
+                  res_m: float = 5.0, t_step_m: float = 40.0, scales=None):
+    """Similarity (scale, rotation, translation) that puts every road label on its named road. Labels are assigned
+    to roads by the pipeline's fuzzy name match; each matched road is rasterised and distance-transformed over the
+    candidate area, so a pose is scored by a vectorised lookup: every rotation (theta_step) x scale x translation
+    on a grid (t_step_m) in one numpy pass, score = labels within inlier_m of their own road. The best pose is then
+    refined by point-to-line ICP on its inliers. No label angles needed: works on a model's reading as on OCR."""
+    import math
+    import cv2
+    import numpy as np
+    from shapely.geometry import Point
+    from shapely.ops import nearest_points
+    _, plan, *_ = _e2e()
+    labs = _road_labels(state)
+    if len(labs) < 3:
+        return []
+    near = _town_xy(state)
+    roads = plan.roads_near(near[0], near[1], r=search_m)
+    if not roads:
+        return []
+    matched, _keep = plan.match_roads(labs, roads, near)
+    if len(matched) < 3:
+        state.evidence.append(Evidence("road_labels_matched", len(matched), "deterministic", "road-network", note=f"of {len(labs)}"))
+        return []
+    W, H = state.sheet.meta.get("width", 0) or 1, state.sheet.meta.get("height", 0) or 1
+    # distance rasters, one per matched road, over the search square
+    x0, y0 = near[0] - search_m, near[1] - search_m
+    n = int(2 * search_m / res_m)
+    dist = {}
+    for name in {m["road"] for m in matched}:
+        img = np.zeros((n, n), np.uint8)
+        g = roads[name]
+        for part in getattr(g, "geoms", [g]):
+            c = np.asarray(part.coords, float)
+            px = np.c_[(c[:, 0] - x0) / res_m, (n - 1) - (c[:, 1] - y0) / res_m].round().astype(np.int32)
+            cv2.polylines(img, [px], False, 255, 1)
+        dist[name] = cv2.distanceTransform((img == 0).astype(np.uint8), cv2.DIST_L2, 3) * res_m
+    D = np.stack([dist[m["road"]] for m in matched])                      # (L, n, n)
+    P = np.array([[m["x"], -m["y"]] for m in matched], float)             # y up
+    P -= P.mean(0)
+    L = len(matched)
+    scales = np.asarray(scales if scales else np.geomspace(0.02, 40.0, 60), float)
+    tg = np.arange(-search_m + 200, search_m - 200, t_step_m)
+    TX, TY = np.meshgrid(tg, tg); T = np.c_[TX.ravel(), TY.ravel()] + np.array(near)   # candidate centres of the label cloud
+    best = None
+    for th in np.arange(0.0, 360.0, theta_step):
+        R = np.array([[math.cos(math.radians(th)), -math.sin(math.radians(th))], [math.sin(math.radians(th)), math.cos(math.radians(th))]])
+        RP = (R @ P.T).T                                                   # (L, 2)
+        for s_ in scales:
+            X = s_ * RP                                                    # label offsets from the cloud centre, metres
+            pos = T[:, None, :] + X[None, :, :]                            # (Tn, L, 2)
+            ix = ((pos[..., 0] - x0) / res_m).round().astype(np.int64)
+            iy = ((n - 1) - (pos[..., 1] - y0) / res_m).round().astype(np.int64)
+            ok = (ix >= 0) & (ix < n) & (iy >= 0) & (iy < n)
+            ix = np.clip(ix, 0, n - 1); iy = np.clip(iy, 0, n - 1)
+            d = D[np.arange(L)[None, :], iy, ix]                           # (Tn, L)
+            d = np.where(ok, d, 1e9)
+            inl = (d <= inlier_m).sum(1)
+            k = int(np.argmax(inl))
+            if best is None or (inl[k], -float(np.median(d[k]))) > best[0]:
+                best = ((int(inl[k]), -float(np.median(d[k]))), th, s_, T[k].copy(), d[k].copy())
+    if best is None or best[0][0] < min_inliers:
+        state.evidence.append(Evidence("road_fit_inliers", best[0][0] if best else 0, "deterministic", "road-network", note=f"of {L} matched labels"))
+        return []
+    (n_in, _), th, s_, t, d = best
+    R = np.array([[math.cos(math.radians(th)), -math.sin(math.radians(th))], [math.sin(math.radians(th)), math.cos(math.radians(th))]])
+    geoms = [roads[m["road"]] for m in matched]
+    inl = d <= inlier_m
+    X = s_ * (R @ P[inl].T).T
+    G_in = [g for g, k in zip(geoms, inl) if k]
+    for _ in range(6):                                                     # ICP refine on the inliers
+        Q = np.array([np.array(nearest_points(g, Point(*(x + t)))[0].coords[0]) for g, x in zip(G_in, X)])
+        t = t + (Q - (X + t)).mean(0)
+    d2 = np.array([g.distance(Point(*(s_ * (R @ p) + t))) for g, p in zip(geoms, P)])
+    n_in = int((d2 <= inlier_m).sum())
+    # sheet px -> BNG: w = s R ([x, -y] - mean) + t
+    mean_px = np.array([[m["x"], -m["y"]] for m in matched], float).mean(0)
+    a, b = s_ * R[0, 0], -s_ * R[0, 1]; dd, e = s_ * R[1, 0], -s_ * R[1, 1]
+    c_ = t[0] - (a * mean_px[0] + b * (-mean_px[1])); f = t[1] - (dd * mean_px[0] + e * (-mean_px[1]))
+    T6 = (a, b, c_, dd, e, f)
+    pts = [(a * x + b * y + c_, dd * x + e * y + f) for x, y in ((0, 0), (W, 0), (W, H), (0, H))]
+    wkt = "POLYGON((" + ",".join(f"{x:.2f} {y:.2f}" for x, y in pts) + f",{pts[0][0]:.2f} {pts[0][1]:.2f}))"
+    return [Hypothesis(state.sheet.digest, T6, wkt, "EPSG:27700", float(n_in / L), "road_name_fit", (0,) if state.candidates else (),
+                       note=f"{n_in}/{L} labels on their roads (<= {inlier_m:.0f} m); median {np.median(d2):.0f} m; theta {th:.0f}; mpp {s_:.3f}; roads {len(set(dist))}")]
+
+
+register(Primitive("road_junction_locate", "road-network", True, ("cue",), "candidate",
+                   "where the sheet's named roads meet in the road network: the densest cluster of junction votes as the candidate area", road_junction_locate, "plans_gb", requires=("e2e-plan-extract", "OS Zoomstack")))
+register(Primitive("road_name_fit", "geometry", True, ("cue",), "hypothesis",
+                   "similarity that puts every road label on its named road centreline (rotation x scale sweep, point-to-line ICP); no label angles needed", road_name_fit, "plans_gb", requires=("e2e-plan-extract", "OS Zoomstack")))
+
+
+def places_in_footprint(state, kinds=("place", "landmark"), max_names: int = 20):
+    """Place and landmark names read off the sheet, looked up in OS Open Names (populated places and landforms,
+    not roads): how many of them fall inside the best hypothesis' footprint. Independent of the road geometry the
+    road-name fit used, so it is the second family for a street map."""
+    import sqlite3
+    import shapely.wkt
+    from shapely.geometry import Point
+    if not state.hypotheses:
+        return []
+    fp = shapely.wkt.loads(state.hypotheses[0].site_wkt)
+    if fp.is_empty:
+        return []
+    db = os.environ.get("E2E_OPEN_NAMES", "/data/reference/base-data/opname_csv_gb/os_open_names_uk.sqlite")
+    names = list(dict.fromkeys(c.text.strip() for c in state.cues if c.kind in kinds and len(c.text.strip()) >= 4))[:max_names]
+    if not names:
+        return [Evidence("places_in_footprint", None, "deterministic", "gazetteer", note="no place names read")]
+    con = sqlite3.connect(db)
+    grown = fp.buffer(max(200.0, 0.1 * math.sqrt(fp.area)))
+    inside, found = [], 0
+    for nme in names:
+        rows = con.execute("SELECT GEOMETRY_X, GEOMETRY_Y FROM open_names WHERE NAME1 = ? COLLATE NOCASE AND TYPE IN ('populatedPlace','landform','landcover','hydrography','other') LIMIT 50", (nme,)).fetchall()
+        if not rows:
+            continue
+        found += 1
+        if any(grown.contains(Point(float(x), float(y))) for x, y in rows):
+            inside.append(nme)
+    return [Evidence("places_in_footprint", len(inside), "deterministic", "gazetteer", note=f"{len(inside)} of {found} found names inside: {inside[:6]}"),
+            Evidence("places_found", found, "deterministic", "gazetteer")]
+
+
+register(Primitive("places_in_footprint", "gazetteer", True, ("hypothesis", "cue"), "evidence",
+                   "place / landmark names on the sheet found in Open Names inside the footprint (a family independent of road geometry)", places_in_footprint, "plans_gb", requires=("OS Open Names",)))
+
+
 register(Primitive("place_lookup", "gazetteer", True, ("cue",), "candidate",
                    "place / landmark / road names on the sheet -> OS Open Names -> the densest cluster as one candidate area", place_lookup, "plans_gb", requires=("OS Open Names",)))
 
