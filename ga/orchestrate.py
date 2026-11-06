@@ -42,6 +42,7 @@ def plan_batch(sheets: list[Sheet], readings: list[dict], model: str = "claude-s
     prof = profile_batch(sheets, readings)
     idx = Index()
     query = " ".join([prof["kind_hint"], " ".join(prof["cue_kinds_any"])] + [str(p.get("note") or "") for p in prof["sheets"]])
-    knowledge = idx.context(query, kind=prof["kind_hint"], cues=prof["cue_kinds_any"], k=k)
+    kind = None if prof["kind_hint"] in ("", "unknown") else prof["kind_hint"]      # a blind batch: no kind filter on the knowledge
+    knowledge = idx.context(query, kind=kind, cues=prof["cue_kinds_any"], k=k)
     plan, raw = make_plan(prof, knowledge, len(sheets), lambda system, user: ask_json(system, user, model=model, cache=cache))
-    return plan, raw, {"profile": prof, "knowledge_ids": [c.id for _, c in idx.retrieve(query, prof["kind_hint"], prof["cue_kinds_any"], k)]}
+    return plan, raw, {"profile": prof, "knowledge_ids": [c.id for _, c in idx.retrieve(query, kind, prof["cue_kinds_any"], k)]}

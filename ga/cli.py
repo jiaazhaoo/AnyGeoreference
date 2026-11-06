@@ -36,7 +36,7 @@ def main(argv=None) -> int:
     st_.add_argument("--start-kind"); st_.add_argument("--image"); st_.add_argument("--id"); st_.add_argument("--record", default="{}"); st_.add_argument("--meta", default="{}")
     st_.add_argument("--choose"); st_.add_argument("--why", default=""); st_.add_argument("--chooser", default="person")
     pl = sub.add_parser("plan", help="profile 1-3 similar sheets and have the main agent write the plan")
-    pl.add_argument("--kind", required=True, choices=sorted(kinds.KINDS))
+    pl.add_argument("--kind", default="unknown", choices=sorted(kinds.KINDS) + ["unknown"], help="a recipe family as a hint, or 'unknown' for a blind batch")
     pl.add_argument("--images", nargs="+", required=True); pl.add_argument("--ids", nargs="*", default=[])
     pl.add_argument("--record", default="{}"); pl.add_argument("--meta", default="{}")
     pl.add_argument("--reads-dir"); pl.add_argument("--no-headless", action="store_true"); pl.add_argument("--model", default="claude-sonnet-5")
@@ -58,7 +58,7 @@ def main(argv=None) -> int:
             with open(img, "rb") as f:
                 head = f.read(1 << 20)
             sid = a.ids[i] if i < len(a.ids) else Path(img).stem
-            sh = Sheet(sid, kinds.KINDS[a.kind].kind, img, digest_bytes(head), record, m)
+            sh = Sheet(sid, kinds.KINDS[a.kind].kind if a.kind in kinds.KINDS else "unknown", img, digest_bytes(head), record, m)
             sheets.append(sh); readings.append(read_sheet(sh, a.reads_dir, headless=not a.no_headless))
         plan, raw, ctx = plan_batch(sheets, readings, model=a.model, cache=(str(Path(a.out).with_suffix(".cache.jsonl")) if a.out else None))
         out = {"plan": plan.to_dict(), "context": ctx, "raw": raw}
