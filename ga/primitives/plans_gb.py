@@ -217,3 +217,66 @@ for p in (
     Primitive("snap_faces", "geometry", True, ("hypothesis",), "evidence", "site polygon vs OS map faces (declared; the pipeline's step 13)", None, "plans_gb", requires=("e2e-plan-extract", "OS base map")),
 ):
     register(p)
+
+
+# -- the production pipeline's learned matcher -------------------------------------------------------------------
+def plan_minima_match(state, sigma_m: float = 250.0, windows: int = 40, deadline_s: float = 180.0, thetas=None, min_score: float = 15.0):
+    """MINIMA (LoFTR) sliding-window match of the drawing against OS base-map tiles around the candidate area: the
+    pipeline's own learned matcher (s3_georef.plan.minima). Seed = the first candidate's centre; rotation candidates
+    from the north-arrow cue when one was read, else the four uprights; scale from a scale cue when one was read,
+    else the pipeline's sweep. The council's OS WFS extract comes from the sheet meta (`gazetteer gpkg_wfs`)."""
+    import math
+    import cv2
+    _, plan, *_ = _e2e()
+    sys.path.insert(0, E2E)
+    from e2e_plan_extract.s3_georef import batch as _b
+    if not state.candidates:
+        return []
+    wfs = state.sheet.meta.get("gpkg_wfs")
+    if wfs:
+        plan.WFS = wfs
+    import shapely.wkt
+    c = shapely.wkt.loads(state.candidates[0].area_wkt).centroid
+    img = cv2.imread(state.sheet.image)
+    if img is None:
+        raise FileNotFoundError(state.sheet.image)
+    H, W = img.shape[:2]
+    mask = np.full((H, W), 255, np.uint8)
+    # rotation candidates: a read north arrow first, then the uprights
+    th = list(thetas) if thetas else []
+    for cue in state.cues:
+        if cue.kind == "arrow":
+            txt = cue.text.lower()
+            m = re.search(r"(-?\d+(?:\.\d+)?)\s*deg", txt)
+            if m:
+                th.append(float(m.group(1)) % 360)
+            elif "up" in txt or txt.strip() in ("n", "north"):
+                th.append(0.0)
+    th = th + [t for t in (0.0, 90.0, 180.0, 270.0) if all(abs((t - u + 180) % 360 - 180) > 15 for u in th)]
+    # scale: "1:1250" or "1/500" on the sheet -> metres per pixel at the pipeline's nominal 200 dpi
+    mpp = None
+    for cue in state.cues:
+        if cue.kind == "scale":
+            m = re.search(r"1\s*[:/]\s*(\d{3,5})", cue.text)
+            if m:
+                mpp = int(m.group(1)) * 25.4 / 200 / 1000
+                break
+    import time
+    matcher = _MINIMA.setdefault("m", plan.load_minima())
+    r = plan.minima(matcher, img, mask, (c.x, c.y), th, sigma=sigma_m, mpp=mpp, stop_at=None, single_zoom=bool(mpp),
+                    deadline=time.time() + deadline_s, windows=windows)
+    if not r or not r.get("geojson") or float(r.get("score") or 0) < min_score:
+        return []
+    fp = plan.geo_to_bng(r["geojson"])
+    T = _b.transform_from_footprint(fp, W, H, r["theta"])
+    T6 = _sim6(T)
+    return [Hypothesis(state.sheet.digest, T6, fp.wkt, "EPSG:27700", min(1.0, float(r["score"]) / 100.0), "plan_minima_match", (0,),
+                       note=f"minima score {r['score']} V {r.get('V')} Q {r.get('Q')}; theta {r['theta']}; scale {r['scale']}; mpp_hint {mpp}; thetas {th[:4]}")]
+
+
+_MINIMA: dict = {}
+import re  # noqa: E402
+
+register(Primitive("plan_minima_match", "basemap", True, ("candidate",), "hypothesis",
+                   "the pipeline's learned matcher: MINIMA sliding-window match of the drawing against OS base-map tiles round the candidate area",
+                   plan_minima_match, "plans_gb", requires=("e2e-plan-extract", "GeoPlanAgent + MINIMA weights", "council OS WFS extract", "torch")))
