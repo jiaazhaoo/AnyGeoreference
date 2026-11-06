@@ -52,7 +52,8 @@ First numbers (2026-11-06, data stays out of the repository):
 |---|---|---|---|
 | historical map | one Survey of India quarter sheet (1943), the archive's published raster taken as pixels only | the archive's own georeference | 49 graticule nodes read in 2.7 s; our placement 33 m rms / 29 m median from the archive's; the sheet's printed coordinates themselves sit 31 m from the archive's, so the loop reproduces the printed placement and the rest is the archive's datum shift |
 | unlabelled raster | a road-network render of a city district, rotated 7° and shifted, with a location hint 0.5 km off and no text | the known transform | ORB + RANSAC against reference roads: corners 5–7 m, centre 1 m, overlay agreement 0.85, in 0.5 s |
-| planning drawing | frozen benchmark drawings with cached OCR, OS Open Names and the local address register | the client's graded polygon | in progress |
+| planning drawing | ten frozen benchmark drawings with cached OCR, OS Open Names and the local address register | the client's graded polygon | the gazetteer finds a candidate area for 9 of 10; text anchors (house numbers × road names against the register) place 1 of 10, 8 m from the truth with the address inside; the generic ORB matcher places 0 of 10; the production pipeline's learned matcher, not yet bound here, accepts 6 of the same 10 |
+| historical map, five sheets | five sheets from two series and three decades, pixels only | the archive's georeference, 100 m at the centre | see `docs/FINDINGS.md`: two sheets read one graticule line off (9 km) with a 40 m node residual; the first policy accepted them; the policy now needs a second evidence family and sends them to review |
 
 ## Run it
 

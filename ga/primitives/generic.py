@@ -115,16 +115,27 @@ def residual_check(state, bound: float = 15.0, unit: str = "crs", geographic: bo
             Evidence("residual_within_bound", bool(rms <= bound), "deterministic", "geometry", note=f"bound {bound} {unit}")]
 
 
-def hypothesis_agreement(state, tol: float = 0.5):
-    """Do the top two hypotheses (from different matchers) agree? Independent matchers agreeing is corroboration."""
+def hypothesis_agreement(state, tol_m: float = 200.0):
+    """Do the two best hypotheses from *different* matchers put the sheet in the same place? Measured as the
+    distance between their footprint centres in metres (geographic CRS handled). Agreement between independent
+    matchers is corroboration; agreement within one matcher is not."""
+    import shapely.wkt
     hs = state.hypotheses
-    if len(hs) < 2:
-        return [Evidence("matchers_agree", None, "deterministic", "geometry", note="fewer than two hypotheses")]
-    a, b = hs[0], hs[1]
-    same_matcher = a.matcher == b.matcher
-    d = float(np.linalg.norm(np.array(a.transform) - np.array(b.transform)))
-    return [Evidence("matchers_agree", bool(d <= tol and not same_matcher), "deterministic", "geometry",
-                     note=f"{a.matcher} vs {b.matcher}; transform distance {d:.3g}")]
+    others = [h for h in hs[1:] if h.matcher != hs[0].matcher] if hs else []
+    if not hs or not others:
+        return [Evidence("matchers_agree", None, "deterministic", "geometry", note="fewer than two matchers")]
+    a, b = hs[0], others[0]
+    pa, pb = shapely.wkt.loads(a.site_wkt), shapely.wkt.loads(b.site_wkt)
+    if pa.is_empty or pb.is_empty:
+        return [Evidence("matchers_agree", None, "deterministic", "geometry", note="a footprint is empty")]
+    ca, cb = pa.centroid, pb.centroid
+    if a.crs.upper() in ("EPSG:4326", "WGS84"):
+        lat0 = (ca.y + cb.y) / 2
+        d = math.hypot((ca.x - cb.x) * 111320 * math.cos(math.radians(lat0)), (ca.y - cb.y) * 110574)
+    else:
+        d = float(ca.distance(cb))
+    return [Evidence("matchers_agree", bool(d <= tol_m), "deterministic", "geometry", note=f"{a.matcher} vs {b.matcher}; centres {d:.1f} m apart; tol {tol_m} m"),
+            Evidence("matchers_distance_m", round(d, 1), "deterministic", "geometry")]
 
 
 register(Primitive("control_point_fit", "geometry", True, ("cue",), "hypothesis",
@@ -133,4 +144,4 @@ register(Primitive("control_point_fit", "geometry", True, ("cue",), "hypothesis"
 register(Primitive("residual_check", "geometry", True, ("hypothesis", "cue"), "evidence",
                    "RMS residual of the best hypothesis at the grid cues, against the kind's bound", residual_check))
 register(Primitive("hypothesis_agreement", "geometry", True, ("hypothesis",), "evidence",
-                   "whether two hypotheses from different matchers agree", hypothesis_agreement))
+                   "whether the best hypotheses of two different matchers put the sheet in the same place (centres within tol_m)", hypothesis_agreement))
