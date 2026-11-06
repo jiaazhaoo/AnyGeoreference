@@ -46,6 +46,17 @@ own model does the three model jobs; today it did them by hand, with every choic
   wants 0.3). Floor plan: 1 step, abstain. Sketch with one road name and no numbers: 7 steps, every matcher tried,
   abstain. The fixed plan runs 11 steps on all three regardless.
 
+**Planner (Claude, headless) vs the fixed plan on ten drawings, 2026-11-06.** Same tools, same cache, same truth;
+the planner saw only state summaries without coordinates (88 calls, claude-sonnet-5 through the subscription CLI
+in an isolated config). Outcomes were identical case for case: one verified placement at 7 m sent to review, nine
+abstentions; no discordant pair (McNemar p = 1.0). What differed was the path: the planner never reproduced the
+fixed sequence, took 4 to 12 steps (mean 7.9) against the fixed 11, stopped after 4 on the floor plan and the
+setting-out plan with the right reason ("nothing on this sheet places it"), and wasted steps where the tool
+contracts were too coarse: it called the structure matcher before any sheet-side structure existed because the
+registry declares the matcher's input only as "layer", not "a sheet structure layer and a reference render". Two
+lessons: on this sample the planner adds judgement about when to stop, not placements; and a planner is only as
+good as the input/output types the tools declare. Replay: `experiments/planner_vs_fixed_plans10/report.json`.
+
 **Retrieval wants the whole page; matching wants the sheet.** Restricting OCR to the plan crop dropped the
 gazetteer's candidate areas from 9 of 10 to 3 of 10; keeping page-wide words for retrieval and on-sheet words for
 anchoring restored them.

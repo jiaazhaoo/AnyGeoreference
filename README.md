@@ -55,6 +55,14 @@ First numbers (2026-11-06, data stays out of the repository):
 | planning drawing | ten frozen benchmark drawings; cues from Claude's reading plus cached OCR, OS Open Names and the local address register | the client's graded polygon | the gazetteer finds a candidate area for 9 of 10; with Claude's house numbers the text-anchor fit places the numbered sheet at 7 m (11 of 12 inliers; 3 of 4 with OCR alone); a second, degenerate fit (scale 0) is now rejected by a plausibility bound; the generic ORB matcher places 0 of 10; the production pipeline's learned matcher, not yet bound here, accepts 6 of the same 10 |
 | historical map, six sheets | six sheets from two series and three decades, pixels only | the archive's georeference, 100 m at the centre | under the rule "accept only with a second evidence family": 3 accepted (2 within 65 m of the archive, 1 at 654 m where our two matchers agree with each other, not with the archive), 3 to review (two frame reads one graticule line off at 9 km, caught; one false alarm at 61 m). Without the rule: 6 accepted, 3 wrong. `docs/FINDINGS.md` |
 
+### Planner against the fixed plan
+
+Ten drawings, the same tools and cache, truth from the client's grading; the planner is Claude through the
+platform's own CLI, shown state summaries without coordinates. Outcomes identical on every case (one verified
+placement at 7 m sent to review, nine abstentions, no discordant pair); the planner took 4–12 steps against the
+fixed 11, stopped after 4 on sheets with nothing to place, and lost steps where tool contracts were too coarse.
+Details in `docs/FINDINGS.md`.
+
 ## Run it
 
 ```bash
