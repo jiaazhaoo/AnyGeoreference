@@ -31,6 +31,21 @@ case; the text-anchor matcher placed 1 of 10 (8 m from the truth, address inside
 area for 9 of 10. The production pipeline's learned matcher (seeded by road names) accepts 6 of those 10. The
 generic baseline is the floor, not the method, for drawings.
 
+**Claude as the reader, the composer and the planner (simulated in conversation, 2026-11-06).** The platform's
+own model does the three model jobs; today it did them by hand, with every choice and reason recorded.
+- *Reader:* ten drawings read, cues with pixel boxes written to files the loop consumes. On the sheet with house
+  numbers along a road, Claude's eight numbers raised the text-anchor fit from 3 of 4 inliers (OCR) to 11 of 12,
+  placement 7 m from the graded polygon. On a floor plan and a setting-out plan it read correctly that nothing on
+  the sheet places it.
+- *Composer:* asked to compose each kind's recipe from the 23-primitive library given the profile, Claude's
+  compositions matched the human specs at Jaccard 0.83 (drawings: it added its own reader, left out the overlay
+  check), 1.0 (historical sheets) and 0.71 (unlabelled raster: it added a reader and an agreement check that cannot
+  fire); step order agreed 1.0 on every kind; no invented primitive.
+- *Planner:* three drawings driven one tool at a time from the state summary (no coordinates). Numbers-along-a-road:
+  10 steps, a verified placement at 7 m, sent to review because the overlay check stayed at 0.2 (the accept rule
+  wants 0.3). Floor plan: 1 step, abstain. Sketch with one road name and no numbers: 7 steps, every matcher tried,
+  abstain. The fixed plan runs 11 steps on all three regardless.
+
 **Retrieval wants the whole page; matching wants the sheet.** Restricting OCR to the plan crop dropped the
 gazetteer's candidate areas from 9 of 10 to 3 of 10; keeping page-wide words for retrieval and on-sheet words for
 anchoring restored them.
