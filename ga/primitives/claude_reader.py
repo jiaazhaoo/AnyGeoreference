@@ -17,6 +17,7 @@ PROMPT = """Read this scanned map or drawing. Return one JSON object only:
 {"cues": [{"kind": "road|number|place|landmark|arrow|scale|grid|text", "text": "...", "bbox": [x0, y0, x1, y1], "confidence": 0..1}],
  "north_arrow": "up|rotated N deg|none", "scale": "1:500|none", "site_marking": "red line|hatched|none|...", "note": "one sentence"}
 bbox in image pixels (the image is {w} x {h}). Road names and house numbers matter most: list EVERY street or road name you can read, up to 80, each with its own bbox; then places, landmarks, numbers. For survey sheets and charts also give the printed corner coordinates or border scale values as grid cues with their exact text (e.g. "51 30' N" at the left border). Never give coordinates on the Earth.
+"text" is the label exactly as printed (e.g. "Briggate"), never a description or a comment; put remarks in "note". Skip anything you cannot actually read.
 You have only the Read tool: read the image file once as it is; do not try to crop, zoom, or run code, and do not ask for other tools."""
 
 

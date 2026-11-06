@@ -53,14 +53,32 @@ def registry_for_plan(plan: Plan) -> tuple[ToolRegistry, list[str]]:
     return reg, skipped
 
 
-def execute_plan(plan: Plan, sheets: list[Sheet], trace_path: str | Path | None = None) -> tuple[list[State], list, list[str]]:
+def _sibling_candidate(state: State, placed: State, radius_m: float = 3000.0):
+    """A batch's sheets are similar and adjacent: a sheet that found no area searches round a placed sibling's footprint."""
+    import shapely.wkt
+    from .model import Candidate
+    g = shapely.wkt.loads(placed.hypotheses[0].site_wkt).centroid
+    x, y, r = g.x, g.y, radius_m
+    wkt = f"POLYGON(({x-r} {y-r},{x+r} {y-r},{x+r} {y+r},{x-r} {y+r},{x-r} {y-r}))"
+    return Candidate(state.sheet.digest, "batch-sibling", wkt, placed.hypotheses[0].crs, (placed.sheet.id,), 0.5,
+                     note=f"round the placed sibling {placed.sheet.id}")
+
+
+def execute_plan(plan: Plan, sheets: list[Sheet], trace_path: str | Path | None = None, share_area: bool = True) -> tuple[list[State], list, list[str]]:
     reg, skipped = registry_for_plan(plan)
     order = [s.primitive for s in plan.recipe.steps if s.primitive in reg]
     dec = Decider(generic_policy(), None, lambda st: st.hypotheses[0].score if st.hypotheses else None)
-    states, verdicts = [], []
-    for sh in sheets:
-        st = run(sh, reg, FixedPlan(order), trace_path)
-        states.append(st); verdicts.append(dec.decide(st))
+    states = [run(sh, reg, FixedPlan(order), trace_path) for sh in sheets]
+    placed = [st for st in states if st.hypotheses]
+    if share_area and placed and len(states) > 1:
+        for i, st in enumerate(states):
+            if st.hypotheses:
+                continue
+            seeded = State(st.sheet)
+            seeded.candidates.append(_sibling_candidate(seeded, placed[0]))
+            seeded.trace.append({"tool": "sibling_area", "produced": 1, "kind": "candidate", "cost": 0.0, "seconds": 0.0})
+            states[i] = FixedPlan(order).drive(seeded, reg)
+    verdicts = [dec.decide(st) for st in states]
     return states, verdicts, skipped
 
 

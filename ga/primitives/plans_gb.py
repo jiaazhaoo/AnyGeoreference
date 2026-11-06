@@ -220,6 +220,21 @@ for p in (
 
 
 # -- place lookup (asked for by the main agent on blind inputs) -----------------------------------------------------
+_ABBR = {"st": "Street", "st.": "Street", "rd": "Road", "rd.": "Road", "la": "Lane", "la.": "Lane", "ln": "Lane", "ave": "Avenue", "pl": "Place",
+         "sq": "Square", "ter": "Terrace", "gdns": "Gardens", "cres": "Crescent", "br": "Bridge", "br.": "Bridge", "gt": "Great", "upr": "Upper", "lr": "Lower"}
+
+
+def name_variants(text: str) -> list[str]:
+    """The ways a printed label may be spelt in the names set: as read, abbreviations expanded, title case, 'St' as Saint."""
+    t = " ".join(text.strip().split())
+    words = [w for w in t.replace(",", " ").split(" ") if w]
+    exp = [(_ABBR.get(w.lower(), w)) for w in words]
+    out = [t, " ".join(exp), " ".join(exp).title(), t.title()]
+    if exp and exp[0].lower().rstrip(".") == "st" or (exp and exp[0] == "Street"):
+        out.append(" ".join(["St"] + words[1:]).title())
+    return list(dict.fromkeys(x for x in out if x))
+
+
 def place_lookup(state, radius_m: float = 1500.0, kinds=("place", "landmark", "road"), max_names: int = 12):
     """Place and landmark names read off the sheet -> OS Open Names -> one candidate area: the cluster of hits that
     sit closest together (the sheet's names belong to one place; homonyms elsewhere in Britain do not cluster).
@@ -237,8 +252,12 @@ def place_lookup(state, radius_m: float = 1500.0, kinds=("place", "landmark", "r
     con = sqlite3.connect(db)
     hits = []
     for n in names:
-        for r in con.execute("SELECT NAME1, TYPE, LOCAL_TYPE, GEOMETRY_X, GEOMETRY_Y FROM open_names WHERE NAME1 = ? COLLATE NOCASE LIMIT 20", (n,)):
-            hits.append((n, r[1], r[2], float(r[3]), float(r[4])))
+        seen = 0
+        for v in name_variants(n):
+            for r in con.execute("SELECT NAME1, TYPE, LOCAL_TYPE, GEOMETRY_X, GEOMETRY_Y FROM open_names WHERE NAME1 = ? COLLATE NOCASE LIMIT 20", (v,)):
+                hits.append((n, r[1], r[2], float(r[3]), float(r[4]))); seen += 1
+            if seen:
+                break
     if not hits:
         state.evidence.append(Evidence("place_lookup_miss", names[:6], "record", "gazetteer"))
         return []
