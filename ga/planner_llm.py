@@ -68,3 +68,38 @@ class LLMChooser:
         self.log.append({"sheet": summary.get("sheet"), "step": len(summary.get("steps", [])), "chose": a.get("tool"), "why": a.get("why")})
         tool = a.get("tool", "stop")
         return tool if tool == "stop" or any(o["name"] == tool for o in options) else "stop"
+
+
+class ClaudeCLIChooser(LLMChooser):
+    """The same chooser through the Claude Code CLI in headless mode (`claude -p`): the platform's own subscription,
+    no provider key in this process. Needs a logged-in CLI (`claude login`). Answers are cached like the API path."""
+    def __init__(self, model: str = "claude-sonnet-5", cache: str | Path | None = None, log: list | None = None, timeout: int = 120):
+        super().__init__(model=model, cache=cache, temperature=0.0, log=log)
+        self.key = "cli"
+        self.timeout = timeout
+
+    def _ask(self, messages: list[dict]) -> dict:
+        import subprocess
+        key = hashlib.sha256(json.dumps([self.model, "cli", messages], sort_keys=True).encode()).hexdigest()
+        if key in self._mem:
+            self.cached += 1
+            return self._mem[key]["answer"]
+        prompt = messages[0]["content"] + "\n\n" + messages[1]["content"]
+        out = subprocess.run(["claude", "-p", prompt, "--output-format", "json", "--max-turns", "1", "--model", self.model],
+                             capture_output=True, text=True, timeout=self.timeout)
+        try:
+            res = json.loads(out.stdout)
+            if res.get("is_error"):
+                raise RuntimeError(res.get("result", "claude cli error"))
+            text = res["result"]
+            answer = json.loads(text[text.index("{"):text.rindex("}") + 1])
+            usage = {"cost_usd": res.get("total_cost_usd"), "duration_ms": res.get("duration_ms")}
+        except (json.JSONDecodeError, ValueError, KeyError) as e:
+            raise RuntimeError(f"claude cli: {e}: {out.stdout[:200]} {out.stderr[:200]}")
+        self.calls += 1
+        rec = {"key": key, "answer": answer, "usage": usage, "model": self.model}
+        self._mem[key] = rec
+        if self.cache:
+            with open(self.cache, "a") as f:
+                f.write(json.dumps(rec) + "\n")
+        return answer

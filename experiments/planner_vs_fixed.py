@@ -19,7 +19,7 @@ sys.path.insert(0, os.environ.get("GEO_EVAL_REPO", "/env/code/geo-eval")); sys.p
 from evalcore import Calibrator, Policy, Rule, stats
 from ga import Decider, FixedPlan, Planner, Sheet, kinds, run
 from ga.bench import TruthCase, score
-from ga.planner_llm import LLMChooser
+from ga.planner_llm import ClaudeCLIChooser, LLMChooser
 
 
 def policy_for(kind: str) -> Policy:
@@ -39,12 +39,13 @@ def main() -> int:
     ap.add_argument("--out", required=True)
     ap.add_argument("--replay", action="store_true")
     ap.add_argument("--max-cost", type=float, default=0.3)
+    ap.add_argument("--chooser", choices=("deepseek", "claude-cli"), default="claude-cli")
     a = ap.parse_args()
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     cases = [json.loads(l) for l in open(a.cases) if l.strip()]
     if a.replay:
         os.environ.pop("DEEPSEEK_API_KEY", None)
-    chooser = LLMChooser(cache=out / "planner_cache.jsonl")
+    chooser = (ClaudeCLIChooser if a.chooser == "claude-cli" else LLMChooser)(cache=out / "planner_cache.jsonl")
     reg = kinds.registry_for(a.kind)
     pol = policy_for(a.kind)
     dec = Decider(pol, None, lambda s: s.hypotheses[0].score if s.hypotheses else None)

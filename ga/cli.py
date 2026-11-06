@@ -33,7 +33,7 @@ def main(argv=None) -> int:
     r.add_argument("--trace", help="append the trace to this JSONL")
     st_ = sub.add_parser("step", help="advance a stepwise session: show options, or choose a tool")
     st_.add_argument("--session", required=True)
-    st_.add_argument("--start-kind"); st_.add_argument("--image"); st_.add_argument("--record", default="{}"); st_.add_argument("--meta", default="{}")
+    st_.add_argument("--start-kind"); st_.add_argument("--image"); st_.add_argument("--id"); st_.add_argument("--record", default="{}"); st_.add_argument("--meta", default="{}")
     st_.add_argument("--choose"); st_.add_argument("--why", default=""); st_.add_argument("--chooser", default="person")
     a = ap.parse_args(argv)
     if a.cmd == "step":
@@ -42,14 +42,20 @@ def main(argv=None) -> int:
             record, meta = json.loads(a.record), json.loads(a.meta)
             with open(a.image, "rb") as f:
                 head = f.read(1 << 20)
-            sheet = Sheet(Path(a.image).stem, kinds.KINDS[a.start_kind].kind, a.image, digest_bytes(head), record, meta)
+            sheet = Sheet(a.id or Path(a.image).stem, kinds.KINDS[a.start_kind].kind, a.image, digest_bytes(head), record, meta)
             ses = StepSession.start(a.session, sheet, a.start_kind)
         else:
             ses = StepSession(a.session)
         reg = kinds.registry_for(ses.kind())
         if a.choose:
             print(json.dumps(ses.choose(reg, a.choose, a.why, a.chooser), default=str))
-        print(json.dumps(ses.options(reg), default=str, ensure_ascii=False)[:6000])
+        opts = ses.options(reg)
+        (Path(a.session) / "options.json").write_text(json.dumps(opts, default=str, ensure_ascii=False, indent=1))
+        st = opts["state"]
+        print(json.dumps({"cues": len(st["cues"]), "candidates": len(st["candidates"]),
+                          "hypotheses": [(h["matcher"], round(h["score"], 2)) for h in st["hypotheses"]],
+                          "evidence": [(e["name"], e["value"]) for e in st["evidence"]], "cost": st["cost"], "steps": st["steps"],
+                          "options": [o["name"] for o in opts["options"]], "full": str(Path(a.session) / "options.json")}, default=str))
         return 0
     if a.cmd == "kinds":
         for k, rec in kinds.KINDS.items():
