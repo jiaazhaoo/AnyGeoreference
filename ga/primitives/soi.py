@@ -129,7 +129,18 @@ def structure_match(state, res_m: float = 10.0, max_windows: int | None = None, 
     if not code or ref is None:
         return []
     img = _img(state)
-    s1 = soi_georef.run(img, code, order=2)
+    grid_cues = [c for c in state.cues if c.kind == "grid" and "," in c.text]
+    if grid_cues:                                               # the frame was already read: build step 1 from those nodes
+        sh = sheets.parse(code)
+        px = np.array([[(c.bbox[0] + c.bbox[2]) / 2, (c.bbox[1] + c.bbox[3]) / 2] for c in grid_cues])
+        ll = np.array([[float(v) for v in c.text.split(",")[:2]] for c in grid_cues])
+        fwd, inv = soi_georef.Poly.fit(px, ll, 2), soi_georef.Poly.fit(ll, px, 2)
+        lat0 = (sh.north + sh.south) / 2
+        mx, my = soi_georef.metres_per_deg(lat0)
+        d = fwd(px) - ll
+        s1 = soi_georef.Step1(sh, None, px, ll, fwd, inv, np.hypot(d[:, 0] * mx, d[:, 1] * my))
+    else:
+        s1 = soi_georef.run(img, code, order=2)
     grid = refine.make_grid(s1, res_m)
     wins = refine.windows(grid, s1.sheet)
     if max_windows:

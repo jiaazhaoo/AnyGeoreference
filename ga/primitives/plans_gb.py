@@ -50,11 +50,16 @@ def ocr_cached(state):
         if page and r.get("image") != page:
             continue
         ow, oh = r.get("ocr_size") or (None, None)
-        W, H = state.sheet.meta.get("width"), state.sheet.meta.get("height")
-        sx, sy = (W / ow, H / oh) if (ow and W) else (1.0, 1.0)
+        pw, ph = state.sheet.meta.get("page_size") or (state.sheet.meta.get("width"), state.sheet.meta.get("height"))
+        sx, sy = (pw / ow, ph / oh) if (ow and pw) else (1.0, 1.0)
+        crop = state.sheet.meta.get("crop_box")               # the sheet is a crop of the page: [x0, y0, x1, y1] in page px
+        cx0, cy0 = (crop[0], crop[1]) if crop else (0.0, 0.0)
         for it in r["results"]:
             x0, y0, x1, y1 = it["bbox"]
-            out.append(Cue(state.sheet.digest, "text", it["text"].strip(), (x0 * sx, y0 * sy, x1 * sx, y1 * sy), "ocr_cached", float(it.get("confidence", 1.0))))
+            bx = (x0 * sx - cx0, y0 * sy - cy0, x1 * sx - cx0, y1 * sy - cy0)
+            if crop and not (bx[0] >= -5 and bx[1] >= -5 and bx[2] <= crop[2] - crop[0] + 5 and bx[3] <= crop[3] - crop[1] + 5):
+                continue                                        # a word outside the crop is not on this sheet
+            out.append(Cue(state.sheet.digest, "text", it["text"].strip(), bx, "ocr_cached", float(it.get("confidence", 1.0))))
     return out
 
 
