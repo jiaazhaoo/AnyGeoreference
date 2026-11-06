@@ -42,22 +42,25 @@ Freeze    RecipeVersion; else revise Recipe and pilot again
 | control_point_fit | geometry | yes | cue → hypothesis | generic | yes |
 | residual_check | geometry | yes | hypothesis, cue → evidence | generic | yes |
 | hypothesis_agreement | geometry | yes | hypothesis → evidence | generic | yes |
+| ocr_cached | sheet-reader | yes | – → cue | plans_gb | yes |
 | ocr_words | sheet-reader | yes | – → cue | plans_gb | yes |
 | road_and_place_labels | sheet-reader | yes | cue → cue | plans_gb | yes |
-| grid_figures | sheet-reader | yes | cue → cue | plans_gb | yes |
 | vlm_read_names | sheet-reader | no | – → cue | plans_gb | declared |
 | gazetteer_search | gazetteer | yes | cue → candidate | plans_gb | yes |
+| grid_figures | geometry | yes | cue → hypothesis | plans_gb | yes |
 | text_anchor_fit | geometry | yes | cue → hypothesis | plans_gb | yes |
-| snap_faces | geometry | yes | hypothesis → evidence | plans_gb | yes |
+| address_in_footprint | address-register | yes | hypothesis → evidence | plans_gb | yes |
+| snap_faces | geometry | yes | hypothesis → evidence | plans_gb | declared |
 | graticule_frame | sheet-reader | yes | – → cue | soi | yes |
 | plate_separation | sheet-reader | yes | – → layer | soi | yes |
 | line_structure | sheet-reader | yes | layer → layer | soi | yes |
 | osm_reference | basemap | yes | candidate → layer | soi | yes |
-| structure_match | basemap | yes | layer → hypothesis | soi | declared |
-| cross_edition_agreement | geometry | yes | hypothesis → evidence | soi | declared |
+| structure_match | basemap | yes | layer → hypothesis | soi | yes |
+| cross_edition_agreement | geometry | yes | hypothesis → evidence | soi | yes |
 | edge_structure | sheet-reader | yes | – → layer | raster | yes |
 | hint_area | record-text | yes | – → candidate | raster | yes |
-| reference_render | basemap | yes | candidate → layer | raster | declared |
+| reference_render | basemap | yes | candidate → layer | raster | yes |
+| structure_match_orb | basemap | yes | layer → hypothesis | raster | yes |
 | overlay_agreement | basemap | yes | hypothesis, layer → evidence | raster | yes |
 
 "declared" = in the library with its contract but no implementation on this machine (needs the bound repository, weights or a key); a recipe may still name it, and `kinds.unavailable()` says so before any run.
