@@ -72,11 +72,18 @@ class LLMChooser:
 
 class ClaudeCLIChooser(LLMChooser):
     """The same chooser through the Claude Code CLI in headless mode (`claude -p`): the platform's own subscription,
-    no provider key in this process. Needs a logged-in CLI (`claude login`). Answers are cached like the API path."""
-    def __init__(self, model: str = "claude-sonnet-5", cache: str | Path | None = None, log: list | None = None, timeout: int = 120):
+    no provider key in this process. Runs in an isolated config directory (credentials only, no CLAUDE.md or
+    settings from the person's own setup) and an empty working directory, with the planner's system prompt, so the
+    model sees nothing but the tools and the state. Needs a logged-in CLI (`claude login`) whose credentials were
+    copied into GA_CLAUDE_CONFIG. Answers are cached like the API path."""
+    def __init__(self, model: str = "claude-sonnet-5", cache: str | Path | None = None, log: list | None = None, timeout: int = 180,
+                 config_dir: str | None = None, workdir: str | None = None):
         super().__init__(model=model, cache=cache, temperature=0.0, log=log)
         self.key = "cli"
         self.timeout = timeout
+        self.config_dir = config_dir or os.environ.get("GA_CLAUDE_CONFIG", "/data/lab/projects/georeference-anything/claude-config")
+        self.workdir = Path(workdir or os.environ.get("GA_CLAUDE_WORKDIR", "/tmp/ga-planner-cwd"))
+        self.workdir.mkdir(parents=True, exist_ok=True)
 
     def _ask(self, messages: list[dict]) -> dict:
         import subprocess
@@ -84,9 +91,10 @@ class ClaudeCLIChooser(LLMChooser):
         if key in self._mem:
             self.cached += 1
             return self._mem[key]["answer"]
-        prompt = messages[0]["content"] + "\n\n" + messages[1]["content"]
-        out = subprocess.run(["claude", "-p", prompt, "--output-format", "json", "--max-turns", "1", "--model", self.model],
-                             capture_output=True, text=True, timeout=self.timeout)
+        env = {"HOME": os.environ.get("HOME", ""), "PATH": os.environ.get("PATH", ""), "TERM": "xterm", "CLAUDE_CONFIG_DIR": self.config_dir}
+        cmd = ["claude", "-p", messages[1]["content"], "--system-prompt", messages[0]["content"] + " Answer with exactly one JSON object and nothing else: no prose, no code fences.",
+               "--output-format", "json", "--max-turns", "1", "--model", self.model]
+        out = subprocess.run(cmd, capture_output=True, text=True, timeout=self.timeout, env=env, cwd=str(self.workdir))
         try:
             res = json.loads(out.stdout)
             if res.get("is_error"):
