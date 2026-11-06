@@ -2,8 +2,7 @@
 
 **Put any scanned drawing or map on the Earth, say how sure you are, and say no when you are not.**
 
-Status: v0 design and core loop (2026-11). Scope of v0: scanned planning drawings, Great Britain. Other kinds of
-input (microfilm frames, historical maps, sketches) are adapters to be added; the core does not change.
+Status: v0 design and core loop (2026-11). Kinds placed so far: scanned planning drawings (Great Britain) and historical 1-inch survey sheets (South Asia). A new kind is a recipe, not a rewrite; the core does not change.
 
 ## Why
 
@@ -17,6 +16,16 @@ on language-guided spatial analysis; this repository is one end-to-end instance 
 external truth.
 
 The name is a direction, not a claim: generality comes from the tool and knowledge interfaces, not from one model.
+
+## Three levels
+
+| level | question | answered by |
+|---|---|---|
+| L1 runtime, per sheet | where does this sheet go | the loop below |
+| L2 recipe, per kind of map | how do sheets of this kind get placed at all | profile the samples, compose from a primitive library, generate the adapter, pilot with truth, freeze (`docs/RECIPE.md`) |
+| L3 production, per batch | how to place thousands without an accident | a control layer: budget, caps, sentinel, rollback |
+
+Two kinds are placed today: planning drawings (Great Britain) and 1-inch historical survey sheets (South Asia). A user who brings a third kind goes through L2.
 
 ## The loop
 

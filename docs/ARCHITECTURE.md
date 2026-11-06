@@ -1,5 +1,7 @@
 # Architecture
 
+Three levels. L1, the runtime loop per sheet, is this file. L2, recipes per kind of map (profile, compose, generate, pilot, freeze), is `RECIPE.md`. L3, production per batch (budget, caps, sentinel, rollback), is delegated to a control layer such as ReinsLite.
+
 ## 1. Objects (`ga/model.py`)
 
 | object | fields | rule |
