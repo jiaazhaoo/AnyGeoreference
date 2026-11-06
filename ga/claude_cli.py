@@ -35,8 +35,13 @@ def parse_json_answer(text: str) -> dict:
     raise ValueError(f"no JSON object in the answer: {text[:120]}")
 
 
+def _log_failure(wd: Path, key: str, raw: str, why: str) -> None:
+    with open(wd / "failed_answers.jsonl", "a") as f:
+        f.write(json.dumps({"key": key, "why": why, "raw": raw[-4000:]}) + "\n")
+
+
 def ask_json(system: str, user: str, model: str = "claude-sonnet-5", cache: str | Path | None = None, timeout: int = 300,
-             max_turns: int = 1, allowed_tools: str | None = None, workdir: str | None = None) -> dict:
+             max_turns: int = 1, allowed_tools: str | None = None, workdir: str | None = None, retry: bool = True) -> dict:
     key = hashlib.sha256(json.dumps([model, system, user, allowed_tools], sort_keys=True).encode()).hexdigest()
     cache = Path(cache) if cache else None
     if cache and cache.exists():
@@ -52,10 +57,21 @@ def ask_json(system: str, user: str, model: str = "claude-sonnet-5", cache: str 
     if allowed_tools:
         cmd += ["--allowedTools", allowed_tools]
     out = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, env=env, cwd=str(wd))
-    res = json.loads(out.stdout)
+    try:
+        res = json.loads(out.stdout)
+    except json.JSONDecodeError:
+        raise RuntimeError(f"claude cli: no JSON envelope; stderr: {out.stderr[-300:]}")
     if res.get("is_error"):
-        raise RuntimeError(res.get("result", "claude cli error"))
-    answer = parse_json_answer(res["result"])
+        denials = [d.get("tool_name") for d in res.get("permission_denials", [])]
+        raise RuntimeError(f"claude cli error: {res.get('subtype')}; result: {str(res.get('result', ''))[:200]}; tools denied: {denials}")
+    try:
+        answer = parse_json_answer(res["result"])
+    except ValueError as e:
+        _log_failure(wd, key, res["result"], str(e))
+        if retry:
+            return ask_json(system, user + "\n\nYour previous answer was cut off or was not one JSON object. Answer again, shorter: keep every string under 300 characters and the whole JSON under 8000 characters.",
+                            model, cache, timeout, max_turns, allowed_tools, workdir, retry=False)
+        raise
     if cache:
         with open(cache, "a") as f:
             f.write(json.dumps({"key": key, "answer": answer, "usage": {"cost_usd": res.get("total_cost_usd"), "duration_ms": res.get("duration_ms")}, "model": model}) + "\n")

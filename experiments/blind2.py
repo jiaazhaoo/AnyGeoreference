@@ -22,7 +22,9 @@ from ga import Sheet                                                            
 from ga.builder import ensure_capabilities                                                    # noqa: E402
 from ga.execute import execute_plan, summary                                                  # noqa: E402
 from ga.model import digest_bytes                                                             # noqa: E402
+from ga.claude_cli import ask_json                                                             # noqa: E402
 from ga.orchestrate import plan_batch, read_sheet                                             # noqa: E402
+from ga.plan import revise_plan                                                                # noqa: E402
 
 Image.MAX_IMAGE_PIXELS = None
 
@@ -41,6 +43,7 @@ def main() -> int:
     ap.add_argument("--batch", action="append", required=True, help="name=img1[,img2,...]")
     ap.add_argument("--record", default='{"note": "a scanned map, place and kind unknown to the system"}')
     ap.add_argument("--no-build", action="store_true")
+    ap.add_argument("--revisions", type=int, default=2, help="how many times the main agent may revise its plan on the results")
     a = ap.parse_args()
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     status = out / "status.txt"
@@ -65,6 +68,22 @@ def main() -> int:
             rec["skipped"] = skipped
             rec["results"] = [summary(st, v) for st, v in zip(states, verdicts)]
             status.open("a").write(f"{name}: " + "; ".join(f"{r['sheet']} {r['action']} ({r['why'][:60]})" for r in rec["results"]) + "\n")
+            rec["revisions"] = []
+            for i in range(a.revisions):
+                if any(r["action"] == "accept" for r in rec["results"]):
+                    break
+                new, raw = revise_plan(plan, rec["results"], lambda s_, u_: ask_json(s_, u_, cache=str(out / f"{name}.plan.cache.jsonl")))
+                rev = {"round": i + 1, "action": raw.get("action"), "why": raw.get("why", "")[:600]}
+                if new is None:
+                    rec["revisions"].append(rev); status.open("a").write(f"{name}: revision {i+1}: stop ({rev['why'][:80]})\n"); break
+                plan = new
+                rev["recipe"] = [s_.primitive for s_ in plan.recipe.steps]; rev["problems"] = plan.problems()
+                if plan.missing_primitives and not a.no_build:
+                    rev["builds"] = ensure_capabilities(plan, None, log=out / "builds.jsonl")
+                states, verdicts, skipped = execute_plan(plan, sheets, out / f"{name}.trace.jsonl")
+                rec["results"] = [summary(st, v) for st, v in zip(states, verdicts)]
+                rev["results"] = rec["results"]; rec["revisions"].append(rev)
+                status.open("a").write(f"{name}: revision {i+1} {rev['recipe']}: " + "; ".join(f"{r['sheet']} {r['action']} ({r['why'][:60]})" for r in rec["results"]) + "\n")
         except Exception:                                                                    # noqa: BLE001
             rec["error"] = traceback.format_exc()[-2000:]
             status.open("a").write(f"{name}: ERROR {rec['error'].splitlines()[-1]}\n")

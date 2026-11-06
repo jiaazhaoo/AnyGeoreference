@@ -23,12 +23,25 @@ the library of primitives you may compose. Write the plan as one JSON object:
  "missing_primitives": [{"name": "<snake_case name>", "why": "<one sentence>", "consumes": ["cue"|"candidate"|"hypothesis"|"layer"], "produces": "cue|candidate|hypothesis|evidence|layer", "family": "<evidence family>", "method": "<how it computes its output, in 3-6 sentences, concrete enough to implement from>"}],
  "risks": ["<one sentence each>"],
  "why": "<three sentences: the method, the second evidence family, what one sheet alone cannot give>"}
-Rules: the model only reads (cues); coordinates come from deterministic matchers; accept needs a second evidence
+Rules: a step's params are ONLY names listed in that primitive's "params" (anything else is dropped); keep the whole
+answer under 8000 characters; the model only reads (cues); coordinates come from deterministic matchers; accept needs a second evidence
 family independent of the reader; abstain is an answer; use only library names in the recipe; with one sheet there is
 no batch agreement; with three similar sheets pilot on one and check on the others. When the knowledge describes a
 method the library has no primitive for, do not drop the method: put it in missing_primitives with a concrete
 `method` so it can be built, and put its name in the recipe at the step where it belongs; a missing capability that
 is known to be buildable is built, not abstained on."""
+
+
+REVISE = """You are the main agent of a georeferencing system, revising your plan after running it. You receive the plan you
+wrote, the library (with each primitive's params), and what happened per sheet: the steps run, what each produced,
+the evidence with its values and notes, the decision and its reason. Decide one of: {"action": "stop", "why": "..."}
+when the result is final (accepted with a second family, or an honest abstention nothing in the library or knowledge
+can change); or {"action": "revise", "why": "...", "recipe": [...same form as before...], "missing_primitives": [...]}
+when a different step, a different parameter inside a primitive's contract, or a primitive still missing would
+change the outcome. Revise only on evidence: an evidence note saying "need 5" with 3 found is a parameter to
+reconsider if the knowledge allows; a reader that found no bounds is a step to add; a tool that produced 0 is a tool
+to replace, not to repeat. Never lower a verification threshold to make an accept; a revision that only changes the
+accept rule is refused. Keep the answer under 6000 characters; params only from the contract."""
 
 
 @dataclass
@@ -78,7 +91,7 @@ class Plan:
 
 def library_summary() -> list[dict]:
     return [{"name": p.name, "consumes": list(p.consumes), "produces": p.produces, "family": p.family, "deterministic": p.deterministic,
-             "cost": p.cost_estimate, "about": p.about, "implemented": p.available()} for p in LIBRARY.values()]
+             "cost": p.cost_estimate, "about": p.about, "implemented": p.available(), "params": sorted(p.accepted_params())} for p in LIBRARY.values()]
 
 
 def make_plan(profile: Mapping, knowledge: str, n_sheets: int, ask: Callable[[str, str], dict]) -> tuple[Plan, dict]:
@@ -88,3 +101,15 @@ def make_plan(profile: Mapping, knowledge: str, n_sheets: int, ask: Callable[[st
     plan = Plan(AdapterSpec("planned", steps, (), "lib-v0"), list(a.get("truth_sources", [])), dict(a.get("evaluation", {})),
                 dict(a.get("stop_rules", {})), list(a.get("missing_primitives", [])), list(a.get("risks", [])), str(a.get("why", "")), n_sheets)
     return plan, a
+
+
+def revise_plan(plan: Plan, results: list[dict], ask: Callable[[str, str], dict]) -> tuple[Plan | None, dict]:
+    """The improvement loop's one step: the main agent sees what its plan did and either stops or revises the recipe."""
+    user = json.dumps({"plan": plan.to_dict(), "results": results, "library": library_summary()}, ensure_ascii=False, default=str)
+    a = ask(REVISE, user)
+    if a.get("action") != "revise" or not a.get("recipe"):
+        return None, a
+    steps = tuple(Step(s.get("primitive", ""), dict(s.get("params", {}))) for s in a.get("recipe", []) if isinstance(s, dict))
+    new = Plan(AdapterSpec("revised", steps, (), "lib-v0"), plan.truth_sources, plan.evaluation, plan.stop_rules,
+               list(a.get("missing_primitives", [])), plan.risks, str(a.get("why", "")), plan.n_sheets)
+    return new, a

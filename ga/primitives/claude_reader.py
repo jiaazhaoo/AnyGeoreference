@@ -16,7 +16,8 @@ from . import Primitive, register
 PROMPT = """Read this scanned map or drawing. Return one JSON object only:
 {"cues": [{"kind": "road|number|place|landmark|arrow|scale|grid|text", "text": "...", "bbox": [x0, y0, x1, y1], "confidence": 0..1}],
  "north_arrow": "up|rotated N deg|none", "scale": "1:500|none", "site_marking": "red line|hatched|none|...", "note": "one sentence"}
-bbox in image pixels (the image is {w} x {h}). Road names and house numbers matter most: list EVERY street or road name you can read, up to 80, each with its own bbox; then places, landmarks, numbers. Never give coordinates on the Earth."""
+bbox in image pixels (the image is {w} x {h}). Road names and house numbers matter most: list EVERY street or road name you can read, up to 80, each with its own bbox; then places, landmarks, numbers. For survey sheets and charts also give the printed corner coordinates or border scale values as grid cues with their exact text (e.g. "51 30' N" at the left border). Never give coordinates on the Earth.
+You have only the Read tool: read the image file once as it is; do not try to crop, zoom, or run code, and do not ask for other tools."""
 
 
 def claude_read(state, reads_dir: str | None = None, headless: bool = False, model: str = "claude-sonnet-5"):
@@ -27,7 +28,7 @@ def claude_read(state, reads_dir: str | None = None, headless: bool = False, mod
         w, h = state.sheet.meta.get("width", 0), state.sheet.meta.get("height", 0)
         data = ask_json("You read scanned maps and drawings for a georeferencing system.",
                         PROMPT.replace("{w}", str(w)).replace("{h}", str(h)) + f"\nRead the image file at this path with your Read tool: {state.sheet.image}",
-                        model=model, max_turns=3, allowed_tools="Read", timeout=400)
+                        model=model, max_turns=8, allowed_tools="Read", timeout=600)
         d.mkdir(parents=True, exist_ok=True)
         data["reader"] = f"claude headless ({model})"
         f.write_text(json.dumps(data, indent=1))
