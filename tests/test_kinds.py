@@ -62,7 +62,23 @@ def test_each_kind_runs_with_stubs():
 
 
 def test_unavailable_is_explicit():
-    missing = kinds.unavailable("soi_1inch")
-    assert "cross_edition_agreement" in missing        # declared, not implemented here: never silently skipped
+    from ga.primitives import LIBRARY, Primitive, register
+    register(Primitive("declared_only_demo", "geometry", True, (), "evidence", "declared, no implementation", None, "generic"))
+    from ga.recipe import AdapterSpec, Step
+    kinds.SPECS["demo_kind"] = AdapterSpec("demo_kind", (Step("declared_only_demo"),), (), "lib-v0")
+    assert kinds.unavailable("demo_kind") == ["declared_only_demo"]     # never silently skipped
     with pytest.raises(RuntimeError):
-        kinds.registry_for("soi_1inch")
+        kinds.registry_for("demo_kind")
+    del kinds.SPECS["demo_kind"]; del LIBRARY["declared_only_demo"]
+
+
+def test_cross_edition_agreement():
+    from ga.primitives.soi import cross_edition_agreement
+    sheet = Sheet("e", "historical_map", "x.tif", "sha256:e", {"sheet_code": "053ASE"},
+                  {"sibling_id": "053ASE_1925", "sibling_footprint_wkt": "POLYGON((76 30.5,76.5 30.5,76.5 30,76 30,76 30.5))"})
+    st = State(sheet)
+    st.hypotheses = [Hypothesis("sha256:e", (1, 0, 0, 0, 1, 0), "POLYGON((76.0003 30.5,76.5003 30.5,76.5003 30,76.0003 30,76.0003 30.5))", "EPSG:4326", 0.9, "control_point_fit")]
+    ev = {e.name: e for e in cross_edition_agreement(st, tol_m=100)}
+    assert ev["editions_agree"].value is True and 25 < ev["editions_distance_m"].value < 35      # 0.0003 deg lon ~ 29 m
+    st.hypotheses = [Hypothesis("sha256:e", (1, 0, 0, 0, 1, 0), "POLYGON((76.01 30.5,76.51 30.5,76.51 30,76.01 30,76.01 30.5))", "EPSG:4326", 0.9, "control_point_fit")]
+    assert {e.name: e.value for e in cross_edition_agreement(st)}["editions_agree"] is False

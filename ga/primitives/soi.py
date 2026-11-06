@@ -5,6 +5,7 @@ import os
 import sys
 
 import numpy as np
+import shapely.geometry
 
 from ..model import Cue, Hypothesis, Layer
 from . import Primitive, register
@@ -180,12 +181,37 @@ def structure_match(state, res_m: float = 10.0, max_windows: int | None = None, 
                        note=f"poly2-normalised; n={int(keep.sum())}; rms={rms:.4g}; windows {n_acc}/{len(results)}; loo_median_m={loo_med}; mu={P.mu.tolist()}; sd={P.sd.tolist()}; coeffs={coeffs.tolist()}")]
 
 
+def cross_edition_agreement(state, tol_m: float = 100.0):
+    """The same sheet in another edition, placed independently (its footprint WKT in EPSG:4326 passed in the sheet's
+    meta as `sibling_footprint_wkt`, plus `sibling_id`): do the two placements agree at the footprint centre and
+    corners? Two editions share the printed graticule but were scanned, warped and read separately, so agreement
+    is corroboration from the same family only in the weakest sense; it mainly catches a misread frame."""
+    import math
+    import shapely.wkt
+    sib = state.sheet.meta.get("sibling_footprint_wkt")
+    if not sib or not state.hypotheses:
+        return []
+    a = shapely.wkt.loads(state.hypotheses[0].site_wkt); b = shapely.wkt.loads(sib)
+    if a.is_empty or b.is_empty:
+        return []
+    lat0 = (a.centroid.y + b.centroid.y) / 2
+    mx, my = 111320 * math.cos(math.radians(lat0)), 110574
+    def dm(p, q):
+        return math.hypot((p.x - q.x) * mx, (p.y - q.y) * my)
+    centre = dm(a.centroid, b.centroid)
+    ca, cb = list(a.exterior.coords)[:4], list(b.exterior.coords)[:4]
+    corners = [dm(shapely.geometry.Point(p), shapely.geometry.Point(q)) for p, q in zip(ca, cb)] if len(ca) == 4 and len(cb) == 4 else []
+    worst = max(corners) if corners else centre
+    return [Evidence("editions_agree", bool(worst <= tol_m), "deterministic", "geometry", note=f"vs {state.sheet.meta.get('sibling_id', 'sibling')}; tol {tol_m} m"),
+            Evidence("editions_distance_m", round(centre, 1), "deterministic", "geometry", note=f"corners {[round(c, 1) for c in corners]}")]
+
+
 for p in (
     Primitive("graticule_frame", "sheet-reader", True, (), "cue", "neatline + graticule nodes with their printed lon/lat", graticule_frame, "soi", requires=("autogeoref", "opencv")),
     Primitive("plate_separation", "sheet-reader", True, (), "layer", "colour-plate masks: black / red / blue inks", plate_separation, "soi", requires=("autogeoref", "opencv")),
     Primitive("line_structure", "sheet-reader", True, ("layer",), "layer", "skeletonised, traced linework of a plate as polylines", line_structure, "soi", requires=("autogeoref", "scikit-image")),
     Primitive("osm_reference", "basemap", True, ("candidate",), "layer", "OSM skeleton (rail, canals, rivers, roads, villages) for the candidate area", osm_reference, "soi", requires=("autogeoref", "Overpass")),
     Primitive("structure_match", "basemap", True, ("layer",), "hypothesis", "MINIMA-LoFTR match of the sheet's linework against rendered OSM, window by window -> GCPs -> robust polynomial", structure_match, "soi", requires=("autogeoref", "MINIMA weights", "torch", "Overpass")),
-    Primitive("cross_edition_agreement", "geometry", True, ("hypothesis",), "evidence", "the same sheet in two editions placed independently: do the placements agree", None, "soi"),
+    Primitive("cross_edition_agreement", "geometry", True, ("hypothesis",), "evidence", "the same sheet in another edition, placed independently (its footprint in the meta): do the placements agree", cross_edition_agreement, "soi"),
 ):
     register(p)
