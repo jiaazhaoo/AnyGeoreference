@@ -20,12 +20,15 @@ the library of primitives you may compose. Write the plan as one JSON object:
  "truth_sources": [{"kind": "user_control_points|external_authority|batch_agreement|self_consistency", "how": "<one sentence>", "trust": 0..1}],
  "evaluation": {"metrics": ["placed_right", "placed_wrong", "abstained", "calibration", "cost"], "tolerance_m": <number>, "split": "<how the sheets are used: pilot / check>"},
  "stop_rules": {"accept_when": "<condition in words>", "abstain_when": "<condition>", "max_cost_usd": <number>, "max_minutes_per_sheet": <number>},
- "missing_primitives": [{"name": "<what is missing>", "why": "<one sentence>"}],
+ "missing_primitives": [{"name": "<snake_case name>", "why": "<one sentence>", "consumes": ["cue"|"candidate"|"hypothesis"|"layer"], "produces": "cue|candidate|hypothesis|evidence|layer", "family": "<evidence family>", "method": "<how it computes its output, in 3-6 sentences, concrete enough to implement from>"}],
  "risks": ["<one sentence each>"],
  "why": "<three sentences: the method, the second evidence family, what one sheet alone cannot give>"}
 Rules: the model only reads (cues); coordinates come from deterministic matchers; accept needs a second evidence
-family independent of the reader; abstain is an answer; use only library names; with one sheet there is no batch
-agreement; with three similar sheets pilot on one and check on the others."""
+family independent of the reader; abstain is an answer; use only library names in the recipe; with one sheet there is
+no batch agreement; with three similar sheets pilot on one and check on the others. When the knowledge describes a
+method the library has no primitive for, do not drop the method: put it in missing_primitives with a concrete
+`method` so it can be built, and put its name in the recipe at the step where it belongs; a missing capability that
+is known to be buildable is built, not abstained on."""
 
 
 @dataclass

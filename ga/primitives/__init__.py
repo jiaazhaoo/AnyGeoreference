@@ -46,7 +46,13 @@ class Primitive:
 LIBRARY: dict[str, Primitive] = {}
 
 
+import os as _os
+HIDDEN = {n for n in _os.environ.get("GA_HIDE_PRIMITIVES", "").split(",") if n}     # a demo: pretend these are absent
+
+
 def register(p: Primitive) -> Primitive:
+    if p.name in HIDDEN:
+        return p
     if p.name in LIBRARY:
         raise ValueError(f"primitive {p.name!r} already in the library")
     LIBRARY[p.name] = p
@@ -65,3 +71,17 @@ def table() -> str:
 
 
 from . import generic, plans_gb, soi, raster, claude_reader   # noqa: E402,F401  (registration on import)
+
+
+def load_generated() -> list[str]:
+    """Import every module under ga/primitives/generated (built by the builder); returns the names loaded."""
+    import importlib, pkgutil
+    from . import generated
+    out = []
+    for m in pkgutil.iter_modules(generated.__path__):
+        importlib.import_module(f"{__name__}.generated.{m.name}")
+        out.append(m.name)
+    return out
+
+
+load_generated()
