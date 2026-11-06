@@ -92,6 +92,20 @@ evaluation, stop rules, missing primitives, risks.
 - Both plans passed parameters the primitives do not have (`sheets`, `read_for`, `datum_note`); the library now
   drops them at run time and lists them in the plan's problems, so a plan is never refused for a stray parameter.
 
+**Blind test, four inputs the system had never seen, 2026-11-06.** No kind hint; the main agent read each,
+retrieved knowledge without a kind filter and wrote a plan; then the executable part of each plan ran.
+
+| input | what the agent read and planned | what ran | outcome |
+|---|---|---|---|
+| USGS 1:62,500 Boston Bay sheet, 1903 (a survey series from another country) | identified the series, scale and graticule ticks; asked for a datum shift and a "neatline vs next graticule line" safeguard | a generic graticule reader (bounds + interval, no sheet index) found 16 nodes in 1.2 s; poly2 fit, node residual 8.8 m | 23 m rms / 18 m median from the USGS georeference; the printed coordinates themselves sit 18 m from it. Placed, unseen, without a core change |
+| 1823 engraved town plan of Sheffield | 19 cues (5 roads, 9 places); plan warned the street pattern has changed since 1823 and asked for a historical-epoch base map | place lookup clustered Castle / Church / High Street into one 3 km area (right); the learned matcher (300 s, GPU) and ORB produced no hypothesis | abstain, as the plan predicted |
+| OSM-style render of a suburb | 38 cues (28 roads); plan warned the reference and the sheet are both OSM-derived | place lookup clustered 9 names into a 1.5 km area (right); the learned matcher gave one hypothesis at score 36, rotated 90°, 1,012 m off; ORB none | review, not accepted (score under the bar, no address evidence); overlay agreement read 0.38 at a 1 km miss, so on dense road networks overlay is not a discriminating check |
+| oblique photograph of a cathedral | 4 landmark cues, no road, grid or scale; plan asked for an oblique-to-plan rectifier and a landmark lookup | landmark descriptions did not resolve in Open Names; no candidate area | abstain, with the reason recorded |
+
+Four unseen inputs: one placed to 23 m, one held for review at the right area, two abstentions with reasons, no
+confident wrong placement. What the test exposed: the overlay check is weak on dense networks; landmark names need
+a lookup of their own; an 1823 street pattern needs a reference of its own epoch.
+
 **Retrieval wants the whole page; matching wants the sheet.** Restricting OCR to the plan crop dropped the
 gazetteer's candidate areas from 9 of 10 to 3 of 10; keeping page-wide words for retrieval and on-sheet words for
 anchoring restored them.

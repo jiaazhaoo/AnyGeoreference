@@ -63,6 +63,13 @@ writes the plan: a recipe over the library, where truth will come from and how f
 the stop rules, what primitives are missing, the risks. With one sheet it says so: no batch agreement, deliveries
 need an external truth. `python -m ga.cli plan --kind ... --images a b c`. Two first plans are in `docs/FINDINGS.md`.
 
+### Blind test
+
+Four inputs the system had never seen, no kind hint: a 1903 USGS sheet (placed to 23 m rms by a generic graticule
+reader the agent asked for), an 1823 engraved town plan (right area, abstained, as the plan predicted), an OSM-style
+suburb render (right area, one weak hypothesis 1 km off held for review, not accepted), an oblique photograph
+(abstained: nothing on it places it). No confident wrong placement. Details in `docs/FINDINGS.md`.
+
 ### Planner against the fixed plan
 
 Ten drawings, the same tools and cache, truth from the client's grading; the planner is Claude through the
