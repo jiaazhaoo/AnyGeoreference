@@ -16,9 +16,10 @@ PLANS_GB = Recipe(
     matchers=("text_anchor_fit", "grid_figures", "structure_match_orb"),
     verifications=("address_in_footprint", "overlay_agreement", "snap_faces", "hypothesis_agreement"),
     policy_rules=(
-        {"id": "snap_and_address", "when": "snap_iou >= 0.86 and address_inside", "to": "accept"},
-        {"id": "two_matchers_agree", "when": "matchers_agree", "to": "accept"},
-        {"id": "far_from_record", "when": "record_distance_m > 2000", "from": "accept", "to": "review"},
+        {"id": "snap_and_address", "when": "(snap_iou or 0) >= 0.86 and address_inside", "to": "accept"},
+        {"id": "address_and_overlay", "when": "address_in_footprint and (overlay_agreement or 0) >= 0.3", "to": "accept"},
+        {"id": "two_matchers_agree", "when": "matchers_agree and address_in_footprint", "to": "accept"},
+        {"id": "far_from_record", "when": "(address_to_centre_m or 0) > 2000", "from": "accept", "to": "review"},
     ),
     expected_accuracy_m=(2.0, 10.0), expected_cost_per_sheet=0.012,
     note="truth: the client's verdict on delivered polygons; abstain when neither snap nor address agrees")
