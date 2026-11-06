@@ -35,7 +35,37 @@ def main(argv=None) -> int:
     st_.add_argument("--session", required=True)
     st_.add_argument("--start-kind"); st_.add_argument("--image"); st_.add_argument("--id"); st_.add_argument("--record", default="{}"); st_.add_argument("--meta", default="{}")
     st_.add_argument("--choose"); st_.add_argument("--why", default=""); st_.add_argument("--chooser", default="person")
+    pl = sub.add_parser("plan", help="profile 1-3 similar sheets and have the main agent write the plan")
+    pl.add_argument("--kind", required=True, choices=sorted(kinds.KINDS))
+    pl.add_argument("--images", nargs="+", required=True); pl.add_argument("--ids", nargs="*", default=[])
+    pl.add_argument("--record", default="{}"); pl.add_argument("--meta", default="{}")
+    pl.add_argument("--reads-dir"); pl.add_argument("--no-headless", action="store_true"); pl.add_argument("--model", default="claude-sonnet-5")
+    pl.add_argument("--out")
     a = ap.parse_args(argv)
+    if a.cmd == "plan":
+        from .orchestrate import plan_batch, read_sheet
+        record, meta = json.loads(a.record), json.loads(a.meta)
+        sheets, readings = [], []
+        for i, img in enumerate(a.images):
+            m = dict(meta)
+            try:
+                from PIL import Image
+                Image.MAX_IMAGE_PIXELS = None
+                with Image.open(img) as im:
+                    m.setdefault("width", im.width); m.setdefault("height", im.height)
+            except Exception:                                               # noqa: BLE001
+                pass
+            with open(img, "rb") as f:
+                head = f.read(1 << 20)
+            sid = a.ids[i] if i < len(a.ids) else Path(img).stem
+            sh = Sheet(sid, kinds.KINDS[a.kind].kind, img, digest_bytes(head), record, m)
+            sheets.append(sh); readings.append(read_sheet(sh, a.reads_dir, headless=not a.no_headless))
+        plan, raw, ctx = plan_batch(sheets, readings, model=a.model, cache=(str(Path(a.out).with_suffix(".cache.jsonl")) if a.out else None))
+        out = {"plan": plan.to_dict(), "context": ctx, "raw": raw}
+        if a.out:
+            Path(a.out).write_text(json.dumps(out, indent=1, ensure_ascii=False, default=str))
+        print(json.dumps(out["plan"], indent=1, ensure_ascii=False, default=str)[:4000])
+        return 0
     if a.cmd == "step":
         from .session import StepSession
         if a.start_kind:

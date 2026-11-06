@@ -1,0 +1,82 @@
+"""The plan a main agent writes for a batch of one to three similar sheets: a recipe over the primitive library,
+where truth will come from and how far it is trusted, the evaluation it will run, the stop rules, the budget, and
+what it could not compose (missing primitives). Validated composition-only; a plan without a truth source above
+self-consistency can only deliver "unverified"."""
+from __future__ import annotations
+
+import json
+from dataclasses import asdict, dataclass, field
+from typing import Callable, Mapping
+
+from .primitives import LIBRARY
+from .recipe import AdapterSpec, Step
+
+TRUTH_RANK = {"user_control_points": 4, "external_authority": 3, "batch_agreement": 2, "self_consistency": 1}
+
+SYSTEM = """You are the main agent of a georeferencing system. You receive the profile of a batch of one to three
+similar scanned maps (what a reader found on them), retrieved knowledge about how such maps are georeferenced, and
+the library of primitives you may compose. Write the plan as one JSON object:
+{"recipe": [{"primitive": "<library name>", "params": {...}}, ...],
+ "truth_sources": [{"kind": "user_control_points|external_authority|batch_agreement|self_consistency", "how": "<one sentence>", "trust": 0..1}],
+ "evaluation": {"metrics": ["placed_right", "placed_wrong", "abstained", "calibration", "cost"], "tolerance_m": <number>, "split": "<how the sheets are used: pilot / check>"},
+ "stop_rules": {"accept_when": "<condition in words>", "abstain_when": "<condition>", "max_cost_usd": <number>, "max_minutes_per_sheet": <number>},
+ "missing_primitives": [{"name": "<what is missing>", "why": "<one sentence>"}],
+ "risks": ["<one sentence each>"],
+ "why": "<three sentences: the method, the second evidence family, what one sheet alone cannot give>"}
+Rules: the model only reads (cues); coordinates come from deterministic matchers; accept needs a second evidence
+family independent of the reader; abstain is an answer; use only library names; with one sheet there is no batch
+agreement; with three similar sheets pilot on one and check on the others."""
+
+
+@dataclass
+class Plan:
+    recipe: AdapterSpec
+    truth_sources: list[dict]
+    evaluation: dict
+    stop_rules: dict
+    missing_primitives: list[dict] = field(default_factory=list)
+    risks: list[str] = field(default_factory=list)
+    why: str = ""
+    n_sheets: int = 1
+
+    def best_truth(self) -> str:
+        kinds = [t.get("kind", "self_consistency") for t in self.truth_sources]
+        return max(kinds, key=lambda k: TRUTH_RANK.get(k, 0)) if kinds else "self_consistency"
+
+    def can_accept(self) -> bool:
+        return TRUTH_RANK.get(self.best_truth(), 0) >= 2
+
+    def problems(self) -> list[str]:
+        out = []
+        bad = self.recipe.validate(set(LIBRARY))
+        if bad:
+            out.append(f"not in the library: {bad}")
+        kinds_out = {LIBRARY[s.primitive].produces for s in self.recipe.steps if s.primitive in LIBRARY}
+        if "hypothesis" not in kinds_out:
+            out.append("no matcher: nothing produces a hypothesis")
+        if "evidence" not in kinds_out:
+            out.append("no verification: nothing produces evidence")
+        if self.n_sheets == 1 and any(t.get("kind") == "batch_agreement" for t in self.truth_sources):
+            out.append("batch agreement claimed for a single sheet")
+        if not self.can_accept():
+            out.append("truth is self-consistency only: deliveries are unverified")
+        return out
+
+    def to_dict(self) -> dict:
+        d = asdict(self); d["recipe"] = {"steps": [asdict(s) for s in self.recipe.steps]}
+        d["best_truth"] = self.best_truth(); d["can_accept"] = self.can_accept(); d["problems"] = self.problems()
+        return d
+
+
+def library_summary() -> list[dict]:
+    return [{"name": p.name, "consumes": list(p.consumes), "produces": p.produces, "family": p.family, "deterministic": p.deterministic,
+             "cost": p.cost_estimate, "about": p.about, "implemented": p.available()} for p in LIBRARY.values()]
+
+
+def make_plan(profile: Mapping, knowledge: str, n_sheets: int, ask: Callable[[str, str], dict]) -> tuple[Plan, dict]:
+    user = json.dumps({"n_sheets": n_sheets, "profile": profile, "knowledge": knowledge, "library": library_summary()}, ensure_ascii=False)
+    a = ask(SYSTEM, user)
+    steps = tuple(Step(s.get("primitive", ""), dict(s.get("params", {}))) for s in a.get("recipe", []) if isinstance(s, dict))
+    plan = Plan(AdapterSpec("planned", steps, (), "lib-v0"), list(a.get("truth_sources", [])), dict(a.get("evaluation", {})),
+                dict(a.get("stop_rules", {})), list(a.get("missing_primitives", [])), list(a.get("risks", [])), str(a.get("why", "")), n_sheets)
+    return plan, a

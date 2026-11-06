@@ -23,16 +23,13 @@ def claude_read(state, reads_dir: str | None = None, headless: bool = False, mod
     d = Path(reads_dir or state.sheet.meta.get("claude_reads_dir") or os.environ.get("GA_CLAUDE_READS", "/data/lab/projects/georeference-anything/claude_reads"))
     f = d / f"{state.sheet.id}.json"
     if not f.exists() and headless:
+        from ..claude_cli import ask_json
         w, h = state.sheet.meta.get("width", 0), state.sheet.meta.get("height", 0)
-        cmd = ["claude", "-p", PROMPT.format(w=w, h=h) + f"\nThe image file is {state.sheet.image}", "--output-format", "json",
-               "--max-turns", "3", "--allowedTools", "Read", "--model", model]
-        out = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
-        try:
-            res = json.loads(out.stdout)["result"]
-            data = json.loads(res[res.index("{"):res.rindex("}") + 1])
-        except Exception as e:                                           # noqa: BLE001
-            raise RuntimeError(f"claude headless read failed: {e}: {out.stdout[:200]} {out.stderr[:200]}")
+        data = ask_json("You read scanned maps and drawings for a georeferencing system.",
+                        PROMPT.format(w=w, h=h) + f"\nRead the image file at this path with your Read tool: {state.sheet.image}",
+                        model=model, max_turns=3, allowed_tools="Read", timeout=400)
         d.mkdir(parents=True, exist_ok=True)
+        data["reader"] = f"claude headless ({model})"
         f.write_text(json.dumps(data, indent=1))
     if not f.exists():
         return []
