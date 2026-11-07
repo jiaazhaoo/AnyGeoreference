@@ -36,7 +36,11 @@ Knowledge that applies:
 Contract (from ga/primitives/__init__.py and ga/model.py, read them first):
 - def {name}(state, **params) -> list of {produces_cls} objects; read state.cues / state.candidates / state.hypotheses /
   state.layers / state.sheet (image path, record dict, meta dict with width/height/town_xy).
-- Register at import time:  from .. import Primitive, register ; register(Primitive("{name}", "{family}", True, {consumes_tuple}, "{produces}", "<about>", {name}, "generated", requires=(...)))
+- Register at import time:  from .. import Primitive, register ; register(Primitive("{name}", "{family}", True, {consumes_tuple}, "{produces}", "<about>", {name}, "generated", requires=(...), uses=(<reference families the fit consumes, e.g. "gazetteer", "road-network", "basemap", "printed-grid">,)))
+- System rules applied to every placement whatever produced it (ga/guard.py): a mirrored placement is refused (sheet y runs
+  down, CRS y runs north, so the linear part must have a negative determinant); axis scales may differ at most 1.6x in metres;
+  metres per pixel within 0.001..20000; a check that consults a reference your fit consumed is not a second family.
+  Fit only proper similarities/affines (no reflections); thresholds you add are defaults the library owns.
 - A Hypothesis carries transform (6 affine coefficients a,b,c,d,e,f with x' = a*x + b*y + c, y' = d*x + e*y + f, sheet px -> CRS),
   site_wkt (footprint polygon of the whole sheet in the CRS), crs, score 0..1, matcher name, note with the numbers.
 - An Evidence is evalcore.Evidence(name, value, source_kind in deterministic/model/person/record, family, note=...).
