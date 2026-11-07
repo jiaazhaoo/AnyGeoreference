@@ -17,3 +17,9 @@ overrun asks for an earlier funnel stage. Each change is gated on the frozen cas
 and the evaluation is rerun; the loop stops when the stop criterion holds or when a change fails to move the
 dominant reason, which is reported as a finding rather than retried. Negative results are kept with their numbers;
 they are what stops the next version from trying the same thing.
+An improvement is a system capability or it is not an improvement: a rule for a class (every matcher, every kind,
+every reader), enforced in shared code, never a parameter, name or threshold fitted to the sheet that failed. The
+sheets that exposed a fault join the regression set and only guard against going back; the claim that a change helps
+is judged on a held-out set frozen before the change was written, run once, beside the previous version on the same
+inputs. At run time the same holds for the main agent: a revision may change the method, not the thresholds.
+
