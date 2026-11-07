@@ -51,6 +51,17 @@ class State:
 
     def add(self, kind: str, objs: Iterable) -> int:
         objs = list(objs)
+        if kind == "hypothesis":
+            from evalcore import Evidence
+            from .guard import check
+            kept = []
+            for h in objs:
+                why = check(h, self)
+                if why is None:
+                    kept.append(h)
+                else:
+                    self.evidence.append(Evidence("hypothesis_rejected", f"{h.matcher}: {why}", "deterministic", "geometry", note=h.note[:120]))
+            objs = kept
         target = {"cue": self.cues, "candidate": self.candidates, "hypothesis": self.hypotheses, "evidence": self.evidence,
                   "layer": self.layers}[kind]
         target.extend(objs)

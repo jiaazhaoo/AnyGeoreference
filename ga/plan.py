@@ -23,9 +23,9 @@ the library of primitives you may compose. Write the plan as one JSON object:
  "missing_primitives": [{"name": "<snake_case name>", "why": "<one sentence>", "consumes": ["cue"|"candidate"|"hypothesis"|"layer"], "produces": "cue|candidate|hypothesis|evidence|layer", "family": "<evidence family>", "method": "<how it computes its output, in 3-6 sentences, concrete enough to implement from>"}],
  "risks": ["<one sentence each>"],
  "why": "<three sentences: the method, the second evidence family, what one sheet alone cannot give>"}
-Rules: a step's params are ONLY names listed in that primitive's "params" (anything else is dropped); leave params
-at the primitive's defaults unless the knowledge or a measured result gives a reason, and never set data paths
-(db, gpkg): the defaults were tuned on real sheets and a guessed value usually breaks a step that would have worked; keep the whole
+Rules: a step's params are ONLY names listed in that primitive's "params" (anything else is dropped); numeric
+thresholds belong to the library (measured on benchmarks) and are ignored if a plan sets them; a plan sets only facts
+read off the sheet (e.g. printed bounds, a graticule interval) and choices of method or data subset; never data paths; keep the whole
 answer under 8000 characters; the model only reads (cues); coordinates come from deterministic matchers; accept needs a second evidence
 family independent of the reader; abstain is an answer; use only library names in the recipe; with one sheet there is
 no batch agreement; with three similar sheets pilot on one and check on the others. When the knowledge describes a
@@ -42,7 +42,8 @@ can change); or {"action": "revise", "why": "...", "recipe": [...same form as be
 when a different step, a different parameter inside a primitive's contract, or a primitive still missing would
 change the outcome. Revise only on evidence: an evidence note saying "need 5" with 3 found is a parameter to
 reconsider if the knowledge allows; a reader that found no bounds is a step to add; a tool that produced 0 is a tool
-to replace, not to repeat. When a step produced 0 with params you set, first try it at its defaults. Never lower a verification threshold to make an accept; a revision that only changes the
+to replace, not to repeat. A revision changes the method (which primitives, in which order, which facts read off
+the sheet), never thresholds: those are ignored. Never lower a verification threshold to make an accept; a revision that only changes the
 accept rule is refused. Keep the answer under 6000 characters; params only from the contract."""
 
 
@@ -79,6 +80,9 @@ class Plan:
                 unk = LIBRARY[st.primitive].unknown_params(dict(st.params))
                 if unk:
                     out.append(f"{st.primitive}: params not in its contract, dropped at run time: {unk}")
+                owned = LIBRARY[st.primitive].plan_params({k: v for k, v in st.params.items() if k not in unk})[1]
+                if owned:
+                    out.append(f"{st.primitive}: thresholds a plan may not set, defaults used: {owned}")
         if self.n_sheets == 1 and any(t.get("kind") == "batch_agreement" for t in self.truth_sources):
             out.append("batch agreement claimed for a single sheet")
         if not self.can_accept():

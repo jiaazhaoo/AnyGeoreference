@@ -26,6 +26,9 @@ class Decider:
                   "n_location_cues": sum(1 for k in kinds if k in ("road", "number", "place", "grid", "landmark")),
                   "n_candidates": len(state.candidates),
                   "families": es.independent([e.name for e in state.evidence]), "cost": state.cost})
+        from .guard import independent_facts
+        f, masked = independent_facts(f, state)
+        f["not_independent"] = masked
         return f
 
     def decide(self, state: State) -> Verdict:

@@ -202,7 +202,7 @@ def cross_edition_agreement(state, tol_m: float = 100.0):
     ca, cb = list(a.exterior.coords)[:4], list(b.exterior.coords)[:4]
     corners = [dm(shapely.geometry.Point(p), shapely.geometry.Point(q)) for p, q in zip(ca, cb)] if len(ca) == 4 and len(cb) == 4 else []
     worst = max(corners) if corners else centre
-    return [Evidence("editions_agree", bool(worst <= tol_m), "deterministic", "geometry", note=f"vs {state.sheet.meta.get('sibling_id', 'sibling')}; tol {tol_m} m"),
+    return [Evidence("editions_agree", bool(worst <= tol_m), "deterministic", "edition", note=f"vs {state.sheet.meta.get('sibling_id', 'sibling')}; tol {tol_m} m"),
             Evidence("editions_distance_m", round(centre, 1), "deterministic", "geometry", note=f"corners {[round(c, 1) for c in corners]}")]
 
 
@@ -263,7 +263,7 @@ for p in (
     Primitive("line_structure", "sheet-reader", True, ("layer",), "layer", "skeletonised, traced linework of a plate as polylines", line_structure, "soi", requires=("autogeoref", "scikit-image")),
     Primitive("osm_reference", "basemap", True, ("candidate",), "layer", "OSM skeleton (rail, canals, rivers, roads, villages) for the candidate area", osm_reference, "soi", requires=("autogeoref", "Overpass")),
     Primitive("structure_match", "basemap", True, ("layer",), "hypothesis", "MINIMA-LoFTR match of the sheet's linework against rendered OSM, window by window -> GCPs -> robust polynomial", structure_match, "soi", requires=("autogeoref", "MINIMA weights", "torch", "Overpass")),
-    Primitive("graticule_frame_bounds", "sheet-reader", True, (), "cue", "generic graticule reader: neatline bounds + interval -> every intersection as a grid cue; no sheet index needed", graticule_frame_bounds, "soi", requires=("autogeoref", "opencv")),
+    Primitive("graticule_frame_bounds", "sheet-reader", True, (), "cue", "generic graticule reader: neatline bounds + interval -> every intersection as a grid cue; no sheet index needed", graticule_frame_bounds, "soi", requires=("autogeoref", "opencv"), sheet_params=("interval_min",)),
     Primitive("sheet_index_lookup", "record-text", True, (), "candidate", "survey sheet code in the record -> printed neatline bounds as the candidate area", sheet_index_lookup, "soi", requires=("autogeoref",)),
     Primitive("datum_shift", "geometry", True, ("hypothesis",), "hypothesis", "shift a placement from the printed survey datum (e.g. Everest 1830) to WGS84 (declared: needs a transformation the region's authority publishes)", None, "soi"),
     Primitive("cross_edition_agreement", "geometry", True, ("hypothesis",), "evidence", "the same sheet in another edition, placed independently (its footprint in the meta): do the placements agree", cross_edition_agreement, "soi"),

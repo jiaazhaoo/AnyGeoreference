@@ -17,8 +17,8 @@ def registry():
                lambda s: [Candidate(s.sheet.digest, "gazetteer", "POLYGON((0 0,1 0,1 1,0 1,0 0))", "EPSG:27700",
                                     tuple(c.text for c in s.cues if c.kind == "road"), 0.7)], "road names -> areas"))
     r.add(Tool("text_anchor_fit", ("cue", "candidate"), "hypothesis", "geometry", True, 0.0,
-               lambda s: [Hypothesis(s.sheet.digest, (1, 0, 0, 0, 1, 0), "POLYGON((0 0,1 0,1 1,0 1,0 0))", "EPSG:27700", 0.8, "text_anchor_fit", (0,)),
-                          Hypothesis(s.sheet.digest, (1, 0, 5, 0, 1, 5), "POLYGON((5 5,6 5,6 6,5 6,5 5))", "EPSG:27700", 0.3, "text_anchor_fit", (0,))], "fit cues to candidates"))
+               lambda s: [Hypothesis(s.sheet.digest, (1, 0, 0, 0, -1, 0), "POLYGON((0 0,1 0,1 1,0 1,0 0))", "EPSG:27700", 0.8, "text_anchor_fit", (0,)),
+                          Hypothesis(s.sheet.digest, (1, 0, 5, 0, -1, 5), "POLYGON((5 5,6 5,6 6,5 6,5 5))", "EPSG:27700", 0.3, "text_anchor_fit", (0,))], "fit cues to candidates"))
     r.add(Tool("snap_faces", ("hypothesis",), "evidence", "geometry", True, 0.0,
                lambda s: [Evidence("snap_iou", 0.9, "deterministic", "geometry"),
                           Evidence("address_inside", True, "deterministic", "address-register")], "best hypothesis vs map faces"))

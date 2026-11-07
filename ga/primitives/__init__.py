@@ -51,6 +51,8 @@ class Primitive:
     source: str = "generic"                    # "generic" | "plans_gb" | "soi" | "raster"
     cost_estimate: float = 0.0
     requires: tuple[str, ...] = ()             # external packages / repos the binding needs
+    uses: tuple[str, ...] = ()                 # reference families a matcher's fit consumes (independence of checks)
+    sheet_params: tuple[str, ...] = ()         # numeric params that are facts read off the sheet (a plan may set them)
 
     def available(self) -> bool:
         return self.impl is not None
@@ -60,6 +62,25 @@ class Primitive:
         if self.impl is None:
             return set()
         return {k for k in inspect.signature(self.impl).parameters if k != "state"}
+
+    def plan_params(self, params: dict) -> tuple[dict, list[str]]:
+        """What an agent's plan may set: facts the sheet supplies (required params, params named in `sheet_params`)
+        and choices of method or data subset (non-numeric params). Numeric thresholds with a default are owned by the
+        library: they were measured on benchmarks, and a plan that tunes them to get one sheet through is fitting a
+        case, not using a capability."""
+        import inspect
+        if self.impl is None:
+            return dict(params), []
+        sig = inspect.signature(self.impl).parameters
+        kept, dropped = {}, []
+        for k, v in params.items():
+            d = sig[k].default if k in sig else inspect.Parameter.empty
+            numeric_default = isinstance(d, (int, float)) and not isinstance(d, bool)
+            if numeric_default and k not in self.sheet_params:
+                dropped.append(f"{k}={v!r} (threshold owned by the library)")
+            else:
+                kept[k] = v
+        return kept, dropped
 
     def unknown_params(self, params: dict) -> list[str]:
         bad = coerce_params(self.impl, {k: v for k, v in params.items() if k in self.accepted_params()})[1] if self.impl else []

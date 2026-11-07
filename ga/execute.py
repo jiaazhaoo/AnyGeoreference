@@ -50,7 +50,7 @@ def registry_for_plan(plan: Plan) -> tuple[ToolRegistry, list[str]]:
             continue
         if not p.available():
             skipped.append(f"{s.primitive}: declared, not implemented here ({p.requires})"); continue
-        reg.add(p.tool(**dict(s.params)))
+        reg.add(p.tool(**p.plan_params(dict(s.params))[0]))
     return reg, skipped
 
 

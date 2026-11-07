@@ -198,10 +198,10 @@ def address_in_footprint(state):
     cx, cy = fp.centroid.x, fp.centroid.y
     hits = abp_local.find(state.sheet.record.get("address", ""), (cx - 5000, cy - 5000, cx + 5000, cy + 5000), limit=1)
     if not hits:
-        return [Evidence("address_in_footprint", None, "deterministic", "address-register", note="address not found near the footprint")]
+        return [Evidence("address_in_footprint", None, "deterministic", "record-text", note="address not found near the footprint")]
     from shapely.geometry import Point
     p = Point(hits[0]["X_COORDINATE"], hits[0]["Y_COORDINATE"])
-    return [Evidence("address_in_footprint", bool(fp.contains(p)), "deterministic", "address-register", note=hits[0]["ADDRESS"][:80]),
+    return [Evidence("address_in_footprint", bool(fp.contains(p)), "deterministic", "record-text", note=hits[0]["ADDRESS"][:80]),
             Evidence("address_to_centre_m", float(p.distance(fp.centroid)), "deterministic", "address-register")]
 
 

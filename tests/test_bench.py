@@ -5,7 +5,7 @@ from ga.bench import TruthCase, score, actions_of, labels_for_gate
 
 
 def _v(case, wkt, p=0.9):
-    h = Hypothesis("d", (1, 0, 0, 0, 1, 0), wkt, "EPSG:27700", 0.8, "m") if wkt else None
+    h = Hypothesis("d", (1, 0, 0, 0, -1, 0), wkt, "EPSG:27700", 0.8, "m") if wkt else None
     return Verdict("d", h, p if h else None, "accept" if h else ABSTAIN, "", (), 0.01, 1.0)
 
 

@@ -36,7 +36,7 @@ def test_control_point_fit_recovers_affine():
 def test_each_kind_runs_with_stubs():
     """The loop runs for all three kinds with stub implementations for anything not bound on this machine."""
     def hyp(state):
-        return [Hypothesis(state.sheet.digest, (1, 0, 0, 0, 1, 0), "POLYGON((0 0,1 0,1 1,0 1,0 0))", "EPSG:27700", 0.7, "stub", ())]
+        return [Hypothesis(state.sheet.digest, (1, 0, 0, 0, -1, 0), "POLYGON((0 0,1 0,1 1,0 1,0 0))", "EPSG:27700", 0.7, "stub", ())]
     def cues(state):
         return [Cue(state.sheet.digest, "grid", f"{i*10},{i*10}", (i, i, i + 1, i + 1), "stub") for i in range(8)]
     def layer(name, kind):
@@ -77,8 +77,8 @@ def test_cross_edition_agreement():
     sheet = Sheet("e", "historical_map", "x.tif", "sha256:e", {"sheet_code": "053ASE"},
                   {"sibling_id": "053ASE_1925", "sibling_footprint_wkt": "POLYGON((76 30.5,76.5 30.5,76.5 30,76 30,76 30.5))"})
     st = State(sheet)
-    st.hypotheses = [Hypothesis("sha256:e", (1, 0, 0, 0, 1, 0), "POLYGON((76.0003 30.5,76.5003 30.5,76.5003 30,76.0003 30,76.0003 30.5))", "EPSG:4326", 0.9, "control_point_fit")]
+    st.hypotheses = [Hypothesis("sha256:e", (1, 0, 0, 0, -1, 0), "POLYGON((76.0003 30.5,76.5003 30.5,76.5003 30,76.0003 30,76.0003 30.5))", "EPSG:4326", 0.9, "control_point_fit")]
     ev = {e.name: e for e in cross_edition_agreement(st, tol_m=100)}
     assert ev["editions_agree"].value is True and 25 < ev["editions_distance_m"].value < 35      # 0.0003 deg lon ~ 29 m
-    st.hypotheses = [Hypothesis("sha256:e", (1, 0, 0, 0, 1, 0), "POLYGON((76.01 30.5,76.51 30.5,76.51 30,76.01 30,76.01 30.5))", "EPSG:4326", 0.9, "control_point_fit")]
+    st.hypotheses = [Hypothesis("sha256:e", (1, 0, 0, 0, -1, 0), "POLYGON((76.01 30.5,76.51 30.5,76.51 30,76.01 30,76.01 30.5))", "EPSG:4326", 0.9, "control_point_fit")]
     assert {e.name: e.value for e in cross_edition_agreement(st)}["editions_agree"] is False
