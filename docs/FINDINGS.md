@@ -147,3 +147,26 @@ Before the knowledge base, the same agent on the 1823 plan chose the learned ima
 with its ingredients, and the catalogue says the library lacks it and that it is buildable. Plans still pass
 parameters outside the primitives' contracts (dropped and listed); contract granularity remains the open item.
 Replays: `blind/plans_kb2/*.json` (data folder).
+
+**Blind test 2: the whole flow on four unseen public maps, 2026-11-06/07.** Read, plan (knowledge base), build what
+the plan names, execute, decide (generic two-family policy), revise up to twice on the results. Inputs from Wikimedia
+Commons, record "a scanned map, place and kind unknown": a 1900 Admiralty chart of the Thames, an Ordnance Survey
+surveyor's drawing round Norwich (hand-drawn, c. 1817), the two page halves of an 1884 engraved Norwich street plan,
+an 1806 Leeds town plan (coarse halftone).
+
+| batch | outcome | why |
+|---|---|---|
+| Norwich 1884, two halves | **both accepted** | road-name fit 23/36 and 17/22 labels on their roads (median 48 m, 21 m); Tombland inside the left half, the railway station by the right; second family = batch agreement: the right half's origin falls at +0.93 sheet widths, 0.00 heights in the left half's frame (they meet edge to edge, 7% binding overlap); scale and rotation equal (both fits sit on the same sweep cell, so that part is weak; the seam is the real check) |
+| Thames chart 1900 | abstain (3 runs, 2 revisions each) | names on a chart are marshes and reaches; the toponym constellation found 2-3 consistent triples, not enough; the shape of the river is the cue, and the built polyline matcher only refines a hypothesis, it does not sweep a pose from nothing |
+| OS drawing c. 1817 | abstain | hand lettering, no grid, no roads named; no route produced a hypothesis |
+| Leeds 1806 | abstain | 12 cues; the scan is too coarse to read street names |
+
+No wrong accept. The builder wrote four primitives on its own across the passes (toponym constellation, polyline
+shape, thin plate spline, neighbour-sheet tiling), each with a passing synthetic test. The test found seven framework
+faults, all fixed: reader turn limit; cut-off plan JSON (retry shorter); planner blind to param contracts; a missing
+required param crashed the run; a raising tool ended the sheet; a revise answer in another JSON shape was lost; road
+primitives defaulted to one town. And three that cost a night: one tool spun for seven hours (now a 300 s deadline
+per tool, and the watcher reports stalls); planner params of the wrong type or guessed data paths broke steps that
+worked at their defaults (now cast or dropped, defaults preferred); the generated tiling check could never run
+because the executor ran sheets one by one (batch agreement now runs at batch level). Lesson: the planner's own
+parameter tuning made a placeable sheet fail; defaults tuned on real sheets beat guessed values.
