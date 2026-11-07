@@ -51,3 +51,15 @@ def test_thresholds_are_library_owned_sheet_facts_are_not():
     assert kept["interval_min"] == 2.5 and not dropped
     kept, dropped = LIBRARY["road_name_fit"].plan_params({"min_inliers": 8, "search_m": 2000})
     assert kept == {} and len(dropped) == 2
+
+
+def test_two_readings_merge_into_a_union_with_confirmation(tmp_path):
+    import json
+    from ga.primitives.claude_reader import merged_reading
+    (tmp_path / "s.json").write_text(json.dumps({"cues": [{"kind": "place", "text": "Erith", "bbox": [0, 0, 1, 1]}], "north_arrow": "up"}))
+    (tmp_path / "s.r2.json").write_text(json.dumps({"cues": [{"kind": "place", "text": "ERITH", "bbox": [0, 0, 1, 1]},
+                                                             {"kind": "grid", "text": "51 30' N", "bbox": [0, 5, 1, 6], "confidence": 0.9}]}))
+    m = merged_reading("s", tmp_path)
+    by = {c["text"]: c for c in m["cues"]}
+    assert m["n_readings"] == 2 and by["Erith"]["confirmed"] and not by["51 30' N"]["confirmed"] and by["51 30' N"]["confidence"] == 0.5
+    assert m["north_arrow"] == "up" and m["confirmed_share"] == 0.5

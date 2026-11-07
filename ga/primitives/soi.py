@@ -98,6 +98,14 @@ def osm_reference(state, layers=None):
     import shapely.wkt
     g = shapely.wkt.loads(state.candidates[0].area_wkt)
     w, s, e, n = g.bounds
+    if str(state.candidates[0].crs).upper() not in ("EPSG:4326", "WGS84"):
+        from pyproj import Transformer
+        tr = Transformer.from_crs(state.candidates[0].crs, "EPSG:4326", always_xy=True)
+        lons, lats = tr.transform([w, e, w, e], [s, s, n, n]); w, e, s, n = min(lons), max(lons), min(lats), max(lats)
+    from . import reference_local
+    if reference_local.available((w, s, e, n)):                 # local first: the machine's own national layers
+        data = reference_local.fetch((w, s, e, n))
+        return [Layer(state.sheet.digest, "reference_vectors", "vectors", data, frame="EPSG:4326", meta={"bbox": (s, w, n, e), "source": data["_source"]})]
     import requests, time as _t
     mirrors = [m for m in os.environ.get("OSM_OVERPASS_URLS", "https://overpass-api.de/api/interpreter,https://lz4.overpass-api.de/api/interpreter,"
                                          "https://z.overpass-api.de/api/interpreter,https://overpass.kumi.systems/api/interpreter").split(",") if m]

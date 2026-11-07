@@ -430,7 +430,8 @@ register(Primitive("road_name_fit", "geometry", True, ("cue",), "hypothesis",
 def places_in_footprint(state, kinds=("place", "landmark"), max_names: int = 20):
     """Place and landmark names read off the sheet, looked up in OS Open Names (populated places and landforms,
     not roads): how many of them fall inside the best hypothesis' footprint. Independent of the road geometry the
-    road-name fit used, so it is the second family for a street map."""
+    road-name fit used, so it is the second family for a street map. The value is the margin over chance: names
+    inside this footprint minus names inside the best of eight shifted copies."""
     import sqlite3
     import shapely.wkt
     from shapely.geometry import Point
@@ -443,18 +444,26 @@ def places_in_footprint(state, kinds=("place", "landmark"), max_names: int = 20)
     names = list(dict.fromkeys(c.text.strip() for c in state.cues if c.kind in kinds and len(c.text.strip()) >= 4))[:max_names]
     if not names:
         return [Evidence("places_in_footprint", None, "deterministic", "gazetteer", note="no place names read")]
+    from shapely import affinity
     con = sqlite3.connect(db)
     grown = fp.buffer(max(200.0, 0.1 * math.sqrt(fp.area)))
-    inside, found = [], 0
+    hits = {}
     for nme in names:
         rows = con.execute("SELECT GEOMETRY_X, GEOMETRY_Y FROM open_names WHERE NAME1 = ? COLLATE NOCASE AND TYPE IN ('populatedPlace','landform','landcover','hydrography','other') LIMIT 50", (nme,)).fetchall()
-        if not rows:
-            continue
-        found += 1
-        if any(grown.contains(Point(float(x), float(y))) for x, y in rows):
-            inside.append(nme)
-    return [Evidence("places_in_footprint", len(inside), "deterministic", "gazetteer", note=f"{len(inside)} of {found} found names inside: {inside[:6]}"),
-            Evidence("places_found", found, "deterministic", "gazetteer")]
+        if rows:
+            hits[nme] = [Point(float(x), float(y)) for x, y in rows]
+    def count(poly):
+        return [n for n, pts in hits.items() if any(poly.contains(p) for p in pts)]
+    inside = count(grown)
+    # chance level (knowledge: verify-catalogue, verify-overlay-dense-networks): the same footprint moved one width in
+    # eight directions; names that land inside a wrong footprint as easily as in this one prove nothing
+    x0, y0, x1, y1 = grown.bounds; dx, dy = x1 - x0, y1 - y0
+    chance = max(len(count(affinity.translate(grown, ox * dx, oy * dy))) for ox, oy in
+                 ((1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)))
+    margin = max(0, len(inside) - chance)
+    return [Evidence("places_in_footprint", margin, "deterministic", "gazetteer",
+                     note=f"{len(inside)} of {len(hits)} found names inside, {chance} inside the best shifted footprint; margin {margin}: {inside[:6]}"),
+            Evidence("places_found", len(hits), "deterministic", "gazetteer")]
 
 
 register(Primitive("places_in_footprint", "gazetteer", True, ("hypothesis", "cue"), "evidence",

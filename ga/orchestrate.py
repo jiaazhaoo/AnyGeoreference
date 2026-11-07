@@ -17,11 +17,12 @@ from .primitives import LIBRARY
 
 def read_sheet(sheet: Sheet, reads_dir: str | None = None, headless: bool = True) -> dict:
     """Claude's reading of one sheet (cached file or headless), returned as the raw JSON the reader wrote."""
-    from .primitives.claude_reader import claude_read
+    import os
+    from .primitives.claude_reader import claude_read, merged_reading
     st = State(sheet)
     claude_read(st, reads_dir=reads_dir, headless=headless)
-    d = Path(reads_dir or "/data/lab/projects/georeference-anything/claude_reads") / f"{sheet.id}.json"
-    return json.loads(d.read_text()) if d.exists() else {"cues": []}
+    d = Path(reads_dir or os.environ.get("GA_CLAUDE_READS", "/data/lab/projects/georeference-anything/claude_reads"))
+    return merged_reading(sheet.id, d)
 
 
 def profile_batch(sheets: list[Sheet], readings: list[dict]) -> dict:
