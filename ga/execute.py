@@ -23,9 +23,10 @@ SECOND_FAMILY = (
     ("address_inside", "address_in_footprint is True", "accept"),
     ("matchers_agree", "matchers_agree is True", "accept"),
     ("editions_agree", "editions_agree is True", "accept"),
+    ("batch_agrees", "batch_agreement is True", "accept"),
     ("structure_overlay", "overlay_agreement is not None and overlay_agreement >= 0.6 and residual_within_bound is True", "accept"),
 )
-FACTS = ("places_in_footprint", "address_in_footprint", "matchers_agree", "editions_agree", "overlay_agreement", "residual_within_bound",
+FACTS = ("batch_agreement", "places_in_footprint", "address_in_footprint", "matchers_agree", "editions_agree", "overlay_agreement", "residual_within_bound",
          "best_score", "best_matcher", "n_location_cues", "n_candidates", "families", "n_hypotheses", "places_found", "road_fit_inliers")
 
 
@@ -78,8 +79,52 @@ def execute_plan(plan: Plan, sheets: list[Sheet], trace_path: str | Path | None 
             seeded.candidates.append(_sibling_candidate(seeded, placed[0]))
             seeded.trace.append({"tool": "sibling_area", "produced": 1, "kind": "candidate", "cost": 0.0, "seconds": 0.0})
             states[i] = FixedPlan(order).drive(seeded, reg)
+    batch_agreement(states)
     verdicts = [dec.decide(st) for st in states]
     return states, verdicts, skipped
+
+
+def _pose(h):
+    """Scale (CRS units per px) and rotation (deg) of a hypothesis' affine part."""
+    import math
+    a, b, c, d, e, f = h.transform
+    return math.hypot(a, d), math.degrees(math.atan2(d, a)) % 360
+
+
+def batch_agreement(states: list[State], scale_tol: float = 0.05, rot_tol: float = 3.0, seam_tol: float = 0.2) -> None:
+    """The batch's own second family (knowledge: verify-neighbour-sheets). Sheets of one batch placed independently,
+    from different labels, must agree on scale and rotation, and adjoining sheets must meet edge to edge: the offset
+    between two placements, taken back into one sheet's pixel frame, is about one sheet width or height along one
+    axis. Each placed sheet gets Evidence batch_agreement True when at least one sibling agrees on all three, with
+    the numbers in the note; False when siblings were placed and none agrees; nothing when it has no placed sibling."""
+    import math
+    from evalcore import Evidence
+    placed = [st for st in states if st.hypotheses]
+    if len(placed) < 2:
+        return
+    for st in placed:
+        ha = st.hypotheses[0]; sa, ra = _pose(ha)
+        a, b, c, d, e, f = ha.transform
+        det = a * e - b * d
+        best = None
+        for other in placed:
+            if other is st:
+                continue
+            hb = other.hypotheses[0]; sb, rb = _pose(hb)
+            ds = abs(sa - sb) / max(sa, sb); dr = min(abs(ra - rb), 360 - abs(ra - rb))
+            # where does the other sheet's origin fall in this sheet's pixel frame?
+            ox, oy = hb.transform[2] - c, hb.transform[5] - f
+            px, py = (e * ox - b * oy) / det, (-d * ox + a * oy) / det
+            w, h = st.sheet.meta.get("width") or 1, st.sheet.meta.get("height") or 1
+            along_x = abs(abs(px) / w - 1) <= seam_tol and abs(py) / h <= seam_tol
+            along_y = abs(abs(py) / h - 1) <= seam_tol and abs(px) / w <= seam_tol
+            ok = ds <= scale_tol and dr <= rot_tol and (along_x or along_y)
+            rec = (ok, other.sheet.id, ds, dr, px / w, py / h)
+            if best is None or (ok and not best[0]):
+                best = rec
+        ok, oid, ds, dr, fx, fy = best
+        st.evidence.append(Evidence("batch_agreement", bool(ok), "deterministic", "batch",
+                                    note=f"vs {oid}: scale differs {ds:.1%}, rotation {dr:.1f} deg, sibling origin at ({fx:+.2f} w, {fy:+.2f} h) in this sheet's frame"))
 
 
 def summary(state: State, verdict) -> dict:

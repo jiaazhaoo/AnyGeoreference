@@ -86,3 +86,19 @@ def test_planner_cannot_point_a_primitive_at_a_guessed_data_path():
         return []
     kept, dropped = coerce_params(f, {"db": "os_open_names", "k": "4"})
     assert kept == {"k": 4} and "db=" in dropped[0]
+
+
+def test_batch_agreement_two_halves_of_one_page():
+    from ga import Sheet
+    from ga.execute import batch_agreement
+    from ga.loop import State
+    from ga.model import Hypothesis
+    def st(sid, c, f):
+        s = State(Sheet(sid, "k", "x", "sha256:" + sid, {}, {"width": 1000, "height": 1500}))
+        s.hypotheses.append(Hypothesis("sha256:" + sid, (1.2, 0.0, c, 0.0, -1.2, f), "POLYGON((0 0,1 0,1 1,0 0))", "EPSG:27700", 0.8, "m"))
+        return s
+    left, right, far = st("l", 1000.0, 5000.0), st("r", 1000.0 + 1180.0, 5000.0), st("x", 9000.0, 9000.0)
+    batch_agreement([left, right])
+    assert left.evidence[-1].value is True and right.evidence[-1].value is True
+    batch_agreement([left, far])
+    assert left.evidence[-1].value is False
