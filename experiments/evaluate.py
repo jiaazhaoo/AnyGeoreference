@@ -105,11 +105,19 @@ def run_plan_suite(a, ga):
                 if any(v.action == "accept" for v in verdicts):
                     break
                 summ = [ga["execute"].summary(st, v) for st, v in zip(states, verdicts)]
-                new, rraw = ga["plan"].revise_plan(plan, summ, lambda s_, u_: ga["claude_cli"].ask_json(s_, u_, cache=str(out / f"{b['name']}.plan.cache.jsonl")))
+                try:
+                    new, rraw = ga["plan"].revise_plan(plan, summ, lambda s_, u_: ga["claude_cli"].ask_json(s_, u_, cache=str(out / f"{b['name']}.plan.cache.jsonl")))
+                except Exception as e:                                                      # noqa: BLE001  a failed revision ends revising; the results so far stand
+                    rec.setdefault("revisions", []).append(f"revision failed: {type(e).__name__}: {str(e)[-120:]}")
+                    break
                 if new is None:
                     break
-                plan = new
-                states, verdicts, skipped = ga["execute"].execute_plan(plan, sheets, out / f"{b['name']}.trace.jsonl")
+                try:
+                    st2, v2, _ = ga["execute"].execute_plan(new, sheets, out / f"{b['name']}.trace.jsonl")
+                except Exception as e:                                                      # noqa: BLE001
+                    rec.setdefault("revisions", []).append(f"revised plan failed: {type(e).__name__}: {str(e)[-120:]}")
+                    break
+                plan, states, verdicts = new, st2, v2
                 rec.setdefault("revisions", []).append([s.primitive for s in plan.recipe.steps])
             for s, st, v in zip(b["sheets"], states, verdicts):
                 h = st.hypotheses[0] if st.hypotheses else None
