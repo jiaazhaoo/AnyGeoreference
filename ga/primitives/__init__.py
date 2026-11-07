@@ -9,6 +9,32 @@ from typing import Callable, Optional
 from ..tools.registry import Tool
 
 
+def coerce_params(impl, params: dict) -> tuple[dict, list[str]]:
+    """Planner params cast to the type of the primitive's default (a number given as "300" becomes 300.0; a range
+    string "0.02-5" for a float is dropped and the default stands). Returns (kept, dropped-with-reason)."""
+    import inspect
+    sig = inspect.signature(impl).parameters
+    kept, dropped = {}, []
+    for k, v in params.items():
+        d = sig[k].default if k in sig else inspect.Parameter.empty
+        if d is inspect.Parameter.empty or d is None or v is None:
+            kept[k] = v; continue
+        try:
+            if isinstance(d, bool):
+                kept[k] = v if isinstance(v, bool) else str(v).lower() in ("1", "true", "yes")
+            elif isinstance(d, (int, float)):
+                kept[k] = type(d)(float(v)) if isinstance(d, int) else float(v)
+            elif isinstance(d, tuple):
+                kept[k] = tuple(v) if isinstance(v, (list, tuple)) else (v,)
+            elif isinstance(d, str):
+                kept[k] = str(v)
+            else:
+                kept[k] = v
+        except (TypeError, ValueError):
+            dropped.append(f"{k}={v!r} (wants {type(d).__name__})")
+    return kept, dropped
+
+
 @dataclass
 class Primitive:
     name: str
@@ -32,14 +58,15 @@ class Primitive:
         return {k for k in inspect.signature(self.impl).parameters if k != "state"}
 
     def unknown_params(self, params: dict) -> list[str]:
-        return [k for k in params if k not in self.accepted_params()]
+        bad = coerce_params(self.impl, {k: v for k, v in params.items() if k in self.accepted_params()})[1] if self.impl else []
+        return [k for k in params if k not in self.accepted_params()] + bad
 
     def tool(self, **params) -> Tool:
         if self.impl is None:
             raise RuntimeError(f"primitive {self.name!r} is declared but not implemented here")
         import inspect
         impl = self.impl
-        known = {k: v for k, v in params.items() if k in self.accepted_params()}    # a planner may name params the primitive has not got
+        known = coerce_params(impl, {k: v for k, v in params.items() if k in self.accepted_params()})[0]    # unknown names and wrong types dropped
         required = [k for k, v in inspect.signature(impl).parameters.items() if k != "state" and v.default is inspect.Parameter.empty
                     and v.kind in (inspect.Parameter.POSITIONAL_OR_KEYWORD, inspect.Parameter.KEYWORD_ONLY)]
         missing = [k for k in required if k not in known]

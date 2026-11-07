@@ -71,3 +71,10 @@ def test_a_runaway_tool_is_stopped_by_its_deadline():
         assert time.time() - t0 < 3 and "ran past 1 s" in rec["error"]
     finally:
         os.environ.pop("GA_TOOL_TIMEOUT")
+
+
+def test_planner_params_are_cast_or_dropped():
+    from ga.primitives import LIBRARY, coerce_params
+    impl = LIBRARY["road_name_fit"].impl
+    kept, dropped = coerce_params(impl, {"search_m": "2000", "theta_step": 5, "inlier_m": "0.02-5"})
+    assert kept == {"search_m": 2000.0, "theta_step": 5.0} and dropped and "inlier_m" in dropped[0]
