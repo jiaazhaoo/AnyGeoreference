@@ -69,7 +69,13 @@ def _lines_from_gpkg(gpkg: str, layers: tuple, bbox: tuple):
     import sqlite3
     from shapely import wkb
     x0, y0, x1, y1 = bbox
-    con = sqlite3.connect(gpkg)
+    if not os.path.isabs(gpkg):
+        for base in ("/data/reference/base-data/os_opendata", "/data/reference/base-data", "/data/reference/os"):
+            if os.path.exists(os.path.join(base, gpkg)):
+                gpkg = os.path.join(base, gpkg); break
+    if not os.path.exists(gpkg):
+        raise FileNotFoundError(f"GeoPackage not found: {gpkg}")
+    con = sqlite3.connect(f"file:{gpkg}?mode=ro", uri=True)
     out = []
     for layer in layers:
         q = (f"SELECT t.geom FROM {layer} t JOIN rtree_{layer}_geom r ON t.fid = r.id "

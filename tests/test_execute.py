@@ -53,3 +53,21 @@ def test_revise_parsing_is_tolerant():
     assert [s.primitive for s in new.recipe.steps] == ["claude_read", "place_lookup", "toponym_constellation_fit"] and new.missing_primitives == [{"name": "x_y"}]
     none, _ = revise_plan(base, [], lambda s, u: {"action": "revise", "recipe": [{"params": {}}]})
     assert none is None
+
+
+def test_a_runaway_tool_is_stopped_by_its_deadline():
+    import os, time
+    from ga.loop import State, step
+    from ga.tools.registry import Tool, ToolRegistry
+    from ga import Sheet
+    def spin(state):
+        while True:
+            time.sleep(0.05)
+    os.environ["GA_TOOL_TIMEOUT"] = "1"
+    try:
+        reg = ToolRegistry().add(Tool("spin", (), "cue", "geometry", True, 0.0, spin, "never ends"))
+        st = State(Sheet("s", "k", "x.tif", "sha256:0", {}, {}))
+        t0 = time.time(); rec = step(st, reg, "spin")
+        assert time.time() - t0 < 3 and "ran past 1 s" in rec["error"]
+    finally:
+        os.environ.pop("GA_TOOL_TIMEOUT")

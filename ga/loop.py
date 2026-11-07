@@ -2,6 +2,10 @@
 from __future__ import annotations
 
 import json
+import contextlib
+import os
+import signal
+import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -55,6 +59,28 @@ class State:
         return len(objs)
 
 
+class ToolTimeout(Exception):
+    pass
+
+
+@contextlib.contextmanager
+def _deadline(seconds: int, name: str):
+    """A tool that runs past its deadline is stopped and recorded as an error, so one runaway sweep cannot hold a
+    batch for a night. SIGALRM works in the main thread only; elsewhere the deadline is not enforced."""
+    if seconds <= 0 or threading.current_thread() is not threading.main_thread():
+        yield
+        return
+    def _raise(signum, frame):
+        raise ToolTimeout(f"{name} ran past {seconds} s")
+    old = signal.signal(signal.SIGALRM, _raise)
+    signal.alarm(seconds)
+    try:
+        yield
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, old)
+
+
 def step(state: State, registry: ToolRegistry, name: str) -> dict:
     """Run one tool, append its trace line, return it. A tool whose inputs are missing is recorded as skipped."""
     t = registry[name]
@@ -63,8 +89,10 @@ def step(state: State, registry: ToolRegistry, name: str) -> dict:
         state.trace.append(rec)
         return rec
     t0 = time.time()
+    limit = int(os.environ.get("GA_TOOL_TIMEOUT", "300"))
     try:
-        objs = t.run(state)
+        with _deadline(limit, name):
+            objs = t.run(state)
     except Exception as e:                                                        # noqa: BLE001  a failing tool is a fact in the trace, not the end of the sheet
         rec = {"tool": name, "error": f"{type(e).__name__}: {str(e)[:200]}", "produced": 0, "kind": t.produces, "cost": 0.0, "seconds": round(time.time() - t0, 3)}
         state.trace.append(rec)
