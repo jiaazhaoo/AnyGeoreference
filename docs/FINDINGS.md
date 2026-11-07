@@ -157,11 +157,15 @@ an 1806 Leeds town plan (coarse halftone).
 | batch | outcome | why |
 |---|---|---|
 | Norwich 1884, two halves | **both accepted** | road-name fit 23/36 and 17/22 labels on their roads (median 48 m, 21 m); Tombland inside the left half, the railway station by the right; second family = batch agreement: the right half's origin falls at +0.93 sheet widths, 0.00 heights in the left half's frame (they meet edge to edge, 7% binding overlap); scale and rotation equal (both fits sit on the same sweep cell, so that part is weak; the seam is the real check) |
-| Thames chart 1900 | abstain (3 runs, 2 revisions each) | names on a chart are marshes and reaches; the toponym constellation found 2-3 consistent triples, not enough; the shape of the river is the cue, and the built polyline matcher only refines a hypothesis, it does not sweep a pose from nothing |
-| OS drawing c. 1817 | abstain | hand lettering, no grid, no roads named; no route produced a hypothesis |
+| Thames chart 1900 | abstain (3 runs, 2 revisions each) | the first reading had the printed lat/long border, later readings (cache cleared) did not, so the graticule route was never tried; the built toponym matcher found 2-3 consistent triples inside a 3 km candidate (the chart spans 12 km); OSM by Overpass timed out and the planner pointed the local renderer at a wrong layer. Placeable from names: a non-mirrored similarity over the 9 names unique in the area gives 6/9 inliers, median 241 m, 2.94 m/px |
+| OS drawing c. 1817 | **wrong accept** (revision 1) | the built toponym matcher placed it mirrored (top of the sheet to the south), 5/45 name inliers, rms 298 m, 37 x 35 km footprint; median error of 52 village labels 15 km; accepted because "2 places inside the footprint" counted as a second family although the matcher itself used place names, and a 1,300 km2 footprint holds two of anything. The sheet is placeable: a plain non-mirrored similarity by RANSAC over the 51 names unique in the area gives 35/51 inliers, median 580 m, 9.85 m/px, north up |
 | Leeds 1806 | abstain | 12 cues; the scan is too coarse to read street names |
 
-No wrong accept. The builder wrote four primitives on its own across the passes (toponym constellation, polyline
+One wrong accept (the 1817 drawing, above), reported first as an abstention because a truncated status line was
+misread. Two rules it broke that the knowledge base states and the code did not enforce: never allow a reflection
+unless the text test found one (failure-rotation-and-mirror), and a check that consumed the same cues as the fit is
+not a second family; "inside" must not be trivial for the footprint's size (verify-evidence-families,
+verify-address-in-footprint). The builder wrote four primitives on its own across the passes (toponym constellation, polyline
 shape, thin plate spline, neighbour-sheet tiling), each with a passing synthetic test. The test found seven framework
 faults, all fixed: reader turn limit; cut-off plan JSON (retry shorter); planner blind to param contracts; a missing
 required param crashed the run; a raising tool ended the sheet; a revise answer in another JSON shape was lost; road
