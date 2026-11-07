@@ -22,6 +22,8 @@ You have only the Read tool: read the image file once as it is; do not try to cr
 
 
 READS = int(os.environ.get("GA_READS", "2"))      # independent readings per sheet (knowledge: reading-hallucination-guard)
+MODEL = os.environ.get("GA_READER_MODEL", "claude-sonnet-5")
+# how many readings and which model are the library's settings, not a plan's: they are not parameters of the primitive
 
 
 def _norm(t: str) -> str:
@@ -75,9 +77,9 @@ def merged_reading(sheet_id: str, d: Path) -> dict:
     return out
 
 
-def claude_read(state, reads_dir: str | None = None, headless: bool = False, model: str = "claude-sonnet-5", reads: int | None = None):
+def claude_read(state, reads_dir: str | None = None, headless: bool = False):
     d = Path(reads_dir or state.sheet.meta.get("claude_reads_dir") or os.environ.get("GA_CLAUDE_READS", "/data/lab/projects/georeference-anything/claude_reads"))
-    n = READS if reads is None else reads
+    n, model = READS, MODEL
     for i in range(1, max(1, n) + 1):
         f = d / (f"{state.sheet.id}.json" if i == 1 else f"{state.sheet.id}.r{i}.json")
         if not f.exists() and headless:

@@ -63,3 +63,20 @@ def test_two_readings_merge_into_a_union_with_confirmation(tmp_path):
     by = {c["text"]: c for c in m["cues"]}
     assert m["n_readings"] == 2 and by["Erith"]["confirmed"] and not by["51 30' N"]["confirmed"] and by["51 30' N"]["confidence"] == 0.5
     assert m["north_arrow"] == "up" and m["confirmed_share"] == 0.5
+
+
+def test_the_reader_survives_whatever_a_plan_passes_it(tmp_path):
+    import json
+    from ga.primitives import LIBRARY
+    from ga.loop import State, step
+    from ga.tools.registry import ToolRegistry
+    (tmp_path / "s.json").write_text(json.dumps({"cues": [{"kind": "road", "text": "High Street", "bbox": [0, 0, 1, 1]}]}))
+    os.environ["GA_CLAUDE_READS"] = str(tmp_path)
+    try:
+        junk = {"reads": ["road_names", "place_names"], "model": "some-other-model", "targets": ["x"], "headless": "no", "read_for": 3}
+        t = LIBRARY["claude_read"].tool(**LIBRARY["claude_read"].plan_params(junk)[0])
+        st = State(Sheet("s", "k", "x", "sha256:s", {}, {"width": 10, "height": 10}))
+        rec = step(st, ToolRegistry().add(t), "claude_read")
+        assert "error" not in rec and rec["produced"] == 1
+    finally:
+        os.environ.pop("GA_CLAUDE_READS")
