@@ -15,7 +15,11 @@ def coerce_params(impl, params: dict) -> tuple[dict, list[str]]:
     import inspect
     sig = inspect.signature(impl).parameters
     kept, dropped = {}, []
+    import os
     for k, v in params.items():
+        if k in ("db", "gpkg", "path") or k.endswith("_path") or k.endswith("_dir"):     # data locations belong to the library, not the plan
+            if not (isinstance(v, str) and os.path.isabs(v) and os.path.exists(v)):
+                dropped.append(f"{k}={v!r} (not an existing absolute path; the library default stands)"); continue
         d = sig[k].default if k in sig else inspect.Parameter.empty
         if d is inspect.Parameter.empty or d is None or v is None:
             kept[k] = v; continue

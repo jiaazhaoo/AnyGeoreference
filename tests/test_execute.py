@@ -78,3 +78,11 @@ def test_planner_params_are_cast_or_dropped():
     impl = LIBRARY["road_name_fit"].impl
     kept, dropped = coerce_params(impl, {"search_m": "2000", "theta_step": 5, "inlier_m": "0.02-5"})
     assert kept == {"search_m": 2000.0, "theta_step": 5.0} and dropped and "inlier_m" in dropped[0]
+
+
+def test_planner_cannot_point_a_primitive_at_a_guessed_data_path():
+    from ga.primitives import coerce_params
+    def f(state, db: str | None = None, k: int = 3):
+        return []
+    kept, dropped = coerce_params(f, {"db": "os_open_names", "k": "4"})
+    assert kept == {"k": 4} and "db=" in dropped[0]
