@@ -157,3 +157,12 @@ def test_marks_reader_finds_no_frame_on_a_bare_grid():
         cv2.line(img, (0, k), (4199, k), 30, 2)
     g = read_frame_marks(img, *BOUNDS, interval_min=5.0)
     assert not g["found"] or (len(g["nodes"]) - 4) / g["n_expected_marks"] < 0.5 or g["contrast"] <= 0.05
+
+
+def test_a_rival_frame_is_ruled_out_only_by_evidence_that_separates_frames():
+    from ga.primitives.graticule import ruled_out
+    neatline = {"contrast": 0.15, "marks": 1.0}
+    subgrid = {"contrast": 0.02, "marks": 1.0}           # section lines can carry every mark; content runs on past them
+    assert ruled_out(neatline, subgrid)
+    assert not ruled_out({"contrast": 0.03, "marks": 0.83}, {"contrast": 0.04, "marks": 0.75})   # neither stops the content
+    assert not ruled_out({"contrast": 0.15, "marks": 0.75}, {"contrast": 0.02, "marks": 1.0})    # better content, fewer marks

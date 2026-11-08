@@ -380,15 +380,16 @@ def _corner(hl, vl):
 
 def read_frame_marks(gray: np.ndarray, west: float, south: float, east: float, north: float, interval_min: float = 5.0,
                      pixel_space: str = "paper", ratio_tol: float = 0.03, top_k: int = 6, mark_min: float = 0.5,
-                     band: float = 0.012, max_frames: int = 12):
+                     band: float = 0.012, max_frames: int = 12, same_place_m: float = 60.0):
     """The neatline and the graticule marks on it and inside it, for sheets that print the graticule as full lines,
     as edge ticks and interior crosses, or as both.
 
     1. Neatline: among rectangles of long lines with the shape of the record's bounds (cos(lat) x the bounds on paper;
        the bounds as they are only for a raster the record says is in degrees), the one where the map content stops
        on every side (judged by its weakest side) and whose edge nodes carry one-sided marks. A ruled grid (sections,
-       roads) runs on both sides of its lines and does not stop the content; a rival frame scoring nearly as well
-       makes the reading ambiguous. ("The outermost frame with marks" was tried on the development set and fails:
+       roads) runs on both sides of its lines and does not stop the content. A rival frame scoring nearly as well makes
+       the reading ambiguous only if it would place the sheet elsewhere (a corner moved by more than `same_place_m`,
+       the edition tolerance); a near-duplicate line (double neatline) is the same placement. ("The outermost frame with marks" was tried on the development set and fails:
        a collar line just outside the neatline picks up the corner labels as marks.)
     2. Every graticule node of the bounds is predicted from the four corners and confirmed or not: a one-sided tick
        on the edges, a cross inside. Confirmed nodes and the four corners are returned with their printed lon/lat.
@@ -476,15 +477,31 @@ def read_frame_marks(gray: np.ndarray, west: float, south: float, east: float, n
                         nodes.append((float(cx), float(cy), lon, lat))
         e_frac = float(np.mean(edge_s)) if edge_s else 0.0
         i_frac = float(np.mean(inner_s)) if inner_s else 1.0
-        return {"score": contrast + e_frac + 0.5 * i_frac, "contrast": contrast, "edge_marks": e_frac, "inner_marks": i_frac,
+        marks = (len(nodes) - 4) / max(1, len(edge_s) + len(inner_s))
+        return {"score": contrast + e_frac + 0.5 * i_frac, "contrast": contrast, "edge_marks": e_frac, "inner_marks": i_frac, "marks": marks,
                 "nodes": nodes, "pixel_space": space, "ratio": ratio, "expected_ratio": expected[space],
                 "corners": [tl, tr, br, bl], "lines": (t, b, l, r)}
 
     scored = sorted((evaluate(r) for r in rects[:max_frames]), key=lambda z: -z["score"])
     best = scored[0]
-    rival = next((z for z in scored[1:] if z["lines"] != best["lines"]), None)
+    # a rival is another reading only if it puts the sheet somewhere else: a frame whose corners lie within
+    # `same_place_m` of the best one's (a double neatline, a road along the edge) is the same placement, not a doubt
+    t, b, l, r = best["lines"]
+    mpp = (north - south) * 110574.0 / max(1.0, b - t)                    # ground metres per pixel, from the frame
+    def moved_m(z):
+        return max(math.hypot(p[0] - q[0], p[1] - q[1]) for p, q in zip(z["corners"], best["corners"])) * mpp
+    rival = next((z for z in scored[1:] if moved_m(z) > same_place_m), None)
     return {"found": True, **best, "rival_score": rival["score"] if rival else None,
+            "rival_moved_m": round(moved_m(rival), 1) if rival else None, "metres_per_px": mpp,
+            "rival": {k: rival[k] for k in ("score", "contrast", "edge_marks", "inner_marks", "marks", "lines")} if rival else None,
             "n_expected_marks": (n_cols + 1) * (n_rows + 1) - 4}
+
+
+def ruled_out(best: dict, rival: dict, contrast_margin: float = 0.05) -> bool:
+    """Does the evidence rule the rival frame out? Marks saturate (a sub-grid of section lines can carry every mark),
+    so they cannot separate two frames that both have them; where the map content stops can. The rival is ruled out
+    when the content stops clearly better at the chosen frame and its marks are at least as complete."""
+    return best["contrast"] - rival["contrast"] >= contrast_margin and best["marks"] >= rival["marks"]
 
 
 def graticule_marks(state, interval_min: float = 5.0, ambiguity: float = 0.85, min_marks: float = 0.5):
@@ -503,8 +520,12 @@ def graticule_marks(state, interval_min: float = 5.0, ambiguity: float = 0.85, m
         state.evidence.append(Evidence("graticule_found", False, "deterministic", "sheet-reader", note=g["why"][:200]))
         return []
     marks = (len(g["nodes"]) - 4) / max(1, g["n_expected_marks"])
+    # ambiguous: a frame that would place the sheet elsewhere (read_frame_marks keeps only those), scoring nearly as
+    # well, and not ruled out by the evidence that separates frames
     rival = g["rival_score"]
-    ambiguous = rival is not None and rival >= ambiguity * g["score"]
+    close = rival is not None and rival >= ambiguity * g["score"]
+    excluded = close and ruled_out(g, g["rival"])
+    ambiguous = close and not excluded
     found = marks >= min_marks
     state.evidence.append(Evidence("graticule_found", bool(found), "deterministic", "sheet-reader",
                                    note=f"{len(g['nodes'])} nodes (4 corners + {len(g['nodes']) - 4}/{g['n_expected_marks']} marks: edge {g['edge_marks']:.0%}, "
@@ -512,7 +533,10 @@ def graticule_marks(state, interval_min: float = 5.0, ambiguity: float = 0.85, m
                                         f"shape {g['ratio']:.4f} (expected {g['expected_ratio']:.4f}, {g['pixel_space']})"))
     state.evidence.append(Evidence("graticule_marks", round(marks, 3), "deterministic", "sheet-reader"))
     state.evidence.append(Evidence("graticule_ambiguous", bool(ambiguous), "deterministic", "sheet-reader",
-                                   note=f"best frame {g['score']:.2f}, next {rival:.2f}" if rival is not None else "no rival frame"))
+                                   note=(f"best frame {g['score']:.2f}; the strongest frame placing the sheet elsewhere {rival:.2f} "
+                                         f"(corners moved up to {g['rival_moved_m']:.0f} m; content stops {g['contrast']:.2f} vs {g['rival']['contrast']:.2f}, "
+                                         f"marks {g['marks']:.2f} vs {g['rival']['marks']:.2f}"
+                                         + ("; ruled out" if excluded else "") + ")") if rival is not None else "no frame placing the sheet elsewhere"))
     if not found:
         return []
     state.layers.append(Layer(state.sheet.digest, "frame", "points", g["corners"],
