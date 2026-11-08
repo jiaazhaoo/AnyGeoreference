@@ -404,3 +404,46 @@ Limits:
   is the next capability.
 - The water check measures a translation only.
 - 60 m holds back right placements that 150 m let through.
+
+**Learning a series' coordinate error across a batch: it helps review and cannot certify, 2026-11-08.**
+
+*Hypothesis:* the Saxon sheets' 150–600 m offsets are shared by nearby sheets, so other sheets could predict a
+sheet's offset. Its own water check, which the prediction never saw, would then test the corrected placement.
+
+*Built (`ga/series.py`):*
+- Anchors are the sheets' water shifts against OpenStreetMap, one per sheet with its editions averaged. They are
+  never the truth.
+- The fit is a locally weighted linear field with Cauchy reweighting, so a moved river does not pull it. The
+  bandwidth comes from leave-one-out over 15/30/60/120 km.
+- Each sheet is excluded from its own field. The field is refused where nearby sheets predict each other no better
+  than half of "no correction".
+- The runner applies it to the record of a sheet whose own water disagrees, and places the sheet again
+  (`series_correction`).
+
+*What the data said (SLUB v1 and v2, development):*
+- The shared part is real. Over Saxony the anchors' leave-one-out error falls from 214 m (no field) to 93 m (linear
+  or quadratic). A sheet-specific part of about 90 m remains.
+- Allowed to accept on the sheet's own water (≤ 60 m), the field accepted **10 wrong** on v1. Each was 50–100 m off in
+  the middle and 100–260 m at the edges.
+- The water check was extended to report its shift per quadrant (`basemap_local_agree`). It caught 3 of the 10 and
+  passed the rest with every quadrant within 60 m.
+- The reason is in the sheets. Fitting the best affine to the truth itself over the map area leaves a worst point of
+  73 m (median) and 123 m (p90) on Saxon sheets, with 19 % over 100 m. Elsewhere in Germany it is 18 m. The best poly2
+  gets 97 % within 100 m. The 1870s Saxon content is distorted inside each sheet, so four frame corners plus an offset
+  cannot be certified, and a translation check cannot see the rest.
+- Decision: the field never accepts (`series_needs_review`). The per-quadrant evidence is reported and not used.
+
+*Held-out SLUB v3* (seed 20261116, the 50 of 56 cells left; frozen and committed at 0f76dad; run once):
+- 1 accepted (right), **0 wrong**, 54 to review (4 right, 50 wrong), 45 abstained.
+- Ablation without the field, same code: all 50 corrected scans moved closer. Median error went from 336 to 98 m and
+  the worst point from 444 to 175 m. None got worse, and 2 came within 100 m everywhere.
+- USGS v5 (seen) rerun: no decision changes and no sheet corrected, because a random national draw has no near
+  neighbours.
+
+*What it means:*
+- The field turns a review from "find this sheet" (about 340 m off) into "nudge it" (about 100 m).
+- Certifying these sheets needs a placement that follows the content: many control points against a modern
+  reference, poly2 or a spline. That uses up the water as the independent check, so it would need a third family
+  (roads, buildings, or the library's own control points if they could be had).
+- Seven held-out draws, 1,300 scans, and the only wrong acceptances are the 3 from the first unchanged run on the
+  second family.

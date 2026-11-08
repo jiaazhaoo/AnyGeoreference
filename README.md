@@ -96,6 +96,7 @@ splines, so the truth model is poly2 plus a smoothed thin-plate spline, with a h
 |---|---|---|---|---|---|
 | v1 (seed 20261111, run at `ec9f660`) | as frozen for USGS, unchanged | 0 | **3** | 0 / 15 | 82 |
 | v2 (seed 20261115, fresh, run at `a9f94ff`) | after the failure classes of v1 were fixed | 3 (6–11 m median) | **0** | 4 / 48 | 45 |
+| v3 (seed 20261116, fresh, run at `0f76dad`) | + series field across the batch (review only) | 1 | **0** | 4 / 50 | 45 |
 
 v1 was the first wrong acceptance on any held-out set. Its failure classes, each fixed as a capability and not for
 the cases:
@@ -114,7 +115,18 @@ geographic cell the record names. The offset varies smoothly with longitude: +50
 the same on both editions. They were laid out in a Saxon coordinate system, so the record is wrong for them. Reading
 the frame perfectly cannot make them right. The water check sees it on every sheet that has water. The 3 accepted
 placements are sheets outside Saxony. Making Saxon sheets right needs the series' own coordinate system. That could be
-learned from a few sheets against an external reference and verified on others. It is not done yet.
+learned from a few sheets against an external reference and verified on others.
+
+**The series field (v3).** The batch learns the series' shared error from the sheets' own water shifts against
+OpenStreetMap. Each sheet is left out of its own field, and the truth is never used. For a sheet whose water
+disagrees, the field moves the record and the sheet is placed again. On v3, all 50 such scans moved closer: median
+error 336 → 98 m, worst point 444 → 175 m, none worse. It never accepts, by design. In development, allowing it to
+accept on the sheet's own water accepted 10 wrong sheets. Each was right in the middle and 100–260 m off at the edges.
+On Saxon sheets, even the best affine fit to the truth itself has its worst point at 73 m (median) and 123 m (p90).
+Their content is distorted inside the sheet. A frame plus a series offset cannot be certified to 100 m, and a water
+shift, even per quadrant, cannot see what is left. So the field gives a reviewer a sheet about 100 m off instead of
+about 340 m. Making these sheets right needs a warp fitted to their content against a modern reference, with a
+third reference left to verify it.
 
 ```bash
 pip install -e ".[bench]"      # truststore: the library's TLS chain verifies against the system trust store
