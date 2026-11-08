@@ -1,0 +1,2332 @@
+{
+ "about": "Held-out USGS 15' quadrangles drawn by benchmarks/sample_usgs15.py (rule in its docstring); never used to set any threshold. Same format as demo/cases.json.",
+ "rule": {
+  "seed": 20261114,
+  "n": 100,
+  "conus": [
+   -124.7,
+   24.5,
+   -66.9,
+   49.4
+  ],
+  "scale": "1:62500",
+  "extent_deg": 0.25,
+  "excluded": [
+   "demo/cases.json",
+   "benchmarks/usgs15_heldout_v1.json",
+   "benchmarks/usgs15_heldout_v2.json",
+   "benchmarks/usgs15_heldout_v3.json",
+   "benchmarks/usgs15_heldout_v4.json"
+  ]
+ },
+ "draw": {
+  "points": 857,
+  "no_answer": 0,
+  "no_quad": 744,
+  "one_scan": 10,
+  "dev_or_seen": 3
+ },
+ "base_url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Maps/HistoricalTopo/GeoTIFF/",
+ "cases": [
+  {
+   "id": "q001",
+   "sheet": "Harrisville, WV (15')",
+   "bounds": [
+    -81.25,
+    39.0,
+    -81.0,
+    39.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "WV/WV_Harrisville_253585_1907_62500_geo.tif",
+    "WV/WV_Harrisville_253587_1924_62500_geo.tif"
+   ],
+   "years": [
+    1907,
+    1924
+   ],
+   "point": [
+    -81.02898,
+    39.13926
+   ]
+  },
+  {
+   "id": "q002",
+   "sheet": "Rock Hill, SC (15')",
+   "bounds": [
+    -81.25,
+    34.75,
+    -81.0,
+    35.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "SC/SC_Rock%20Hill_261930_1949_62500_geo.tif",
+    "SC/SC_Rock%20Hill_261929_1949_62500_geo.tif"
+   ],
+   "years": [
+    1949,
+    1949
+   ],
+   "point": [
+    -81.07854,
+    34.80002
+   ]
+  },
+  {
+   "id": "q003",
+   "sheet": "Smithville, MO (15')",
+   "bounds": [
+    -94.75,
+    39.25,
+    -94.5,
+    39.5
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MO/MO_Smithville_325235_1914_62500_geo.tif",
+    "MO/MO_Smithville_325238_1950_62500_geo.tif"
+   ],
+   "years": [
+    1914,
+    1950
+   ],
+   "point": [
+    -94.6512,
+    39.35102
+   ]
+  },
+  {
+   "id": "q004",
+   "sheet": "Pelland, MN (15')",
+   "bounds": [
+    -93.75,
+    48.5,
+    -93.5,
+    48.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MN/MN_Pelland_471479_1919_62500_geo.tif",
+    "MN/MN_Pelland_805228_1919_62500_geo.tif"
+   ],
+   "years": [
+    1919,
+    1919
+   ],
+   "point": [
+    -93.64793,
+    48.66106
+   ]
+  },
+  {
+   "id": "q005",
+   "sheet": "Illinois Peak, MT (15')",
+   "bounds": [
+    -115.25,
+    47.0,
+    -115.0,
+    47.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MT/MT_Illinois%20Peak_268093_1957_62500_geo.tif",
+    "MT/MT_Illinois%20Peak_268094_1957_62500_geo.tif"
+   ],
+   "years": [
+    1957,
+    1957
+   ],
+   "point": [
+    -115.24915,
+    47.11994
+   ]
+  },
+  {
+   "id": "q006",
+   "sheet": "East Liberty, OH (15')",
+   "bounds": [
+    -83.75,
+    40.25,
+    -83.5,
+    40.5
+   ],
+   "interval_min": 5,
+   "scans": [
+    "OH/OH_East%20Liberty_224957_1915_62500_geo.tif",
+    "OH/OH_East%20Liberty_224958_1944_62500_geo.tif"
+   ],
+   "years": [
+    1915,
+    1944
+   ],
+   "point": [
+    -83.56249,
+    40.45072
+   ]
+  },
+  {
+   "id": "q007",
+   "sheet": "Alicia, AR (15')",
+   "bounds": [
+    -91.25,
+    35.75,
+    -91.0,
+    36.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "AR/AR_Alicia_259971_1935_62500_geo.tif",
+    "AR/AR_Alicia_259970_1935_62500_geo.tif"
+   ],
+   "years": [
+    1935,
+    1935
+   ],
+   "point": [
+    -91.23317,
+    35.97342
+   ]
+  },
+  {
+   "id": "q008",
+   "sheet": "Fayette, MS (15')",
+   "bounds": [
+    -91.25,
+    31.5,
+    -91.0,
+    31.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MS/MS_Fayette_336898_1962_62500_geo.tif",
+    "MS/MS_Fayette_336897_1962_62500_geo.tif"
+   ],
+   "years": [
+    1962,
+    1962
+   ],
+   "point": [
+    -91.14993,
+    31.63025
+   ]
+  },
+  {
+   "id": "q009",
+   "sheet": "Modoc, AR (15')",
+   "bounds": [
+    -91.0,
+    34.25,
+    -90.75,
+    34.5
+   ],
+   "interval_min": 5,
+   "scans": [
+    "AR/AR_Modoc_260202_1963_62500_geo.tif",
+    "AR/AR_Modoc_260203_1964_62500_geo.tif"
+   ],
+   "years": [
+    1963,
+    1964
+   ],
+   "point": [
+    -90.88713,
+    34.43942
+   ]
+  },
+  {
+   "id": "q010",
+   "sheet": "Rosendale, NY (15')",
+   "bounds": [
+    -74.25,
+    41.75,
+    -74.0,
+    42.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "NY/NY_Rosendale_129216_1901_62500_geo.tif",
+    "NY/NY_Rosendale_148356_1903_62500_geo.tif"
+   ],
+   "years": [
+    1901,
+    1903
+   ],
+   "point": [
+    -74.02747,
+    41.82669
+   ]
+  },
+  {
+   "id": "q011",
+   "sheet": "New Lexington, OH (15')",
+   "bounds": [
+    -82.25,
+    39.5,
+    -82.0,
+    39.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "OH/OH_New%20Lexington_227633_1911_62500_geo.tif",
+    "OH/OH_New%20Lexington_227631_1911_62500_geo.tif"
+   ],
+   "years": [
+    1911,
+    1911
+   ],
+   "point": [
+    -82.19184,
+    39.61103
+   ]
+  },
+  {
+   "id": "q012",
+   "sheet": "Mossy Lake, MS (15')",
+   "bounds": [
+    -90.5,
+    33.25,
+    -90.25,
+    33.5
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MS/MS_Mossy%20Lake_336994_1961_62500_geo.tif",
+    "MS/MS_Mossy%20Lake_336995_1961_62500_geo.tif"
+   ],
+   "years": [
+    1961,
+    1961
+   ],
+   "point": [
+    -90.29577,
+    33.4068
+   ]
+  },
+  {
+   "id": "q013",
+   "sheet": "Kerman, CA (15')",
+   "bounds": [
+    -120.25,
+    36.5,
+    -120.0,
+    36.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "CA/CA_Kerman_297881_1963_62500_geo.tif",
+    "CA/CA_Kerman_465800_1963_62500_geo.tif"
+   ],
+   "years": [
+    1963,
+    1963
+   ],
+   "point": [
+    -120.10329,
+    36.52764
+   ]
+  },
+  {
+   "id": "q014",
+   "sheet": "Monument Canyon, UT (15')",
+   "bounds": [
+    -109.25,
+    37.5,
+    -109.0,
+    37.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "UT/UT_Monument%20Canyon_250674_1957_62500_geo.tif",
+    "UT/UT_Monument%20Canyon_402710_1957_62500_geo.tif"
+   ],
+   "years": [
+    1957,
+    1957
+   ],
+   "point": [
+    -109.18663,
+    37.60692
+   ]
+  },
+  {
+   "id": "q015",
+   "sheet": "Shawnee, OK (15')",
+   "bounds": [
+    -97.0,
+    35.25,
+    -96.75,
+    35.5
+   ],
+   "interval_min": 5,
+   "scans": [
+    "OK/OK_Shawnee_802589_1909_62500_geo.tif",
+    "OK/OK_Shawnee_802408_1909_62500_geo.tif"
+   ],
+   "years": [
+    1909,
+    1909
+   ],
+   "point": [
+    -96.7513,
+    35.25129
+   ]
+  },
+  {
+   "id": "q016",
+   "sheet": "Chamberlain, SD (15')",
+   "bounds": [
+    -99.5,
+    43.75,
+    -99.25,
+    44.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "SD/SD_Chamberlain_344605_1935_62500_geo.tif",
+    "SD/SD_Chamberlain_344607_1939_62500_geo.tif"
+   ],
+   "years": [
+    1935,
+    1939
+   ],
+   "point": [
+    -99.44591,
+    43.95241
+   ]
+  },
+  {
+   "id": "q017",
+   "sheet": "Cassopolis, MI (15')",
+   "bounds": [
+    -86.25,
+    41.75,
+    -86.0,
+    42.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MI/MI_Cassopolis_278031_1945_62500_geo.tif",
+    "MI/MI_Cassopolis_470617_1947_62500_geo.tif"
+   ],
+   "years": [
+    1945,
+    1947
+   ],
+   "point": [
+    -86.06987,
+    41.95702
+   ]
+  },
+  {
+   "id": "q018",
+   "sheet": "Carrizozo, NM (15')",
+   "bounds": [
+    -106.0,
+    33.5,
+    -105.75,
+    33.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "NM/NM_Carrizozo_190051_1943_62500_geo.tif",
+    "NM/NM_Carrizozo_190052_1950_62500_geo.tif"
+   ],
+   "years": [
+    1943,
+    1950
+   ],
+   "point": [
+    -105.86204,
+    33.69584
+   ]
+  },
+  {
+   "id": "q019",
+   "sheet": "Three Rivers, MI (15')",
+   "bounds": [
+    -85.75,
+    41.75,
+    -85.5,
+    42.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MI/MI_Three%20Rivers_278551_1914_62500_geo.tif",
+    "MI/MI_Three%20Rivers_278553_1916_62500_geo.tif"
+   ],
+   "years": [
+    1914,
+    1916
+   ],
+   "point": [
+    -85.62003,
+    41.93678
+   ]
+  },
+  {
+   "id": "q020",
+   "sheet": "Bellflower, MO (15')",
+   "bounds": [
+    -91.5,
+    39.0,
+    -91.25,
+    39.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MO/MO_Bellflower_324705_1942_62500_geo.tif",
+    "MO/MO_Bellflower_324707_1945_62500_geo.tif"
+   ],
+   "years": [
+    1942,
+    1945
+   ],
+   "point": [
+    -91.41109,
+    39.15312
+   ]
+  },
+  {
+   "id": "q021",
+   "sheet": "Cheboygan, MI (15')",
+   "bounds": [
+    -84.5,
+    45.5,
+    -84.25,
+    45.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MI/MI_Cheboygan_470628_1957_62500_geo.tif",
+    "MI/MI_Cheboygan_278051_1957_62500_geo.tif"
+   ],
+   "years": [
+    1957,
+    1957
+   ],
+   "point": [
+    -84.45419,
+    45.58963
+   ]
+  },
+  {
+   "id": "q022",
+   "sheet": "New Castle, PA (15')",
+   "bounds": [
+    -80.5,
+    40.75,
+    -80.25,
+    41.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "PA/PA_New%20Castle_171747_1902_62500_geo.tif",
+    "PA/PA_New%20Castle_171749_1904_62500_geo.tif"
+   ],
+   "years": [
+    1902,
+    1904
+   ],
+   "point": [
+    -80.43694,
+    40.99667
+   ]
+  },
+  {
+   "id": "q023",
+   "sheet": "Abiquiu, NM (15')",
+   "bounds": [
+    -106.5,
+    36.0,
+    -106.25,
+    36.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "NM/NM_Abiquiu_189470_1953_62500_geo.tif",
+    "NM/NM_Abiquiu_189467_1953_62500_geo.tif"
+   ],
+   "years": [
+    1953,
+    1953
+   ],
+   "point": [
+    -106.38545,
+    36.17384
+   ]
+  },
+  {
+   "id": "q024",
+   "sheet": "Milton, VA (15')",
+   "bounds": [
+    -79.25,
+    36.5,
+    -79.0,
+    36.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "NC/VA_Milton_188358_1952_62500_geo.tif",
+    "NC/VA_Milton_188359_1956_62500_geo.tif"
+   ],
+   "years": [
+    1952,
+    1956
+   ],
+   "point": [
+    -79.21738,
+    36.58422
+   ]
+  },
+  {
+   "id": "q025",
+   "sheet": "Ft. McDowell, AZ (15')",
+   "bounds": [
+    -111.75,
+    33.5,
+    -111.5,
+    33.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "AZ/AZ_Ft%20McDowell_314605_1904_62500_geo.tif",
+    "AZ/AZ_Ft%20McDowell_314603_1906_62500_geo.tif"
+   ],
+   "years": [
+    1904,
+    1906
+   ],
+   "point": [
+    -111.56638,
+    33.54738
+   ]
+  },
+  {
+   "id": "q026",
+   "sheet": "Stockton, CA (15')",
+   "bounds": [
+    -121.5,
+    37.75,
+    -121.25,
+    38.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "CA/CA_Stockton_301762_1952_62500_geo.tif",
+    "CA/CA_Stockton_466428_1952_62500_geo.tif"
+   ],
+   "years": [
+    1952,
+    1952
+   ],
+   "point": [
+    -121.40954,
+    37.84569
+   ]
+  },
+  {
+   "id": "q027",
+   "sheet": "Walton, NY (15')",
+   "bounds": [
+    -75.25,
+    42.0,
+    -75.0,
+    42.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "NY/NY_Walton_139523_1923_62500_geo.tif",
+    "NY/NY_Walton_139524_1925_62500_geo.tif"
+   ],
+   "years": [
+    1923,
+    1925
+   ],
+   "point": [
+    -75.09439,
+    42.23891
+   ]
+  },
+  {
+   "id": "q028",
+   "sheet": "Santa Ysabel, CA (15')",
+   "bounds": [
+    -116.75,
+    33.0,
+    -116.5,
+    33.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "CA/CA_Santa%20Ysabel_301636_1939_62500_geo.tif",
+    "CA/CA_Santa%20Ysabel_301638_1943_62500_geo.tif"
+   ],
+   "years": [
+    1939,
+    1943
+   ],
+   "point": [
+    -116.71019,
+    33.07153
+   ]
+  },
+  {
+   "id": "q029",
+   "sheet": "Agra, OK (15')",
+   "bounds": [
+    -97.0,
+    35.75,
+    -96.75,
+    36.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "OK/OK_Agra_705298_1908_62500_geo.tif",
+    "OK/OK_Agra_802473_1908_62500_geo.tif"
+   ],
+   "years": [
+    1908,
+    1908
+   ],
+   "point": [
+    -96.94952,
+    35.96229
+   ]
+  },
+  {
+   "id": "q030",
+   "sheet": "Furnace Creek, CA (15')",
+   "bounds": [
+    -117.0,
+    36.25,
+    -116.75,
+    36.5
+   ],
+   "interval_min": 5,
+   "scans": [
+    "CA/CA_Furnace%20Creek_297531_1952_62500_geo.tif",
+    "CA/CA_Furnace%20Creek_297527_1952_62500_geo.tif"
+   ],
+   "years": [
+    1952,
+    1952
+   ],
+   "point": [
+    -116.99742,
+    36.45347
+   ]
+  },
+  {
+   "id": "q031",
+   "sheet": "Cambon, FL (15')",
+   "bounds": [
+    -82.0,
+    30.25,
+    -81.75,
+    30.5
+   ],
+   "interval_min": 5,
+   "scans": [
+    "FL/FL_Cambon_345381_1917_62500_geo.tif",
+    "FL/FL_Cambon_345382_1918_62500_geo.tif"
+   ],
+   "years": [
+    1917,
+    1918
+   ],
+   "point": [
+    -81.80309,
+    30.27208
+   ]
+  },
+  {
+   "id": "q032",
+   "sheet": "Upham, NM (15')",
+   "bounds": [
+    -107.25,
+    32.75,
+    -107.0,
+    33.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "NM/NM_Upham_193446_1959_62500_geo.tif",
+    "NM/NM_Upham_193449_1959_62500_geo.tif"
+   ],
+   "years": [
+    1959,
+    1959
+   ],
+   "point": [
+    -107.18503,
+    32.88451
+   ]
+  },
+  {
+   "id": "q033",
+   "sheet": "Oriskany, NY (15')",
+   "bounds": [
+    -75.5,
+    43.0,
+    -75.25,
+    43.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "NY/NY_Oriskany_148076_1898_62500_geo.tif",
+    "NY/NY_Rome_136461_1947_62500_geo.tif"
+   ],
+   "years": [
+    1898,
+    1947
+   ],
+   "point": [
+    -75.32129,
+    43.03733
+   ]
+  },
+  {
+   "id": "q034",
+   "sheet": "Muskeget, MA (15')",
+   "bounds": [
+    -70.45,
+    41.25,
+    -70.2,
+    41.5
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MA/MA_Muskeget_352859_1889_62500_geo.tif",
+    "MA/MA_Muskeget_352861_1899_62500_geo.tif"
+   ],
+   "years": [
+    1889,
+    1899
+   ],
+   "point": [
+    -70.26267,
+    41.27349
+   ]
+  },
+  {
+   "id": "q035",
+   "sheet": "Briceland, CA (15')",
+   "bounds": [
+    -124.0,
+    40.0,
+    -123.75,
+    40.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "CA/CA_Briceland_465370_1921_62500_geo.tif",
+    "CA/CA_Garberville_297532_1949_62500_geo.tif"
+   ],
+   "years": [
+    1921,
+    1949
+   ],
+   "point": [
+    -123.77494,
+    40.1609
+   ]
+  },
+  {
+   "id": "q036",
+   "sheet": "Atchison, KS (15')",
+   "bounds": [
+    -95.25,
+    39.5,
+    -95.0,
+    39.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "KS/MO_Sugar%20Lake_325275_1926_62500_geo.tif",
+    "KS/KS_Atchison_468915_1960_62500_geo.tif"
+   ],
+   "years": [
+    1926,
+    1960
+   ],
+   "point": [
+    -95.2066,
+    39.71913
+   ]
+  },
+  {
+   "id": "q037",
+   "sheet": "Cometa, TX (15')",
+   "bounds": [
+    -100.25,
+    28.5,
+    -100.0,
+    28.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "TX/TX_Cometa_108787_1940_62500_geo.tif",
+    "TX/TX_Cometa_108786_1940_62500_geo.tif"
+   ],
+   "years": [
+    1940,
+    1940
+   ],
+   "point": [
+    -100.13705,
+    28.52321
+   ]
+  },
+  {
+   "id": "q038",
+   "sheet": "Mt Pend Oreille, ID (15')",
+   "bounds": [
+    -116.25,
+    48.25,
+    -116.0,
+    48.5
+   ],
+   "interval_min": 5,
+   "scans": [
+    "ID/ID_Mt%20Pend%20Oreille_239198_1951_62500_geo.tif",
+    "ID/ID_Mt%20Pend%20Oreille_239200_1951_62500_geo.tif"
+   ],
+   "years": [
+    1951,
+    1951
+   ],
+   "point": [
+    -116.20617,
+    48.29963
+   ]
+  },
+  {
+   "id": "q039",
+   "sheet": "New Kent, VA (15')",
+   "bounds": [
+    -77.0,
+    37.5,
+    -76.75,
+    37.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "VA/VA_New%20Kent_188417_1919_62500_geo.tif",
+    "VA/VA_New%20Kent_188414_1919_62500_geo.tif"
+   ],
+   "years": [
+    1919,
+    1919
+   ],
+   "point": [
+    -76.82289,
+    37.57744
+   ]
+  },
+  {
+   "id": "q040",
+   "sheet": "Red Boiling Springs, TN (15')",
+   "bounds": [
+    -86.0,
+    36.5,
+    -85.75,
+    36.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "TN/TN_Red%20Boiling%20Springs_155927_1931_62500_geo.tif",
+    "TN/TN_Red%20Boiling%20Springs_709596_1931_62500_geo.tif"
+   ],
+   "years": [
+    1931,
+    1931
+   ],
+   "point": [
+    -85.77485,
+    36.58421
+   ]
+  },
+  {
+   "id": "q041",
+   "sheet": "Greenville, SC (15')",
+   "bounds": [
+    -82.5,
+    34.75,
+    -82.25,
+    35.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "SC/SC_Greenville_261857_1938_62500_geo.tif",
+    "SC/SC_Greenville_261858_1957_62500_geo.tif"
+   ],
+   "years": [
+    1938,
+    1957
+   ],
+   "point": [
+    -82.3894,
+    34.93654
+   ]
+  },
+  {
+   "id": "q042",
+   "sheet": "Raquette Lake, NY (15')",
+   "bounds": [
+    -74.75,
+    43.75,
+    -74.5,
+    44.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "NY/NY_Raquette%20Lake_136411_1903_62500_geo.tif",
+    "NY/NY_Raquette%20Lake_136419_1954_62500_geo.tif"
+   ],
+   "years": [
+    1903,
+    1954
+   ],
+   "point": [
+    -74.50524,
+    43.79011
+   ]
+  },
+  {
+   "id": "q043",
+   "sheet": "Dennis, TX (15')",
+   "bounds": [
+    -98.0,
+    32.5,
+    -97.75,
+    32.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "TX/TX_Dennis_123916_1931_62500_geo.tif",
+    "TX/TX_Dennis_109194_1959_62500_geo.tif"
+   ],
+   "years": [
+    1931,
+    1959
+   ],
+   "point": [
+    -97.88047,
+    32.63058
+   ]
+  },
+  {
+   "id": "q044",
+   "sheet": "Bement, IL (15')",
+   "bounds": [
+    -88.75,
+    39.75,
+    -88.5,
+    40.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "IL/IL_Bement_309257_1955_62500_geo.tif",
+    "IL/IL_Bement_309256_1955_62500_geo.tif"
+   ],
+   "years": [
+    1955,
+    1955
+   ],
+   "point": [
+    -88.51747,
+    39.75993
+   ]
+  },
+  {
+   "id": "q045",
+   "sheet": "Wheeling, WV (15')",
+   "bounds": [
+    -80.75,
+    40.0,
+    -80.5,
+    40.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "WV/WV_Wheeling_253920_1902_62500_geo.tif",
+    "WV/WV_Wheeling_253927_1935_62500_geo.tif"
+   ],
+   "years": [
+    1902,
+    1935
+   ],
+   "point": [
+    -80.53403,
+    40.11607
+   ]
+  },
+  {
+   "id": "q046",
+   "sheet": "Cloverdale, MN (15')",
+   "bounds": [
+    -92.75,
+    46.0,
+    -92.5,
+    46.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MN/MN_Cloverdale_804551_1962_62500_geo.tif",
+    "MN/MN_Cloverdale_504207_1962_62500_geo.tif"
+   ],
+   "years": [
+    1962,
+    1962
+   ],
+   "point": [
+    -92.51443,
+    46.10714
+   ]
+  },
+  {
+   "id": "q047",
+   "sheet": "Potter, AR (15')",
+   "bounds": [
+    -94.5,
+    34.5,
+    -94.25,
+    34.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "AR/AR_Potter_260255_1958_62500_geo.tif",
+    "AR/AR_Potter_260254_1958_62500_geo.tif"
+   ],
+   "years": [
+    1958,
+    1958
+   ],
+   "point": [
+    -94.39886,
+    34.6489
+   ]
+  },
+  {
+   "id": "q048",
+   "sheet": "Glendale, OR (15')",
+   "bounds": [
+    -123.5,
+    42.5,
+    -123.25,
+    42.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "OR/OR_Glendale_282523_1954_62500_geo.tif",
+    "OR/OR_Glendale_282522_1954_62500_geo.tif"
+   ],
+   "years": [
+    1954,
+    1954
+   ],
+   "point": [
+    -123.43869,
+    42.53306
+   ]
+  },
+  {
+   "id": "q049",
+   "sheet": "Small Point, ME (15')",
+   "bounds": [
+    -70.0,
+    43.5,
+    -69.75,
+    43.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "ME/ME_Small%20Point_460884_1944_62500_geo.tif",
+    "ME/ME_Small%20Point_306785_1957_62500_geo.tif"
+   ],
+   "years": [
+    1944,
+    1957
+   ],
+   "point": [
+    -69.8447,
+    43.59356
+   ]
+  },
+  {
+   "id": "q050",
+   "sheet": "Lobelia, WV (15')",
+   "bounds": [
+    -80.5,
+    38.0,
+    -80.25,
+    38.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "WV/WV_Lobelia_253634_1935_62500_geo.tif",
+    "WV/WV_Lobelia_253636_1939_62500_geo.tif"
+   ],
+   "years": [
+    1935,
+    1939
+   ],
+   "point": [
+    -80.28377,
+    38.18004
+   ]
+  },
+  {
+   "id": "q051",
+   "sheet": "Robbinston, ME (15')",
+   "bounds": [
+    -67.25,
+    45.0,
+    -67.0,
+    45.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "ME/ME_Robbinston_306738_1929_62500_geo.tif",
+    "ME/ME_Robbinston_460806_1931_62500_geo.tif"
+   ],
+   "years": [
+    1929,
+    1931
+   ],
+   "point": [
+    -67.01155,
+    45.09006
+   ]
+  },
+  {
+   "id": "q052",
+   "sheet": "Springfield, OH (15')",
+   "bounds": [
+    -84.0,
+    39.75,
+    -83.75,
+    40.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "OH/OH_Springfield_227016_1904_62500_geo.tif",
+    "OH/OH_Springfield_227017_1906_62500_geo.tif"
+   ],
+   "years": [
+    1904,
+    1906
+   ],
+   "point": [
+    -83.8806,
+    39.97291
+   ]
+  },
+  {
+   "id": "q053",
+   "sheet": "Stamford, NY (15')",
+   "bounds": [
+    -73.75,
+    41.0,
+    -73.5,
+    41.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "CT/NY_Stamford_144254_1892_62500_geo.tif",
+    "CT/NY_Stamford_144253_1893_62500_geo.tif"
+   ],
+   "years": [
+    1892,
+    1893
+   ],
+   "point": [
+    -73.72507,
+    41.0136
+   ]
+  },
+  {
+   "id": "q054",
+   "sheet": "Jacksonville, TX (15')",
+   "bounds": [
+    -95.5,
+    31.75,
+    -95.25,
+    32.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "TX/TX_Jacksonville_111064_1951_62500_geo.tif",
+    "TX/TX_Jacksonville_111062_1951_62500_geo.tif"
+   ],
+   "years": [
+    1951,
+    1951
+   ],
+   "point": [
+    -95.41482,
+    31.80941
+   ]
+  },
+  {
+   "id": "q055",
+   "sheet": "Prophetstown, IL (15')",
+   "bounds": [
+    -90.0,
+    41.5,
+    -89.75,
+    41.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "IL/IL_Prophetstown_309908_1936_62500_geo.tif",
+    "IL/IL_Prophetstown_468606_1936_62500_geo.tif"
+   ],
+   "years": [
+    1936,
+    1936
+   ],
+   "point": [
+    -89.90821,
+    41.62533
+   ]
+  },
+  {
+   "id": "q056",
+   "sheet": "Sinton, TX (15')",
+   "bounds": [
+    -97.75,
+    28.0,
+    -97.5,
+    28.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "TX/TX_Sinton_124071_1954_62500_geo.tif",
+    "TX/TX_Sinton_121789_1954_62500_geo.tif"
+   ],
+   "years": [
+    1954,
+    1954
+   ],
+   "point": [
+    -97.67428,
+    28.14601
+   ]
+  },
+  {
+   "id": "q057",
+   "sheet": "Eagle Peak, WY (15')",
+   "bounds": [
+    -110.25,
+    44.25,
+    -110.0,
+    44.5
+   ],
+   "interval_min": 5,
+   "scans": [
+    "WY/WY_Eagle%20Peak_342095_1959_62500_geo.tif",
+    "WY/WY_Eagle%20Peak_342096_1959_62500_geo.tif"
+   ],
+   "years": [
+    1959,
+    1959
+   ],
+   "point": [
+    -110.23434,
+    44.38984
+   ]
+  },
+  {
+   "id": "q058",
+   "sheet": "Halfway, OR (15')",
+   "bounds": [
+    -117.25,
+    44.75,
+    -117.0,
+    45.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "OR/OR_Halfway_282547_1957_62500_geo.tif",
+    "OR/OR_Halfway_282548_1957_62500_geo.tif"
+   ],
+   "years": [
+    1957,
+    1957
+   ],
+   "point": [
+    -117.12513,
+    44.86942
+   ]
+  },
+  {
+   "id": "q059",
+   "sheet": "Stetson, ME (15')",
+   "bounds": [
+    -69.25,
+    44.75,
+    -69.0,
+    45.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "ME/ME_Stetson_460929_1935_62500_geo.tif",
+    "ME/ME_Stetson_306800_1955_62500_geo.tif"
+   ],
+   "years": [
+    1935,
+    1955
+   ],
+   "point": [
+    -69.1396,
+    44.91057
+   ]
+  },
+  {
+   "id": "q060",
+   "sheet": "Valsetz, OR (15')",
+   "bounds": [
+    -123.75,
+    44.75,
+    -123.5,
+    45.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "OR/OR_Valsetz_282990_1942_62500_geo.tif",
+    "OR/OR_Valsetz_282991_1956_62500_geo.tif"
+   ],
+   "years": [
+    1942,
+    1956
+   ],
+   "point": [
+    -123.583,
+    44.98922
+   ]
+  },
+  {
+   "id": "q061",
+   "sheet": "Oneida, NY (15')",
+   "bounds": [
+    -75.75,
+    43.0,
+    -75.5,
+    43.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "NY/NY_Oneida_148050_1898_62500_geo.tif",
+    "NY/NY_Oneida_148051_1902_62500_geo.tif"
+   ],
+   "years": [
+    1898,
+    1902
+   ],
+   "point": [
+    -75.72723,
+    43.1302
+   ]
+  },
+  {
+   "id": "q062",
+   "sheet": "South Mills, NC (15')",
+   "bounds": [
+    -76.5,
+    36.25,
+    -76.25,
+    36.5
+   ],
+   "interval_min": 5,
+   "scans": [
+    "NC/NC_South%20Mills_164548_1940_62500_geo.tif",
+    "NC/NC_South%20Mills_164549_1952_62500_geo.tif"
+   ],
+   "years": [
+    1940,
+    1952
+   ],
+   "point": [
+    -76.39237,
+    36.38176
+   ]
+  },
+  {
+   "id": "q063",
+   "sheet": "Clinton, IA (15')",
+   "bounds": [
+    -90.25,
+    41.75,
+    -90.0,
+    42.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "IA/IA_Clinton_174326_1891_62500_geo.tif",
+    "IA/IL_Clinton_309353_1952_62500_geo.tif"
+   ],
+   "years": [
+    1891,
+    1952
+   ],
+   "point": [
+    -90.04889,
+    41.90906
+   ]
+  },
+  {
+   "id": "q064",
+   "sheet": "Katahdin, ME (15')",
+   "bounds": [
+    -69.0,
+    45.75,
+    -68.75,
+    46.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "ME/ME_Katahdin_807527_1930_62500_geo.tif",
+    "ME/ME_Katahdin_460508_1949_62500_geo.tif"
+   ],
+   "years": [
+    1930,
+    1949
+   ],
+   "point": [
+    -68.75277,
+    45.89397
+   ]
+  },
+  {
+   "id": "q065",
+   "sheet": "Willow Ranch, CA (15')",
+   "bounds": [
+    -120.5,
+    41.75,
+    -120.25,
+    42.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "CA/CA_Willow%20Ranch_302002_1962_62500_geo.tif",
+    "CA/CA_Willow%20Ranch_466598_1962_62500_geo.tif"
+   ],
+   "years": [
+    1962,
+    1962
+   ],
+   "point": [
+    -120.48878,
+    41.92321
+   ]
+  },
+  {
+   "id": "q066",
+   "sheet": "Poynette, WI (15')",
+   "bounds": [
+    -89.5,
+    43.25,
+    -89.25,
+    43.5
+   ],
+   "interval_min": 5,
+   "scans": [
+    "WI/WI_Poynette_801263_1901_62500_geo.tif",
+    "WI/WI_Poynette_802950_1962_62500_geo.tif"
+   ],
+   "years": [
+    1901,
+    1962
+   ],
+   "point": [
+    -89.25909,
+    43.40108
+   ]
+  },
+  {
+   "id": "q067",
+   "sheet": "Dedham, MA (15')",
+   "bounds": [
+    -71.25,
+    42.0,
+    -71.0,
+    42.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MA/MA_Dedham_462912_1886_62500_geo.tif",
+    "MA/MA_Dedham_352582_1894_62500_geo.tif"
+   ],
+   "years": [
+    1886,
+    1894
+   ],
+   "point": [
+    -71.11162,
+    42.19824
+   ]
+  },
+  {
+   "id": "q068",
+   "sheet": "Sandy Bay, ME (15')",
+   "bounds": [
+    -70.5,
+    45.75,
+    -70.25,
+    46.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "ME/ME_Sandy%20Bay_306752_1927_62500_geo.tif",
+    "ME/ME_Sandy%20Bay_460827_1930_62500_geo.tif"
+   ],
+   "years": [
+    1927,
+    1930
+   ],
+   "point": [
+    -70.34651,
+    45.91467
+   ]
+  },
+  {
+   "id": "q069",
+   "sheet": "Relay, MD (15')",
+   "bounds": [
+    -76.75,
+    39.0,
+    -76.5,
+    39.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MD/MD_Relay_257645_1894_62500_geo.tif",
+    "MD/MD_Relay_257640_1907_62500_geo.tif"
+   ],
+   "years": [
+    1894,
+    1907
+   ],
+   "point": [
+    -76.59893,
+    39.21424
+   ]
+  },
+  {
+   "id": "q070",
+   "sheet": "Toledo, OR (15')",
+   "bounds": [
+    -124.0,
+    44.5,
+    -123.75,
+    44.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "OR/OR_Toledo_282971_1942_62500_geo.tif",
+    "OR/OR_Toledo_282973_1957_62500_geo.tif"
+   ],
+   "years": [
+    1942,
+    1957
+   ],
+   "point": [
+    -123.90171,
+    44.62889
+   ]
+  },
+  {
+   "id": "q071",
+   "sheet": "Mescalero, NM (15')",
+   "bounds": [
+    -106.0,
+    33.0,
+    -105.75,
+    33.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "NM/NM_Mescalero_191517_1950_62500_geo.tif",
+    "NM/NM_Mescalero_191515_1950_62500_geo.tif"
+   ],
+   "years": [
+    1950,
+    1950
+   ],
+   "point": [
+    -105.75871,
+    33.00196
+   ]
+  },
+  {
+   "id": "q072",
+   "sheet": "Sedan, MT (15')",
+   "bounds": [
+    -111.0,
+    45.75,
+    -110.75,
+    46.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MT/MT_Sedan_268248_1951_62500_geo.tif",
+    "MT/MT_Sedan_268249_1951_62500_geo.tif"
+   ],
+   "years": [
+    1951,
+    1951
+   ],
+   "point": [
+    -110.91306,
+    45.78331
+   ]
+  },
+  {
+   "id": "q073",
+   "sheet": "Ravenna, OH (15')",
+   "bounds": [
+    -81.25,
+    41.0,
+    -81.0,
+    41.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "OH/OH_Ravenna_227209_1906_62500_geo.tif",
+    "OH/OH_Ravenna_227211_1908_62500_geo.tif"
+   ],
+   "years": [
+    1906,
+    1908
+   ],
+   "point": [
+    -81.09186,
+    41.04905
+   ]
+  },
+  {
+   "id": "q074",
+   "sheet": "Hunters, WA (15')",
+   "bounds": [
+    -118.25,
+    48.0,
+    -118.0,
+    48.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "WA/WA_Hunters_241616_1948_62500_geo.tif",
+    "WA/WA_Hunters_241619_1950_62500_geo.tif"
+   ],
+   "years": [
+    1948,
+    1950
+   ],
+   "point": [
+    -118.18933,
+    48.14486
+   ]
+  },
+  {
+   "id": "q075",
+   "sheet": "Montier, MO (15')",
+   "bounds": [
+    -91.75,
+    36.75,
+    -91.5,
+    37.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MO/MO_Montier_325095_1945_62500_geo.tif",
+    "MO/MO_Montier_325096_1948_62500_geo.tif"
+   ],
+   "years": [
+    1945,
+    1948
+   ],
+   "point": [
+    -91.54786,
+    36.91644
+   ]
+  },
+  {
+   "id": "q076",
+   "sheet": "Allegan, MI (15')",
+   "bounds": [
+    -86.0,
+    42.5,
+    -85.75,
+    42.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MI/MI_Allegan_277963_1958_62500_geo.tif",
+    "MI/MI_Allegan_277962_1958_62500_geo.tif"
+   ],
+   "years": [
+    1958,
+    1958
+   ],
+   "point": [
+    -85.93543,
+    42.61713
+   ]
+  },
+  {
+   "id": "q077",
+   "sheet": "Elliston, MT (15')",
+   "bounds": [
+    -112.5,
+    46.5,
+    -112.25,
+    46.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MT/MT_Elliston_267990_1959_62500_geo.tif",
+    "MT/MT_Elliston_472688_1959_62500_geo.tif"
+   ],
+   "years": [
+    1959,
+    1959
+   ],
+   "point": [
+    -112.27965,
+    46.54585
+   ]
+  },
+  {
+   "id": "q078",
+   "sheet": "Elmer, MO (15')",
+   "bounds": [
+    -92.75,
+    39.75,
+    -92.5,
+    40.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MO/MO_Elmer_324869_1942_62500_geo.tif",
+    "MO/MO_Elmer_472154_1942_62500_geo.tif"
+   ],
+   "years": [
+    1942,
+    1942
+   ],
+   "point": [
+    -92.54216,
+    39.78595
+   ]
+  },
+  {
+   "id": "q079",
+   "sheet": "Norristown, PA (15')",
+   "bounds": [
+    -75.5,
+    40.0,
+    -75.25,
+    40.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "PA/PA_Norristown_169899_1896_62500_geo.tif",
+    "PA/PA_Norristown_461872_1943_62500_geo.tif"
+   ],
+   "years": [
+    1896,
+    1943
+   ],
+   "point": [
+    -75.41286,
+    40.08628
+   ]
+  },
+  {
+   "id": "q080",
+   "sheet": "Athens, AR (15')",
+   "bounds": [
+    -94.0,
+    34.25,
+    -93.75,
+    34.5
+   ],
+   "interval_min": 5,
+   "scans": [
+    "AR/AR_Athens_259979_1936_62500_geo.tif",
+    "AR/AR_Athens_259980_1942_62500_geo.tif"
+   ],
+   "years": [
+    1936,
+    1942
+   ],
+   "point": [
+    -93.87967,
+    34.26286
+   ]
+  },
+  {
+   "id": "q081",
+   "sheet": "Mt. Angeles, WA (15')",
+   "bounds": [
+    -123.5,
+    47.75,
+    -123.25,
+    48.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "WA/WA_Mt%20Angeles_242729_1944_62500_geo.tif",
+    "WA/WA_Mt%20Angeles_242731_1946_62500_geo.tif"
+   ],
+   "years": [
+    1944,
+    1946
+   ],
+   "point": [
+    -123.41531,
+    47.97912
+   ]
+  },
+  {
+   "id": "q082",
+   "sheet": "Coyote Wells, CA (15')",
+   "bounds": [
+    -116.0,
+    32.5,
+    -115.75,
+    32.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "CA/CA_Coyote%20Wells_297226_1940_62500_geo.tif",
+    "CA/CA_Coyote%20Wells_297228_1957_62500_geo.tif"
+   ],
+   "years": [
+    1940,
+    1957
+   ],
+   "point": [
+    -115.93976,
+    32.50805
+   ]
+  },
+  {
+   "id": "q083",
+   "sheet": "Boulogne, GA (15')",
+   "bounds": [
+    -82.0,
+    30.75,
+    -81.75,
+    31.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "GA/GA_Boulogne_247355_1917_62500_geo.tif",
+    "GA/GA_Boulogne_247356_1919_62500_geo.tif"
+   ],
+   "years": [
+    1917,
+    1919
+   ],
+   "point": [
+    -81.78735,
+    30.75786
+   ]
+  },
+  {
+   "id": "q084",
+   "sheet": "Andover, OH (15')",
+   "bounds": [
+    -80.75,
+    41.5,
+    -80.5,
+    41.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "OH/OH_Andover_224760_1905_62500_geo.tif",
+    "OH/OH_Andover_224762_1907_62500_geo.tif"
+   ],
+   "years": [
+    1905,
+    1907
+   ],
+   "point": [
+    -80.65042,
+    41.57551
+   ]
+  },
+  {
+   "id": "q085",
+   "sheet": "Growler Peak, AZ (15')",
+   "bounds": [
+    -113.25,
+    32.25,
+    -113.0,
+    32.5
+   ],
+   "interval_min": 5,
+   "scans": [
+    "AZ/AZ_Growler%20Peak_314639_1964_62500_geo.tif",
+    "AZ/AZ_Growler%20Peak_314638_1964_62500_geo.tif"
+   ],
+   "years": [
+    1964,
+    1964
+   ],
+   "point": [
+    -113.05183,
+    32.28978
+   ]
+  },
+  {
+   "id": "q086",
+   "sheet": "Saint Onge, SD (15')",
+   "bounds": [
+    -103.75,
+    44.5,
+    -103.5,
+    44.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "SD/SD_Saint%20Onge_344641_1905_62500_geo.tif",
+    "SD/SD_Saint%20Onge_344642_1954_62500_geo.tif"
+   ],
+   "years": [
+    1905,
+    1954
+   ],
+   "point": [
+    -103.57144,
+    44.69173
+   ]
+  },
+  {
+   "id": "q087",
+   "sheet": "Hillsboro, NH (15')",
+   "bounds": [
+    -72.0,
+    43.0,
+    -71.75,
+    43.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "NH/NH_Hillsboro_330085_1929_62500_geo.tif",
+    "NH/NH_Hillsboro_330081_1957_62500_geo.tif"
+   ],
+   "years": [
+    1929,
+    1957
+   ],
+   "point": [
+    -71.88505,
+    43.08626
+   ]
+  },
+  {
+   "id": "q088",
+   "sheet": "Yorktown, VA (15')",
+   "bounds": [
+    -76.75,
+    37.0,
+    -76.5,
+    37.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "VA/VA_Yorktown_188757_1907_62500_geo.tif",
+    "VA/VA_Yorktown_188759_1943_62500_geo.tif"
+   ],
+   "years": [
+    1907,
+    1943
+   ],
+   "point": [
+    -76.66883,
+    37.10255
+   ]
+  },
+  {
+   "id": "q089",
+   "sheet": "Marquez, TX (15')",
+   "bounds": [
+    -96.5,
+    31.0,
+    -96.25,
+    31.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "TX/TX_Marquez_128475_1927_62500_geo.tif",
+    "TX/TX_Marquez_128500_1930_62500_geo.tif"
+   ],
+   "years": [
+    1927,
+    1930
+   ],
+   "point": [
+    -96.45437,
+    31.11875
+   ]
+  },
+  {
+   "id": "q090",
+   "sheet": "Morris, IL (15')",
+   "bounds": [
+    -88.5,
+    41.25,
+    -88.25,
+    41.5
+   ],
+   "interval_min": 5,
+   "scans": [
+    "IL/IL_Morris_309766_1892_62500_geo.tif",
+    "IL/IL_Morris_309760_1918_62500_geo.tif"
+   ],
+   "years": [
+    1892,
+    1918
+   ],
+   "point": [
+    -88.33939,
+    41.27414
+   ]
+  },
+  {
+   "id": "q091",
+   "sheet": "Palmer, MA (15')",
+   "bounds": [
+    -72.5,
+    42.0,
+    -72.25,
+    42.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MA/MA_Palmer_352918_1889_62500_geo.tif",
+    "MA/MA_Palmer_352920_1893_62500_geo.tif"
+   ],
+   "years": [
+    1889,
+    1893
+   ],
+   "point": [
+    -72.41317,
+    42.02497
+   ]
+  },
+  {
+   "id": "q092",
+   "sheet": "Monroe, WI (15')",
+   "bounds": [
+    -89.75,
+    42.5,
+    -89.5,
+    42.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "WI/WI_Monroe_802940_1920_62500_geo.tif",
+    "WI/WI_Monroe_802941_1962_62500_geo.tif"
+   ],
+   "years": [
+    1920,
+    1962
+   ],
+   "point": [
+    -89.63129,
+    42.71506
+   ]
+  },
+  {
+   "id": "q093",
+   "sheet": "Gilmanton, WI (15')",
+   "bounds": [
+    -91.75,
+    44.25,
+    -91.5,
+    44.5
+   ],
+   "interval_min": 5,
+   "scans": [
+    "WI/WI_Gilmanton_801177_1932_62500_geo.tif",
+    "WI/WI_Gilmanton_801176_1932_62500_geo.tif"
+   ],
+   "years": [
+    1932,
+    1932
+   ],
+   "point": [
+    -91.59285,
+    44.42691
+   ]
+  },
+  {
+   "id": "q094",
+   "sheet": "Fort Polk, LA (15')",
+   "bounds": [
+    -93.25,
+    31.0,
+    -93.0,
+    31.25
+   ],
+   "interval_min": 5,
+   "scans": [
+    "LA/LA_Slagle_335000_1941_62500_geo.tif",
+    "LA/LA_Slagle_335001_1944_62500_geo.tif"
+   ],
+   "years": [
+    1941,
+    1944
+   ],
+   "point": [
+    -93.20669,
+    31.23502
+   ]
+  },
+  {
+   "id": "q095",
+   "sheet": "Karlstad, MN (15')",
+   "bounds": [
+    -96.75,
+    48.5,
+    -96.5,
+    48.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MN/MN_Karlstad_504913_1956_62500_geo.tif",
+    "MN/MN_Karlstad_804728_1956_62500_geo.tif"
+   ],
+   "years": [
+    1956,
+    1956
+   ],
+   "point": [
+    -96.66438,
+    48.50876
+   ]
+  },
+  {
+   "id": "q096",
+   "sheet": "Pearisburg, VA (15')",
+   "bounds": [
+    -80.75,
+    37.25,
+    -80.5,
+    37.5
+   ],
+   "interval_min": 5,
+   "scans": [
+    "VA/VA_Pearisburg_188439_1923_62500_geo.tif",
+    "VA/VA_Pearisburg_188448_1937_62500_geo.tif"
+   ],
+   "years": [
+    1923,
+    1937
+   ],
+   "point": [
+    -80.58928,
+    37.28838
+   ]
+  },
+  {
+   "id": "q097",
+   "sheet": "Orient, WA (15')",
+   "bounds": [
+    -118.25,
+    48.75,
+    -118.0,
+    49.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "WA/WA_Orient_242987_1948_62500_geo.tif",
+    "WA/WA_Orient_242988_1951_62500_geo.tif"
+   ],
+   "years": [
+    1948,
+    1951
+   ],
+   "point": [
+    -118.23183,
+    48.98464
+   ]
+  },
+  {
+   "id": "q098",
+   "sheet": "Jefferson, OH (15')",
+   "bounds": [
+    -81.0,
+    41.5,
+    -80.75,
+    41.75
+   ],
+   "interval_min": 5,
+   "scans": [
+    "OH/OH_Jefferson_225416_1905_62500_geo.tif",
+    "OH/OH_Jefferson_225419_1907_62500_geo.tif"
+   ],
+   "years": [
+    1905,
+    1907
+   ],
+   "point": [
+    -80.94905,
+    41.55568
+   ]
+  },
+  {
+   "id": "q099",
+   "sheet": "Hernando, MS (15')",
+   "bounds": [
+    -90.0,
+    34.75,
+    -89.75,
+    35.0
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MS/MS_Hernando_336925_1944_62500_geo.tif",
+    "MS/MS_Hernando_336924_1944_62500_geo.tif"
+   ],
+   "years": [
+    1944,
+    1944
+   ],
+   "point": [
+    -89.82152,
+    34.91344
+   ]
+  },
+  {
+   "id": "q100",
+   "sheet": "Meta, MO (15')",
+   "bounds": [
+    -92.25,
+    38.25,
+    -92.0,
+    38.5
+   ],
+   "interval_min": 5,
+   "scans": [
+    "MO/MO_Meta_325079_1948_62500_geo.tif",
+    "MO/MO_Meta_325081_1950_62500_geo.tif"
+   ],
+   "years": [
+    1948,
+    1950
+   ],
+   "point": [
+    -92.0054,
+    38.37875
+   ]
+  }
+ ]
+}
