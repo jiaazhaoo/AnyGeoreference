@@ -53,17 +53,20 @@ that has been looked at becomes development data, and the next change is measure
 | 200 scans per draw | reader | accepted, right | accepted, wrong | to review: placement right / wrong | abstained |
 |---|---|---|---|---|---|
 | v1 (seed 20261108, run at `72f30da`) | lines only | 55 | **0** | 15 / 25 | 105 |
-| v2 (seed 20261109, fresh, run at `9996f0f`) | frame and marks | **129** (worst point ≤ 62 m) | **0** | 39 / 24 | 8 |
+| v2 (seed 20261109, fresh, run at `9996f0f`) | frame and marks | 129 (worst point ≤ 62 m) | **0** | 39 / 24 | 8 |
+| v3 (seed 20261110, fresh, run at `f56db57`) | + ambiguity ruled out by evidence | **155** (worst point ≤ 58 m) | **0** | 25 / 16 | 4 |
 
-On v2, editions from 1945 on (108 scans) went from almost none placed to 69 accepted. All 24 wrong placements were
-held back: 21 because the other edition's content did not correlate, and 3 because the partner scan was not
-placed. The cost of that caution is 39 right placements sent to review: 17 by the ambiguity rule, 6 by a residual
-just over the 30 m bound, and 16 because the partner scan was misread, not placed, or shared no content. The ambiguity rule fires when a rival
-frame scores within 85%, even if the rival puts the sheet in the same place. That is the next capability to fix,
-and it is to be measured on a fresh draw. Per-scan results: `benchmarks/results/`.
+Each row is a different random draw, so the rows compare systems, not identical cases. v2 measured the frame-and-
+marks reader: editions from 1945 on went from almost none placed to 69 of 108 accepted. Its cost was 17 right
+placements held back by an ambiguity rule that compared total scores. v3 measured the fix: a rival frame counts as
+doubt only if it would place the sheet elsewhere and the evidence does not rule it out. The deciding evidence is where
+the map content stops, because marks saturate (a section grid can carry every mark). On v3 the rule holds back 3 right
+placements. All 16 wrong placements were held back: 14 because the other edition's content did not correlate, 1
+because the editions disagreed, and 1 because the partner was not placed. The record-typo hole is still open.
+Per-scan results: `benchmarks/results/`.
 
 ```bash
-python demo/run_demo.py --cases benchmarks/usgs15_heldout_v2.json --data benchmarks/data --out benchmarks/out/usgs15_heldout_v2   # ~1.3 GB, ~15 min
+python demo/run_demo.py --cases benchmarks/usgs15_heldout_v3.json --data benchmarks/data --out benchmarks/out/usgs15_heldout_v3   # ~1.3 GB, ~15 min
 ```
 
 ## Why

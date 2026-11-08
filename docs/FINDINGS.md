@@ -275,3 +275,28 @@ What it costs, and what it does not fix:
   Refining a confirmed mark along its full line where one exists would recover it.
 - **The record typo is still accepted** (6.9 km off). This reader does not address it; an external family is
   needed.
+
+**Ambiguity that asks whether the evidence rules the rival out, and held-out v3, 2026-11-08.** v2's main cost was
+17 right placements held back by `graticule_ambiguous`: a rival frame scored at least 85 % of the chosen one. The
+first hypothesis, near-duplicate frames such as a double neatline, was tested on development data before any
+held-out run and was false. On all 17 the rival frame moves the sheet 356 m to 24 km.
+
+What separates the frames is where the map content stops. Marks saturate: a sub-grid of section lines can carry
+every mark, so total scores tie. The right frame stops the content at 0.05–0.26 ink share on its weakest side; the
+rival does so at −0.01 to 0.07. On every wrong frame in development, neither frame stops the content. The rule now
+keeps as rival only a frame that moves a corner by more than 60 m, and counts it as doubt unless the content stops at
+least 0.05 better at the chosen frame and its marks are at least as complete. The margin was set on development data.
+
+Development check (not a measurement): v1 146 → 156 accepted, v2 129 → 143, 0 wrong.
+
+Held-out v3: a fresh draw (seed 20261110, 100 quadrangles none seen before), committed with the frozen code, run once
+(943 s, no errors). 155 of 200 accepted, **0 wrong** (worst grid point 58 m, median of worsts 25 m); 41 to review
+(25 right, 16 wrong); 4 abstained. By era: before 1930, 39 of 57; 1930–1944, 43 of 53; from 1945 on, 73 of 90. The
+ambiguity rule held back 3 right placements (v2: 17). Where the rest of the 25 right reviews come from: 12 with no
+content correlation (editions re-surveyed), 5 whose partner was misread, 4 over the 30 m residual bound (the
+node-precision regression of the marks reader), 1 with no partner. The 16 wrong placements were all held back: 14 had
+no correlation, 1 had the editions disagree, and 1 had no partner placed.
+
+Across the three held-out draws (600 scans, three readers), no scan has been accepted wrong. The remaining open items
+are the record-typo hole (needs an external family), node precision on line graticules, and right placements with no
+usable partner (a single-scan second family, such as an external base map, would serve them too).
