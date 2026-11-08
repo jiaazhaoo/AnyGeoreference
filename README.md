@@ -20,25 +20,30 @@ the neatline, the frame where the map content stops on every side. It then confi
 a line crossing, an interior cross, or a one-sided tick on the edge. Sheets that print the graticule as lines and
 sheets that print only ticks and crosses go through the same reader. Each placement is then checked against the
 other scan's, by map content. The two scans are resampled onto one lon/lat grid, the graticule is masked out (it
-agrees by construction), and the coast, roads and contours must line up (`edition_agreement`). The policy accepts
-only when that second family agrees. Only after the decision does the scorer open each GeoTIFF's own georeference,
-which is the truth, and measure the distance on a 7 × 7 grid over the map.
+agrees by construction), and the coast, roads and contours must line up (`edition_agreement`). An external family
+needs neither the sheet's lines nor the record. It takes the sheet's water (the blue plate) through the placement and
+compares it with OpenStreetMap's water, fetched for that sheet only (`basemap_agreement`). The policy accepts when
+the graticule fit has a second family that agrees: the other scan, or the water. A water disagreement sends the scan
+to review, and so does a partner shown wrong by it. Only after the decision does the scorer open each GeoTIFF's own
+georeference, which is the truth, and measure the distance on a 7 × 7 grid over the map. The water check needs
+network access once per sheet; without it, that family says "nothing to compare".
 
 ![A sheet read from its graticule lines and a sheet read from ticks and crosses](docs/img/demo_usgs.jpg)
 
 | | scans | accepted, right | accepted, wrong | to review | abstained |
 |---|---|---|---|---|---|
-| sheets | 16 | 13 (worst point 12–56 m from USGS) | 0 | 3 (all placed right) | 0 |
-| controls | 4 | 0 | 2 (the record typo, by design) | 2 | 0 |
+| sheets | 16 | 15 (worst point 12–56 m from USGS) | 0 | 1 (placed right) | 0 |
+| controls | 4 | 1 (placed right; its "partner" was another sheet) | 0 | 3 (2 of them the record typo, caught) | 0 |
 
 - **Duluth 1953** prints no graticule lines, and the Public Land Survey's one-mile sections are ruled across it. The
   first reader (`graticule_lines`) took four section lines for the graticule and placed the sheet 26 km off. The
-  edition check caught it. The current reader places it 11 m from USGS. It still goes to review, because its 1895
-  partner was re-surveyed and shares no content to compare.
-- **Controls.** A pair of two different sheets has no overlap to compare, so both go to review. **The known hole:**
-  a record whose bounds are one interval off is read the same wrong way on both scans. Both scans agree, and both
-  are accepted 6.9 km off. Nothing in the evidence can see a wrong record. Reading the corner labels, or comparing
-  the content with an external base map, would be a third family; neither is built.
+  edition check caught it. The current reader places it 11 m from USGS. Its 1895 partner was re-surveyed and shares
+  no content to compare, but its water matches OpenStreetMap within 5 m, so it is accepted.
+- **Controls.** A pair of two different sheets has no overlap to compare. One of them is still accepted (right),
+  because its own water matches OpenStreetMap. **The record typo, closed:** a record whose bounds are one interval
+  off is read the same wrong way on both scans, and the two scans agree. Every version before the water check
+  accepted both, 6.9 km off. Now one scan's water shows a 6,836 m shift against OpenStreetMap. The other scan has
+  too little water to compare, but it agreed with a partner that has been shown wrong, so both go to review.
 
 Per-scan table and overlays: `demo/out/` after a run. Method and numbers: `docs/FINDINGS.md`.
 
@@ -54,7 +59,8 @@ that has been looked at becomes development data, and the next change is measure
 |---|---|---|---|---|---|
 | v1 (seed 20261108, run at `72f30da`) | lines only | 55 | **0** | 15 / 25 | 105 |
 | v2 (seed 20261109, fresh, run at `9996f0f`) | frame and marks | 129 (worst point ≤ 62 m) | **0** | 39 / 24 | 8 |
-| v3 (seed 20261110, fresh, run at `f56db57`) | + ambiguity ruled out by evidence | **155** (worst point ≤ 58 m) | **0** | 25 / 16 | 4 |
+| v3 (seed 20261110, fresh, run at `f56db57`) | + ambiguity ruled out by evidence | 155 (worst point ≤ 58 m) | **0** | 25 / 16 | 4 |
+| v4 (seed 20261112, fresh, run at `122a307`) | + water vs OpenStreetMap | **155** (worst point ≤ 76 m; 15 by water alone) | **0** | 21 / 17 | 7 |
 
 Each row is a different random draw, so the rows compare systems, not identical cases. v2 measured the frame-and-
 marks reader: editions from 1945 on went from almost none placed to 69 of 108 accepted. Its cost was 17 right
@@ -62,11 +68,13 @@ placements held back by an ambiguity rule that compared total scores. v3 measure
 doubt only if it would place the sheet elsewhere and the evidence does not rule it out. The deciding evidence is where
 the map content stops, because marks saturate (a section grid can carry every mark). On v3 the rule holds back 3 right
 placements. All 16 wrong placements were held back: 14 because the other edition's content did not correlate, 1
-because the editions disagreed, and 1 because the partner was not placed. The record-typo hole is still open.
-Per-scan results: `benchmarks/results/`.
+because the editions disagreed, and 1 because the partner was not placed. v4 measured the water family. 15 scans were
+accepted on the water alone, with no usable partner edition. Its main effect is safety: the record-typo hole, which no
+earlier version could see, is closed. Rows are different draws; on the same development draws the water family adds
+9 accepted placements per draw and no wrong ones. Per-scan results: `benchmarks/results/`.
 
 ```bash
-python demo/run_demo.py --cases benchmarks/usgs15_heldout_v3.json --data benchmarks/data --out benchmarks/out/usgs15_heldout_v3   # ~1.3 GB, ~15 min
+python demo/run_demo.py --cases benchmarks/usgs15_heldout_v4.json --data benchmarks/data --out benchmarks/out/usgs15_heldout_v4   # ~1.3 GB of scans, ~25 min
 ```
 
 ## Why

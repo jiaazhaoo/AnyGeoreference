@@ -300,3 +300,33 @@ no correlation, 1 had the editions disagree, and 1 had no partner placed.
 Across the three held-out draws (600 scans, three readers), no scan has been accepted wrong. The remaining open items
 are the record-typo hole (needs an external family), node precision on line graticules, and right placements with no
 usable partner (a single-scan second family, such as an external base map, would serve them too).
+
+**An external family: the sheet's water against OpenStreetMap, and held-out v4, 2026-11-08.** Every family so far
+came from the sheet itself or from the record. The record typo (bounds one interval off) and a misreading shared by
+two scans of one plate pass all of them. The new family uses neither. The sheet's blue plate (hydrography) is taken
+relative to the sheet's own paper, since old paper yellows and blue ink is only bluer than the paper. It is outlined,
+resampled through the placement onto a lon/lat grid one interval wider than the sheet, and phase-correlated with
+OpenStreetMap water rendered on the same grid.
+
+Reference data is fetched per sheet, as a user with a handful of sheets would work. Overpass was the first choice
+and was at capacity for most of the afternoon. The source is now zoom-13 vector tiles from OpenFreeMap pinned to one
+dated planet build (20261101), so a result reproduces; Overpass serves the live database and stays as the
+alternative. Water polygons are clipped at tile edges, so they are filled across tiles before they are outlined. The
+NAD27 → WGS84 shift (45 m in Boston, −82 m in California) is applied with pyproj. Scope: maps that print water in a
+colour of its own. A grey scan, or a dry sheet, gives "nothing to compare".
+
+On development data:
+- Right placements shift by 23 m (median), 68 m (95th percentile) and 123 m (99th percentile); the tolerance is 150 m.
+- 3 right placements on 1898–1902 western sheets disagree at 300–380 m. Early reconnaissance surveys drew the rivers
+  there, so this is caution, not error.
+- The record typo was caught on one scan only. The other scan's water barely correlated, it agreed with its partner,
+  and it was accepted.
+- A general rule followed from that: two scans that agree share their fate, so a partner shown wrong by the external
+  family takes the agreeing scan to review (`partner_shown_wrong`). Both typo scans are now reviewed. That hole had
+  been open since the first demo.
+- Development numbers (v1–v3): accepted 156/143/155 → 165/152/164, 0 wrong.
+
+Held-out v4: a fresh draw (seed 20261112), frozen at f5d76fa, run once (1,642 s). 155 of 200 accepted, **0 wrong**
+(worst point 76 m), 15 of them on the water alone. 38 went to review (21 right, 17 wrong) and 7 abstained. Water
+verdicts on placed scans: 149 agree, 4 disagree, 40 had nothing to compare (grey or dry sheets). Four held-out draws,
+800 scans, no wrong acceptance.
