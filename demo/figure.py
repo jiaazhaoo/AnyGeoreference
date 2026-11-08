@@ -9,8 +9,8 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "demo" / "out"
-PANELS = [("boston_bay__MA_Boston_Bay_352517_1903_62500_geo.jpg", "Boston Bay 1903: accepted", "16 nodes read; 11 m median from USGS"),
-          ("duluth__MN_Duluth_504380_1953_62500_geo.jpg", "Duluth 1953: sent to review", "section lines read as the graticule; 26 km off")]
+PANELS = [("boston_bay__MA_Boston_Bay_352517_1903_62500_geo.jpg", "Boston Bay 1903: graticule lines", "accepted; 17 m median from USGS"),
+          ("duluth__MN_Duluth_504380_1953_62500_geo.jpg", "Duluth 1953: ticks and crosses", "placed 11 m from USGS (the old reader: 26 km)")]
 
 
 def panel(img, title, sub, h=900):

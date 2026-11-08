@@ -239,3 +239,39 @@ The development numbers (12 of 14 accepted) were optimistic about coverage (55 o
 safety: neither set had a wrong acceptance outside the deliberate record-typo control. Results:
 `benchmarks/results/usgs15_heldout_v1.md` and `.json`. A next change is measured on a fresh draw (a new seed),
 because this one has now been looked at.
+
+**The frame-and-marks reader, and held-out v2, 2026-11-08.** Built for failure classes 1 and 2 of v1 (no lines;
+another grid taken for the graticule) as one reader, `graticule_marks`, developed only on the demo set and the
+already-seen v1. The neatline is the rectangle of long lines that has the shape of the record's bounds and where
+the map content stops on every side, judged by its weakest side. Every graticule node is then predicted from the
+four corners and confirmed by a mark: a one-sided tick on the edge or a cross inside. A ruled grid runs on both
+sides of the neatline; a tick does not. With fewer than half the marks there are no cues.
+
+Three general findings came out of development, all from looking at failures by class:
+- One global skew per axis lost one side neatline on polyconic sheets, because meridians converge and the two sides
+  lean opposite ways. Every line now gets its own slope from a slope × position accumulator: 147 → 191 of 216
+  development scans with the right frame.
+- Allowing "pixels in degrees" let square section grids pass for a graticule. A scan of paper has metric pixels,
+  and only the record can say a raster is in degrees.
+- "The outermost frame with marks" fails: a collar line just outside the neatline takes the corner labels for marks.
+  It was tried and dropped (16 of 216).
+
+Development result on v1 (not a measurement): 55 → 146 of 200 accepted, 0 wrong.
+
+Held-out v2: a fresh draw (seed 20261109, 100 quadrangles, editions 1889–1978, none seen before), committed with
+the frozen code before it was run, and run once (926 s, no errors). Results: 129 of 200 accepted, **0 wrong** (worst
+grid point of an accepted scan 62 m); 63 to review (39 right, 24 wrong); 8 abstained. By era: before 1930, 36 of 49
+accepted; 1930–1944, 24 of 43; from 1945 on, 69 of 108 (v1 with the lines reader: 3 of 115). The 24 wrong placements
+were all held back: 21 had no content correlation with the other edition, and 3 had no partner placed. None was a
+shared misread that agreed.
+
+What it costs, and what it does not fix:
+- **Over-caution.** 17 right placements whose editions agree were held by the ambiguity rule, which fires when a
+  rival frame scores within 85 % even if the rival lies a few pixels from the chosen one (a double neatline, a road
+  along the edge). The rule should ask whether the rival places the sheet elsewhere. Next capability; measured on
+  a fresh draw.
+- **Precision on line graticules.** Mark positions are coarser than whole-line fits. On the demo's line sheets the
+  node residual rose from 5–11 m to 6–30 m, and one scan (Ithaca 1895) went over the 30 m bound to review.
+  Refining a confirmed mark along its full line where one exists would recover it.
+- **The record typo is still accepted** (6.9 km off). This reader does not address it; an external family is
+  needed.

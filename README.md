@@ -13,58 +13,58 @@ python demo/run_demo.py          # fetches 16 public-domain USGS scans (~125 MB)
 ```
 
 No model, no API key, no GPU, no private data. Each case is a USGS historical topographic sheet (1888–1953, seven
-states) given as two scans of the same sheet (two editions, or two printings). The record holds only what a person
-reads off the sheet's corners: the neatline bounds and the graticule interval. Each scan is placed from its pixels
-alone (`graticule_lines`, then a poly2 fit and the residual at the nodes). Its placement is then checked against the
+states, 1:62,500 and 1:24,000) given as two scans of the same sheet (two editions, or two printings). The record
+holds only what a person reads off the sheet's corners: the neatline bounds and the graticule interval. Each scan is
+placed from its pixels alone (`graticule_marks`, then a poly2 fit and the residual at the nodes). The reader finds
+the neatline, the frame where the map content stops on every side. It then confirms every graticule node by a mark:
+a line crossing, an interior cross, or a one-sided tick on the edge. Sheets that print the graticule as lines and
+sheets that print only ticks and crosses go through the same reader. Each placement is then checked against the
 other scan's, by map content. The two scans are resampled onto one lon/lat grid, the graticule is masked out (it
 agrees by construction), and the coast, roads and contours must line up (`edition_agreement`). The policy accepts
 only when that second family agrees. Only after the decision does the scorer open each GeoTIFF's own georeference,
 which is the truth, and measure the distance on a 7 × 7 grid over the map.
 
-![An accepted placement and a caught misread](docs/img/demo_usgs.jpg)
+![A sheet read from its graticule lines and a sheet read from ticks and crosses](docs/img/demo_usgs.jpg)
 
 | | scans | accepted, right | accepted, wrong | to review | abstained |
 |---|---|---|---|---|---|
-| sheets | 14 | 12 (median 6–19 m, worst point 24–38 m from USGS) | 0 | 2 | 0 |
-| controls | 6 | 0 | 2 (the record typo, by design) | 2 | 2 |
+| sheets | 16 | 13 (worst point 12–56 m from USGS) | 0 | 3 (all placed right) | 0 |
+| controls | 4 | 0 | 2 (the record typo, by design) | 2 | 0 |
 
-- **The caught misread.** Duluth 1953 has no graticule lines, only ticks, and the Public Land Survey's one-mile
-  sections cover it. The reader took four section lines as the graticule. The fit is self-consistent (residual
-  9.7 m at the nodes) and the placement is 26 km off. The other edition's content lines up nowhere, so the sheet goes
-  to review. A residual proves only that the fit agrees with itself; this is why acceptance needs a second family.
-- **Controls.** The two 1:24,000 sheets print ticks and crosses, not lines: the reader finds nothing and the loop
-  abstains. A pair of two different sheets has no overlap to compare: review. **The known hole:** a record whose
-  bounds are one interval off is read the same wrong way on both scans, both scans agree, and both are accepted
-  6.9 km off. Nothing in the evidence can see a wrong record. Reading the corner labels would be a third family;
-  it is not built.
+- **Duluth 1953** prints no graticule lines, and the Public Land Survey's one-mile sections are ruled across it. The
+  first reader (`graticule_lines`) took four section lines for the graticule and placed the sheet 26 km off. The
+  edition check caught it. The current reader places it 11 m from USGS. It still goes to review, because its 1895
+  partner was re-surveyed and shares no content to compare.
+- **Controls.** A pair of two different sheets has no overlap to compare, so both go to review. **The known hole:**
+  a record whose bounds are one interval off is read the same wrong way on both scans. Both scans agree, and both
+  are accepted 6.9 km off. Nothing in the evidence can see a wrong record. Reading the corner labels, or comparing
+  the content with an external base map, would be a third family; neither is built.
 
 Per-scan table and overlays: `demo/out/` after a run. Method and numbers: `docs/FINDINGS.md`.
 
-### Held-out: 100 quadrangles drawn at random, run once
+### Held-out: random quadrangles, each draw run once
 
-The demo's sheets were chosen by hand, and its thresholds were set by looking at Boston Bay. To measure without
-that bias, `benchmarks/sample_usgs15.py` draws quadrangles by a fixed, seeded rule that never opens an image:
-uniform random points over the contiguous US, the 15' quadrangle holding each point, two scans of it, and the
-development quadrangles excluded. The draw has 100 quadrangles in 31 states, editions 1893–1970, and it reproduces
-byte for byte. The decision code was frozen first (commit `72f30da`, unchanged since the demo) and then run once.
-The results below are exactly as they came out. Nothing was tuned afterwards.
+The demo's sheets were chosen by hand, so its numbers are development numbers. `benchmarks/sample_usgs15.py` draws
+15' quadrangles by a fixed, seeded rule that never opens an image: uniform random points over the contiguous US, the
+quadrangle holding each point, and two scans of it. It excludes every quadrangle seen before. The code is frozen and
+committed, the draw is committed, and each draw is run once. The results are reported as they came out. A draw
+that has been looked at becomes development data, and the next change is measured on a new one.
 
-| 200 scans | accepted, right | accepted, wrong | to review: placement right / wrong | abstained |
-|---|---|---|---|---|
-| all | 55 (worst point ≤ 42 m from USGS) | **0** | 15 / 25 | 105 |
-| editions before 1930 (44) | 31 | 0 | 11 / 0 | 2 |
-| 1930–1944 (41) | 21 | 0 | 3 / 2 | 15 |
-| 1945 and later (115) | 3 | 0 | 1 / 23 | 88 |
+| 200 scans per draw | reader | accepted, right | accepted, wrong | to review: placement right / wrong | abstained |
+|---|---|---|---|---|---|
+| v1 (seed 20261108, run at `72f30da`) | lines only | 55 | **0** | 15 / 25 | 105 |
+| v2 (seed 20261109, fresh, run at `9996f0f`) | frame and marks | **129** (worst point ≤ 62 m) | **0** | 39 / 24 | 8 |
+
+On v2, editions from 1945 on (108 scans) went from almost none placed to 69 accepted. All 24 wrong placements were
+held back: 21 because the other edition's content did not correlate, and 3 because the partner scan was not
+placed. The cost of that caution is 39 right placements sent to review: 17 by the ambiguity rule, 6 by a residual
+just over the 30 m bound, and 16 because the partner scan was misread, not placed, or shared no content. The ambiguity rule fires when a rival
+frame scores within 85%, even if the rival puts the sheet in the same place. That is the next capability to fix,
+and it is to be measured on a fresh draw. Per-scan results: `benchmarks/results/`.
 
 ```bash
-python demo/run_demo.py --cases benchmarks/usgs15_heldout_v1.json --data benchmarks/data --out benchmarks/out/usgs15_heldout_v1   # ~1.4 GB, ~12 min
+python demo/run_demo.py --cases benchmarks/usgs15_heldout_v2.json --data benchmarks/data --out benchmarks/out/usgs15_heldout_v2   # ~1.3 GB, ~15 min
 ```
-
-What it says about the system, not about the cases: the reader covers sheets that print the graticule as lines,
-which is most sheets before 1945, and on them it is accurate. Later sheets print ticks; the reader then finds
-nothing (88 abstentions) or takes another grid for the graticule (23 wrong placements, all held back). One near
-miss is reported in full in `docs/FINDINGS.md`: two scans from one printing plate can be misread identically, and
-then they agree. Per-scan results: `benchmarks/results/usgs15_heldout_v1.md`.
 
 ## Why
 
