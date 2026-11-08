@@ -1,5 +1,5 @@
 [project]
-name = "georeference-anything"
+name = "anygeoreference"
 version = "0.1.0"
 description = "Put any scanned drawing or map on the Earth, say how sure you are, and say no when you are not"
 requires-python = ">=3.10"

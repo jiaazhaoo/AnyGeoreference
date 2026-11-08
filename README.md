@@ -1,4 +1,4 @@
-# Georeference Anything
+# AnyGeoreference
 
 **Put any scanned drawing or map on the Earth, say how sure you are, and say no when you are not.**
 

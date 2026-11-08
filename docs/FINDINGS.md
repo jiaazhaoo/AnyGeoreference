@@ -74,7 +74,7 @@ footprint as a second family it accepts two, both right (13 m, 86 m), and with t
 inliers, address inside) a third at 7 m. It also "placed" the floor plan 998 m away at score 26, a sheet the
 reader had already flagged as carrying nothing that places it: the policy now abstains when no location cue was
 read. Rules fitted on these ten are marked provisional in `ga/kinds.py`; the production flow, with road-name checks
-not bound here, accepts six of the same ten. Per-case rows: `per-case rows kept with the private benchmark`.
+not bound here, accepts six of the same ten. Per-case rows are kept with the private benchmark.
 
 **The main agent's first plans, 2026-11-06.** Given one to three sheets, a reading of each, six retrieved
 knowledge cards and the primitive library, Claude (headless) wrote the plan: recipe, ranked truth sources,
