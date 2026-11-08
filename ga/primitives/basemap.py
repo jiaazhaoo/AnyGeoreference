@@ -231,12 +231,14 @@ def basemap_shift(rgb: np.ndarray, coeffs: np.ndarray, model: str, crs: str, bou
             "osm_lines": len(lines), "osm_areas": len(polys), "source": source}
 
 
-def basemap_agreement(state, tol_m: float = 150.0, min_response: float = 0.05):
-    """Primitive: the best placement's water against OpenStreetMap's. Evidence basemap_agree True (shift within tol_m;
-    150 m: on development data right placements shift by 23 m median, 68 m at the 95th and 123 m at the 99th
-    percentile, and a wrong one 189 m off showed 208 m), 
+def basemap_agreement(state, tol_m: float = 60.0, min_response: float = 0.05):
+    """Primitive: the best placement's water against OpenStreetMap's. Evidence basemap_agree True (shift within tol_m),
     False (a clear correlation at a larger shift: the placement or the record is off), None (no water, no OSM water,
-    no clear correlation, OSM unreachable)."""
+    no clear correlation, OSM unreachable).
+    tol_m is the edition check's 60 m, so that "agrees" means one thing in both families, and it stays below the 100 m
+    a placement is certified to. It was 150 m (fitted to USGS development data, where wrong placements were a grid
+    interval off); on a second family a datum error put placements 110-130 m off while the water measured 111 m, and
+    150 m let them through. Both editions of a sheet share such an error, so only the external check can catch it."""
     from .graticule import _fit_of
     rec = {**dict(state.sheet.meta), **dict(state.sheet.record)}
     if not state.hypotheses or not rec.get("bounds"):

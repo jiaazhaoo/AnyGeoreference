@@ -104,7 +104,7 @@ def test_fit_note_round_trips():
     assert m == "poly2" and c.shape == (6, 2)
 
 
-def _ticks_sheet(seed=1, dx=1300.0, offset=(320, 300), grid=True):
+def _ticks_sheet(seed=1, dx=1300.0, offset=(320, 300), grid=True, marks=True):
     """A 1950s-style sheet: neatline, one-sided edge ticks, interior crosses, no graticule lines; optionally a
     section-like square grid ruled across the map and through the neatline (the Duluth trap)."""
     lat0 = (BOUNDS[1] + BOUNDS[3]) / 2
@@ -129,6 +129,8 @@ def _ticks_sheet(seed=1, dx=1300.0, offset=(320, 300), grid=True):
             x, y = x0 + i * dx, y0 + j * dy
             nodes.append((x, y, BOUNDS[0] + i * STEP, BOUNDS[3] - j * STEP))
             X, Y = int(round(x)), int(round(y))
+            if not marks:
+                continue
             if j == 0 and 0 < i < 3: cv2.line(img, (X, Y), (X, Y + 26), 0, 2)
             if j == 3 and 0 < i < 3: cv2.line(img, (X, Y - 26), (X, Y), 0, 2)
             if i == 0 and 0 < j < 3: cv2.line(img, (X, Y), (X + 26, Y), 0, 2)

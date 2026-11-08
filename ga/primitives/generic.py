@@ -69,11 +69,19 @@ def _grid_cue_pairs(state) -> tuple[np.ndarray, np.ndarray]:
     return np.array(src, float), np.array(dst, float)
 
 
-def control_point_fit(state, model: str = "affine", crs: str = "EPSG:4326", min_points: int = 3, max_rms: float | None = None):
+def control_point_fit(state, model: str = "affine", crs: str = "EPSG:4326", min_points: int = 3, max_rms: float | None = None,
+                      fallback: str | None = None, fallback_min: int = 4):
+    """Fit pixel -> map coordinates at the grid cues. The cues carry the record's coordinates, so the placement is in
+    the record's datum when the record states one; `crs` is the kind's default for records that do not. With too few
+    cues for `model`, `fallback` (a simpler model) is fitted when there are at least `fallback_min` cues (a frame read
+    by its four corners alone: affine, two degrees of freedom left for the residual)."""
+    crs = (state.sheet.record or {}).get("datum") or crs
     src, dst = _grid_cue_pairs(state)
-    need = {"similarity": 2, "affine": 3, "poly2": 6}[model]
-    if len(src) < max(min_points, need):
-        return []
+    need = {"similarity": 2, "affine": 3, "poly2": 6}
+    if len(src) < max(min_points, need[model]):
+        if not fallback or len(src) < max(fallback_min, need[fallback] + 1):
+            return []
+        model = fallback
     coeffs, res = fit_transform(src, dst, model)
     rms = float(np.sqrt(np.mean(res ** 2)))
     if max_rms is not None and rms > max_rms:

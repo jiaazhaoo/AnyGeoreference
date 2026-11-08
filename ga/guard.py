@@ -46,11 +46,20 @@ def references_of(matcher: str) -> set[str]:
     return out
 
 
+def _geographic(crs) -> bool:
+    """Degrees, whatever the datum (any geographic CRS pyproj knows)."""
+    try:
+        from pyproj import CRS
+        return CRS.from_user_input(crs).is_geographic
+    except Exception:                                           # noqa: BLE001
+        return str(crs).upper() in ("EPSG:4326", "WGS84")
+
+
 def _linear_in_metres(h) -> tuple[float, float, float, float, float]:
     import shapely.wkt
     a, b, c, d, e, f = h.transform
     kx = ky = 1.0
-    if str(h.crs).upper() in ("EPSG:4326", "WGS84", "EPSG:4267", "EPSG:4269", "EPSG:4277"):
+    if _geographic(h.crs):
         try:
             lat0 = shapely.wkt.loads(h.site_wkt).centroid.y
         except Exception:                                       # noqa: BLE001

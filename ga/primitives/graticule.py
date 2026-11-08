@@ -449,7 +449,29 @@ def read_frame_marks(gray: np.ndarray, west: float, south: float, east: float, n
         return {"found": False, "why": f"{len(hl)} x {len(vl)} long lines; no rectangle with the shape of the bounds"}
     rects.sort(key=lambda x: -x[0])
 
-    def evaluate(rect):
+    def positions(off: float):
+        """Graticule nodes (off 0) as (i, j, edge side or None), corners excluded; or control positions `off` of an
+        interval away from them, along the edges and diagonally inside, where no graticule mark is printed."""
+        out = []
+        for j in range(n_rows + 1):
+            for i in range(n_cols + 1):
+                corner = i in (0, n_cols) and j in (0, n_rows)
+                side = "top" if j == 0 else "bottom" if j == n_rows else "left" if i == 0 else "right" if i == n_cols else None
+                if not off:
+                    if not corner:
+                        out.append((i, j, side))
+                    continue
+                if j in (0, n_rows) and i < n_cols:
+                    out.append((i + off, j, "top" if j == 0 else "bottom"))
+                if i in (0, n_cols) and j < n_rows:
+                    out.append((i, j + off, "left" if i == 0 else "right"))
+                if i < n_cols and j < n_rows:
+                    out.append((i + off, j + off, None))
+        return out
+
+    def evaluate(rect, off: float = 0.0):
+        """The frame's marks at the graticule nodes, or (off > 0) at control positions `off` of an interval away
+        along the edges and diagonally inside, where no graticule mark is printed: how often ink passes by chance."""
         contrast, t, b, l, r, space, ratio = rect
         tl, tr = _corner(H_[t], V_[l]), _corner(H_[t], V_[r])
         bl, br = _corner(H_[b], V_[l]), _corner(H_[b], V_[r])
@@ -461,31 +483,27 @@ def read_frame_marks(gray: np.ndarray, west: float, south: float, east: float, n
             bot = (bl[0] + u * (br[0] - bl[0]), bl[1] + u * (br[1] - bl[1]))
             return top[0] + v * (bot[0] - top[0]), top[1] + v * (bot[1] - top[1])
         nodes, edge_s, inner_s = [(tl[0], tl[1], west, north), (tr[0], tr[1], east, north), (bl[0], bl[1], west, south), (br[0], br[1], east, south)], [], []
-        for j in range(n_rows + 1):
-            for i in range(n_cols + 1):
-                if (i in (0, n_cols)) and (j in (0, n_rows)):
-                    continue
-                x, y = at(i, j)
-                lon, lat = west + i * step, north - j * step
-                if i in (0, n_cols) or j in (0, n_rows):
-                    side = "top" if j == 0 else "bottom" if j == n_rows else "left" if i == 0 else "right"
-                    along = (lambda q, _x=x, _y=y, _s=side: (_x + q, _y) if _s in ("top", "bottom") else (_x, _y + q))
-                    (one, strong), q = max(((_tick(hc, vc, *along(q), side, arm), q) for q in range(-rad, rad + 1)), key=lambda z: z[0][0])
-                    ok = one >= mark_min and strong >= mark_min
-                    edge_s.append(ok)
-                    if ok:
-                        nodes.append((*along(q), lon, lat))
-                else:
-                    v, cx, cy = _search(lambda X, Y: _cross(hc, vc, X, Y, arm), int(round(x)), int(round(y)), rad)
-                    inner_s.append(v >= mark_min)
-                    if v >= mark_min:
-                        nodes.append((float(cx), float(cy), lon, lat))
+        for fi, fj, side in positions(off):
+            x, y = at(fi, fj)
+            lon, lat = west + fi * step, north - fj * step
+            if side:
+                along = (lambda q, _x=x, _y=y, _s=side: (_x + q, _y) if _s in ("top", "bottom") else (_x, _y + q))
+                (one, strong), q = max(((_tick(hc, vc, *along(q), side, arm), q) for q in range(-rad, rad + 1)), key=lambda z: z[0][0])
+                ok = one >= mark_min and strong >= mark_min
+                edge_s.append(ok)
+                if ok:
+                    nodes.append((*along(q), lon, lat))
+            else:
+                v, cx, cy = _search(lambda X, Y: _cross(hc, vc, X, Y, arm), int(round(x)), int(round(y)), rad)
+                inner_s.append(v >= mark_min)
+                if v >= mark_min:
+                    nodes.append((float(cx), float(cy), lon, lat))
         e_frac = float(np.mean(edge_s)) if edge_s else 0.0
         i_frac = float(np.mean(inner_s)) if inner_s else 1.0
         marks = (len(nodes) - 4) / max(1, len(edge_s) + len(inner_s))
         return {"score": contrast + e_frac + 0.5 * i_frac, "contrast": contrast, "edge_marks": e_frac, "inner_marks": i_frac, "marks": marks,
                 "nodes": nodes, "pixel_space": space, "ratio": ratio, "expected_ratio": expected[space],
-                "corners": [tl, tr, br, bl], "lines": (t, b, l, r)}
+                "corners": [tl, tr, br, bl], "lines": (t, b, l, r), "rect": rect}
 
     scored = sorted((evaluate(r) for r in rects[:max_frames]), key=lambda z: -z["score"])
     best = scored[0]
@@ -496,7 +514,10 @@ def read_frame_marks(gray: np.ndarray, west: float, south: float, east: float, n
     def moved_m(z):
         return max(math.hypot(p[0] - q[0], p[1] - q[1]) for p, q in zip(z["corners"], best["corners"])) * mpp
     rival = next((z for z in scored[1:] if moved_m(z) > same_place_m), None)
-    return {"found": True, **best, "rival_score": rival["score"] if rival else None,
+    # the null: the same tests where no graticule mark is printed. Dense content (hachures, contours, buildings) puts
+    # ink near any point; only marks found more often than there are evidence that the graticule is printed.
+    chance = float(np.mean([evaluate(best["rect"], off)["marks"] for off in (1 / 3, 2 / 3)]))
+    return {"found": True, **{k: v for k, v in best.items() if k != "rect"}, "chance_marks": chance, "rival_score": rival["score"] if rival else None,
             "rival_moved_m": round(moved_m(rival), 1) if rival else None, "metres_per_px": mpp,
             "rival": {k: rival[k] for k in ("score", "contrast", "edge_marks", "inner_marks", "marks", "lines")} if rival else None,
             "n_expected_marks": (n_cols + 1) * (n_rows + 1) - 4}
@@ -509,11 +530,13 @@ def ruled_out(best: dict, rival: dict, contrast_margin: float = 0.05) -> bool:
     return best["contrast"] - rival["contrast"] >= contrast_margin and best["marks"] >= rival["marks"]
 
 
-def graticule_marks(state, interval_min: float = 5.0, ambiguity: float = 0.85, min_marks: float = 0.5):
+def graticule_marks(state, interval_min: float = 5.0, ambiguity: float = 0.85, min_marks: float = 0.5, frame_contrast: float = 0.05):
     """Primitive: the record's neatline bounds and interval -> the four neatline corners and every graticule node
     confirmed by a mark (one-sided edge tick, interior cross, or crossing graticule lines), as grid cues; evidence on
     the frame (where content stops), the share of marks found, and how clear the choice of frame was. A frame whose
-    marks are mostly missing yields nothing: four corners alone do not show that the rectangle is the neatline."""
+    marks are mostly missing yields nothing: four corners alone do not show that the rectangle is the neatline. Marks
+    count beyond chance: the share the same tests find off the graticule (read_frame_marks' control positions) is the
+    rate at which content alone passes for a mark, and only the excess is evidence."""
     rec = {**dict(state.sheet.meta), **dict(state.sheet.record)}
     b = rec.get("bounds")
     if not b:
@@ -524,7 +547,8 @@ def graticule_marks(state, interval_min: float = 5.0, ambiguity: float = 0.85, m
     if not g["found"]:
         state.evidence.append(Evidence("graticule_found", False, "deterministic", "sheet-reader", note=g["why"][:200]))
         return []
-    marks = (len(g["nodes"]) - 4) / max(1, g["n_expected_marks"])
+    raw = (len(g["nodes"]) - 4) / max(1, g["n_expected_marks"])
+    marks = max(0.0, (raw - g["chance_marks"]) / max(1e-6, 1.0 - g["chance_marks"]))   # beyond chance
     # ambiguous: a frame that would place the sheet elsewhere (read_frame_marks keeps only those), scoring nearly as
     # well, and not ruled out by the evidence that separates frames
     rival = g["rival_score"]
@@ -532,9 +556,15 @@ def graticule_marks(state, interval_min: float = 5.0, ambiguity: float = 0.85, m
     excluded = close and ruled_out(g, g["rival"])
     ambiguous = close and not excluded
     found = marks >= min_marks
+    # no graticule printed beyond the neatline (or none found beyond chance): the frame's four corners are the reading,
+    # if the choice of frame is clear. Nothing inside the sheet checks them, so the policy accepts such a placement only
+    # on an external reference, never on another edition (both editions share the frame and the content).
+    # With no marks the frame is all the evidence there is, so its defining property must be clear: the content stops at
+    # it (by the margin that rules out a rival frame). A rectangle the content runs across may be any long-line box.
+    frame_only = not found and not ambiguous and g["contrast"] >= frame_contrast
     state.evidence.append(Evidence("graticule_found", bool(found), "deterministic", "sheet-reader",
                                    note=f"{len(g['nodes'])} nodes (4 corners + {len(g['nodes']) - 4}/{g['n_expected_marks']} marks: edge {g['edge_marks']:.0%}, "
-                                        f"inside {g['inner_marks']:.0%}); content stops at the frame by {g['contrast']:.2f}; "
+                                        f"inside {g['inner_marks']:.0%}; by chance {g['chance_marks']:.0%}, beyond chance {marks:.0%}); content stops at the frame by {g['contrast']:.2f}; "
                                         f"shape {g['ratio']:.4f} (expected {g['expected_ratio']:.4f}, {g['pixel_space']})"))
     state.evidence.append(Evidence("graticule_marks", round(marks, 3), "deterministic", "sheet-reader"))
     state.evidence.append(Evidence("graticule_ambiguous", bool(ambiguous), "deterministic", "sheet-reader",
@@ -542,8 +572,12 @@ def graticule_marks(state, interval_min: float = 5.0, ambiguity: float = 0.85, m
                                          f"(corners moved up to {g['rival_moved_m']:.0f} m; content stops {g['contrast']:.2f} vs {g['rival']['contrast']:.2f}, "
                                          f"marks {g['marks']:.2f} vs {g['rival']['marks']:.2f}"
                                          + ("; ruled out" if excluded else "") + ")") if rival is not None else "no frame placing the sheet elsewhere"))
-    if not found:
+    state.evidence.append(Evidence("graticule_frame_only", bool(frame_only), "deterministic", "sheet-reader",
+                                   note="placed by the neatline corners alone" if frame_only else ""))
+    if not (found or frame_only):
         return []
+    if frame_only:
+        g = {**g, "nodes": g["nodes"][:4]}                     # the corners; the chance marks are not evidence
     state.layers.append(Layer(state.sheet.digest, "frame", "points", g["corners"],
                               meta={k: g[k] for k in ("pixel_space", "ratio", "contrast", "edge_marks", "inner_marks")}))
     return [Cue(state.sheet.digest, "grid", f"{lon},{lat}", (x - 1, y - 1, x + 1, y + 1), "graticule_marks")

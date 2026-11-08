@@ -42,7 +42,9 @@ SOI_1INCH = Recipe(
         # a small residual at the graticule nodes proves self-consistency only: a frame read one graticule line off
         # keeps a 20 m residual and lands 9 km away (053ASE 1943 edition, 2026-11-06). Accept needs a second family.
         {"id": "residual_and_structure", "when": "residual_within_bound and matchers_agree == True", "to": "accept"},
-        {"id": "residual_and_edition", "when": "residual_within_bound and editions_agree == True", "to": "accept"},
+        # not for a frame read by its corners alone: two editions share the frame and the content, so they agree when the
+        # sheet's content sits off its own graticule (seen on 19th-century sheets, 150-250 m); only the external check sees it
+        {"id": "residual_and_edition", "when": "residual_within_bound and editions_agree == True and graticule_frame_only != True", "to": "accept"},
         {"id": "editions_disagree", "when": "editions_agree == False", "from": "accept", "to": "review"},
     ),
     expected_accuracy_m=(5.0, 30.0), expected_cost_per_sheet=0.0,
@@ -81,7 +83,7 @@ STREET_MAP = Recipe(
 
 SURVEY_GRATICULE = Recipe(
     name="survey_graticule", kind="historical_map",
-    profile=Profile("any survey sheet with a neatline and a printed graticule: lines across the map, or edge ticks and interior crosses (USGS quadrangles, 1880s-1970s)", (), (),
+    profile=Profile("any survey sheet with a neatline and a printed graticule: lines across the map, edge ticks and interior crosses, or the labelled neatline alone (USGS quadrangles, German 1:25,000 sheets, 1870s-1970s)", (), (),
                     ("grid",), printed_grid="graticule", scale_hint="1:62500 / 1:24000", era="1880-1980",
                     measured_by={"printed_grid": "graticule_marks"}),
     cues=("grid",),
@@ -91,7 +93,9 @@ SURVEY_GRATICULE = Recipe(
     policy_rules=(
         # the residual at the nodes proves self-consistency only (see soi_1inch): accept needs a second family, another
         # edition placed on its own (same content in the same place) or the sheet's water against OpenStreetMap's
-        {"id": "residual_and_edition", "when": "residual_within_bound and editions_agree == True", "to": "accept"},
+        # not for a frame read by its corners alone: two editions share the frame and the content, so they agree when the
+        # sheet's content sits off its own graticule (seen on 19th-century sheets, 150-250 m); only the external check sees it
+        {"id": "residual_and_edition", "when": "residual_within_bound and editions_agree == True and graticule_frame_only != True", "to": "accept"},
         {"id": "residual_and_basemap", "when": "residual_within_bound and basemap_agree == True", "to": "accept"},
         {"id": "editions_disagree", "when": "editions_agree == False", "from": "accept", "to": "review"},
         # editions agree with each other when the record is wrong or both scans were misread alike; an external
@@ -117,7 +121,7 @@ SPECS = {
                                           Step("cross_edition_agreement")), SOI_1INCH.policy_rules, "lib-v0"),
     "street_map": AdapterSpec("street_map", (Step("claude_read", {"headless": True}), Step("place_lookup"), Step("road_junction_locate"), Step("road_name_fit"),
                                             Step("places_in_footprint"), Step("hypothesis_agreement")), STREET_MAP.policy_rules, "lib-v0"),
-    "survey_graticule": AdapterSpec("survey_graticule", (Step("graticule_marks"), Step("control_point_fit", {"model": "poly2", "crs": "EPSG:4267", "min_points": 6}),
+    "survey_graticule": AdapterSpec("survey_graticule", (Step("graticule_marks"), Step("control_point_fit", {"model": "poly2", "crs": "EPSG:4267", "min_points": 6, "fallback": "affine"}),
                                                         Step("residual_check", {"bound": 30.0, "geographic": True}), Step("basemap_agreement"),
                                                         Step("edition_agreement")),
                                     SURVEY_GRATICULE.policy_rules, "lib-v0"),
