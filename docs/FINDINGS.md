@@ -330,3 +330,77 @@ Held-out v4: a fresh draw (seed 20261112), frozen at f5d76fa, run once (1,642 s)
 (worst point 76 m), 15 of them on the water alone. 38 went to review (21 right, 17 wrong) and 7 abstained. Water
 verdicts on placed scans: 149 agree, 4 disagree, 40 had nothing to compare (grey or dry sheets). Four held-out draws,
 800 scans, no wrong acceptance.
+
+**A second map family, run once unchanged; its failure classes fixed; both families measured fresh, 2026-11-08.**
+The question was whether the USGS results come from a general method or from a reader fitted to one series. The
+test was the same system on a family that differs in everything: SLUB Virtual Map Forum 1:25,000 sheets, 1873–1900.
+
+*The benchmark.* `benchmarks/sample_slub.py` draws TK25 cells (10' × 6') with two georeferenced scans of different
+years. The first build dropped all 680 sheets it tried, for three reasons:
+- Only a quarter of the records offer the rectified GeoTIFF. That is now part of the rule; it is a metadata field.
+- The library's WCS ignores WIDTH/HEIGHT and returns the full ~10,000 px image, so the scan and reference were
+  compared about 3.4× apart in scale. Requests now use WCS 2.0 SCALEFACTOR, 20 MB instead of 227 MB.
+- The library rectifies with splines. A poly2 from scan pixels to lon/lat misses by about 20 m median and 35–44 m at
+  the 95th percentile. Poly2 plus a smoothed thin-plate spline brings that to 2–3 m median and about 9 m p95, on
+  held-out pairs (`SmoothWarp`).
+
+The library's stored control points need a login. The truth was checked against an independent reference: OSM
+water, through the truth's own placement, agrees to 14 m median (p90 29 m) over 81 scans. The one exception was 154 m,
+where a river has moved.
+
+*v1, the unchanged system, once (seed 20261111, at ec9f660):* 0 accepted right, **3 accepted wrong**, 15 to review
+(all wrong), 82 abstained. Failure classes:
+1. **Hard-coded datum.** `control_point_fit` placed every sheet in EPSG:4267. Outside North America that is a null
+   shift, while DHDN is 182 m from WGS84. Accepted placements sat 119–128 m off.
+2. **A tolerance looser than the claim.** The water check measured 111 m on two of them and passed them at 150 m. The
+   water shift tracks the true error closely: after the datum fix, 223 vs 215 m, 239 vs 249 m, 257 vs 254 m.
+3. **Marks without a null.** These sheets print no minute ticks, yet the reader reported 40–68 % of the expected
+   marks. Contours, hachures and roads put ink near any point. The same tests at positions a third and two thirds of
+   an interval off the graticule pass 20–80 % of the time on dense sheets, both German and USGS.
+4. **A neatline with nothing else.** On the sheets outside Saxony the four frame corners alone placed the sheet to
+   3–12 m.
+
+*Fixes, each a capability:*
+- The datum comes from the record, with the kind's CRS as the default only. The guard treats any geographic CRS as
+  degrees.
+- Water tolerance is 60 m, the editions' tolerance: "agrees" means one thing in both families, below the 100 m
+  certified.
+- Marks count beyond the chance rate.
+- Frame-only placement (affine on the four corners) when the content clearly stops at the frame, by the 0.05
+  margin already used to rule out rival frames. It is accepted only on the external reference. Two editions share the
+  frame and the content, so their agreement cannot vouch for it.
+
+One development iteration exposed the last condition. Without it, a frame the content ran across was accepted with
+water agreeing at 15 m, yet sat 101 m median and 284 m at worst from the truth: the water check measures a shift, not
+a scale.
+
+*What the Saxon sheets are.* Placed by their frames, they sit 150–600 m from the truth. The offset is a smooth
+function of longitude: +500 m at 12.2° E, +190 m at 13.3° E, −100 m at 14.3° E, −540 m at 14.8° E. It is the
+same on both editions. The frames are not the geographic cells the record names (a Saxon coordinate system), so the
+record is wrong for the whole series. Reading cannot fix it, and editions cannot see it. The water check flags it on
+every sheet that has water.
+
+*Development effect, on draws already seen:*
+- SLUB v1: 0 accepted wrong (was 3).
+- USGS v4: 0 accepted wrong, and accepted right fell from 155 to 143. The 12 lost are right placements whose water
+  sat 60–121 m from OSM, now sent to review. 13 placements that had gone to review (mostly wrong) now abstain,
+  because their marks do not stand above chance.
+- The demo is unchanged: 15 of 16 sheets accepted, typo caught.
+
+*Fresh draws, frozen at 3220316, drawn and committed (a9f94ff), each run once:*
+- **USGS v5** (seed 20261114, excludes v1–v4): 135 of 200 accepted, **0 wrong**, 2 of them by the frame alone. 48
+  went to review (45 right, 3 wrong) and 17 abstained.
+- **SLUB v2** (seed 20261115, excludes v1): 3 of 100 accepted, **0 wrong** (6–11 m median; all three are sheets
+  outside Saxony). 52 went to review (4 right, 48 wrong) and 45 abstained. Of the review cases, 43 are frame-only
+  placements the water check showed wrong, and 3 are wrong placements that two editions agreed on, held back by the
+  frame-only rule. Of the abstentions, 39 frames are too weak to stand alone and 6 are ambiguous.
+
+Five USGS draws and two of a second family: 1,200 held-out scans, and the only wrong acceptances came from the
+first, unchanged run on the new family.
+
+Limits:
+- A series whose frames are not where the record says (the Saxon sheets) is caught, not placed.
+- Learning a series' coordinate system from a few sheets against an external reference, and verifying it on others,
+  is the next capability.
+- The water check measures a translation only.
+- 60 m holds back right placements that 150 m let through.

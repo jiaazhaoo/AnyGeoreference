@@ -2,7 +2,7 @@
 
 **Put any scanned drawing or map on the Earth, say how sure you are, and say no when you are not.**
 
-Status: v0 design and core loop (2026-11). Kinds placed so far: scanned planning drawings (Great Britain), historical 1-inch survey sheets (South Asia) and USGS historical quadrangles (public demo below). A new kind is a recipe, not a rewrite; the core does not change.
+Status: v0 design and core loop (2026-11). Kinds placed so far: scanned planning drawings (Great Britain), historical 1-inch survey sheets (South Asia), USGS historical quadrangles (public demo below) and German 1:25,000 sheets (second held-out family). A new kind is a recipe, not a rewrite; the core does not change.
 
 ## Try it: public sheets, external truth, one command
 
@@ -61,6 +61,7 @@ that has been looked at becomes development data, and the next change is measure
 | v2 (seed 20261109, fresh, run at `9996f0f`) | frame and marks | 129 (worst point ≤ 62 m) | **0** | 39 / 24 | 8 |
 | v3 (seed 20261110, fresh, run at `f56db57`) | + ambiguity ruled out by evidence | 155 (worst point ≤ 58 m) | **0** | 25 / 16 | 4 |
 | v4 (seed 20261112, fresh, run at `122a307`) | + water vs OpenStreetMap | **155** (worst point ≤ 76 m; 15 by water alone) | **0** | 21 / 17 | 7 |
+| v5 (seed 20261114, fresh, run at `a9f94ff`) | + datum from the record, marks beyond chance, frame-only, water tolerance 60 m | **135** (2 by the frame alone) | **0** | 45 / 3 | 17 |
 
 Each row is a different random draw, so the rows compare systems, not identical cases. v2 measured the frame-and-
 marks reader: editions from 1945 on went from almost none placed to 69 of 108 accepted. Its cost was 17 right
@@ -73,8 +74,52 @@ accepted on the water alone, with no usable partner edition. Its main effect is 
 earlier version could see, is closed. Rows are different draws; on the same development draws the water family adds
 9 accepted placements per draw and no wrong ones. Per-scan results: `benchmarks/results/`.
 
+v5 measured the changes a second map family forced (below). The water tolerance went from 150 m to 60 m, the
+editions' tolerance, because a check may not be looser than the 100 m it certifies. That costs acceptances: on the
+same v4 draw, 155 became 143, all 12 right placements whose water sat 60–121 m from OpenStreetMap's.
+
 ```bash
-python demo/run_demo.py --cases benchmarks/usgs15_heldout_v4.json --data benchmarks/data --out benchmarks/out/usgs15_heldout_v4   # ~1.3 GB of scans, ~25 min
+python demo/run_demo.py --cases benchmarks/usgs15_heldout_v5.json --data benchmarks/data --out benchmarks/out/usgs15_heldout_v5   # ~1.3 GB of scans, ~25 min
+```
+
+### Held-out, a second family: German 1:25,000 sheets, 1873–1900
+
+To test whether the method is general and not fitted to USGS sheets, the unchanged system was run once on
+another family: 1:25,000 sheets (Messtischblätter and Saxon Äquidistantenkarten) from the SLUB Virtual Map Forum,
+Dresden. Everything about them differs: country, survey, datum (Bessel; the record states DHDN), longitudes east of
+Ferro, a 10' × 6' sheet, printer, scanner and library. `benchmarks/sample_slub.py` draws TK25 cells by a seeded rule.
+Each scan's truth is the original registered to the library's own rectified GeoTIFF. The library warps with
+splines, so the truth model is poly2 plus a smoothed thin-plate spline, with a held-out error p95 of 9 m median and
+19 m at worst. That truth agrees with OpenStreetMap's water to 14 m (median) over 81 scans.
+
+| 100 scans per draw | system | accepted, right | accepted, wrong | to review: right / wrong | abstained |
+|---|---|---|---|---|---|
+| v1 (seed 20261111, run at `ec9f660`) | as frozen for USGS, unchanged | 0 | **3** | 0 / 15 | 82 |
+| v2 (seed 20261115, fresh, run at `a9f94ff`) | after the failure classes of v1 were fixed | 3 (6–11 m median) | **0** | 4 / 48 | 45 |
+
+v1 was the first wrong acceptance on any held-out set. Its failure classes, each fixed as a capability and not for
+the cases:
+1. **The datum was hard-coded to NAD27,** a null shift outside North America. The placement now takes the datum the
+   record states.
+2. **The water tolerance (150 m) exceeded the 100 m it certifies.** Datum errors of 110–130 m passed, so it is now 60 m.
+3. **Marks were counted without a null.** These sheets print no minute ticks at all. Yet 40–50 % of the expected
+   "marks" were found, by ink near any point. The same tests now run at control positions off the graticule, and only
+   marks beyond that chance rate count.
+4. **A sheet that prints only its neatline** is now placed by the four corners, if the content clearly stops at the
+   frame. It is accepted only on the external check, never on another edition, because two editions share the
+   frame and the content. On v2 this rule held back 3 wrong placements that the editions agreed on.
+
+**What v2 shows about the sheets.** The 1870s–1890s Saxon sheets print their frame 150–600 m away from the
+geographic cell the record names. The offset varies smoothly with longitude: +500 m at 12.2° E, −540 m at 14.8° E,
+the same on both editions. They were laid out in a Saxon coordinate system, so the record is wrong for them. Reading
+the frame perfectly cannot make them right. The water check sees it on every sheet that has water. The 3 accepted
+placements are sheets outside Saxony. Making Saxon sheets right needs the series' own coordinate system. That could be
+learned from a few sheets against an external reference and verified on others. It is not done yet.
+
+```bash
+pip install -e ".[bench]"      # truststore: the library's TLS chain verifies against the system trust store
+python benchmarks/sample_slub.py --n 50 --seed 20261115 --exclude benchmarks/slub_heldout_v1.json --out /tmp/slub_v2.json   # rebuilds the scans and truth
+python demo/run_demo.py --cases benchmarks/slub_heldout_v2.json --out benchmarks/out/slub_heldout_v2
 ```
 
 ## Why
