@@ -145,3 +145,42 @@ register(Primitive("residual_check", "geometry", True, ("hypothesis", "cue"), "e
                    "RMS residual of the best hypothesis at the grid cues, against the kind's bound", residual_check))
 register(Primitive("hypothesis_agreement", "geometry", True, ("hypothesis",), "evidence",
                    "whether the best hypotheses of two different matchers put the sheet in the same place (centres within tol_m)", hypothesis_agreement))
+
+
+class SmoothWarp:
+    """src -> dst as poly2 plus a smoothed thin-plate spline on its residuals: follows warps that poly2 cannot (archives
+    often rectify with thin-plate splines). `scale` turns dst units into metres so `smoothing` is in metres. The
+    inverse is solved by Newton's method on the forward warp, so both directions agree."""
+
+    def __init__(self, src, dst, smoothing: float = 100.0, scale=(1.0, 1.0)):
+        from scipy.interpolate import RBFInterpolator
+        src, dst = np.asarray(src, float), np.asarray(dst, float)
+        self.c, _ = fit_transform(src, dst, "poly2")
+        self.ci, _ = fit_transform(dst, src, "poly2")
+        self.k = np.asarray(scale, float)
+        self.mu = src.mean(0)                                   # centred, in its own units: smoothing is scale-dependent
+        r = (dst - apply_transform(self.c, src, "poly2")) * self.k
+        self.rbf = RBFInterpolator(src - self.mu, r, kernel="thin_plate_spline", smoothing=smoothing)
+
+    def __call__(self, p) -> np.ndarray:
+        p = np.atleast_2d(np.asarray(p, float))
+        return apply_transform(self.c, p, "poly2") + self.rbf(p - self.mu) / self.k
+
+    def inverse(self, q, iters: int = 6) -> np.ndarray:
+        q = np.atleast_2d(np.asarray(q, float))
+        p = apply_transform(self.ci, q, "poly2")
+        for _ in range(iters):                                  # the inverse poly2 maps dst errors back to src steps
+            d = q - self(p)
+            p = p + apply_transform(self.ci, q, "poly2") - apply_transform(self.ci, q - d, "poly2")
+        return p
+
+
+def cross_validated_error(src, dst, scale, folds: int = 4, smoothing: float = 100.0, seed: int = 0) -> np.ndarray:
+    """Each pair's error (metres) when predicted by a SmoothWarp fitted without it (k-fold)."""
+    src, dst = np.asarray(src, float), np.asarray(dst, float)
+    idx = np.random.default_rng(seed).permutation(len(src)); e = np.zeros(len(src))
+    for f in range(folds):
+        te = idx[f::folds]; tr = np.setdiff1d(idx, te)
+        w = SmoothWarp(src[tr], dst[tr], smoothing, scale)
+        e[te] = np.linalg.norm((w(src[te]) - dst[te]) * np.asarray(scale, float), axis=1)
+    return e

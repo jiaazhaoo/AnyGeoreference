@@ -72,11 +72,18 @@ class Truth:
     def __init__(self, path: Path, pairs: dict | None = None):
         from pyproj import Transformer
         if pairs:
-            from ga.primitives.generic import fit_transform
+            from ga.primitives.generic import SmoothWarp
             P = np.array(pairs["pairs"], float)
-            self.fwd, _ = fit_transform(P[:, :2], P[:, 2:], "poly2")
-            self.inv, _ = fit_transform(P[:, 2:], P[:, :2], "poly2")
-            self.kind = f"control points (fit {pairs.get('rms_m')} m)"
+            if pairs.get("model") == "poly2+tps":
+                k = (111320 * math.cos(math.radians(float(P[:, 3].mean()))), 110574.0)
+                self.warp = SmoothWarp(P[:, :2], P[:, 2:], scale=k)
+                self.kind = f"control points, poly2+tps (held-out p95 {pairs.get('heldout_p95_m')} m)"
+            else:
+                from ga.primitives.generic import fit_transform
+                self.fwd, _ = fit_transform(P[:, :2], P[:, 2:], "poly2")
+                self.inv, _ = fit_transform(P[:, 2:], P[:, :2], "poly2")
+                self.warp = None
+                self.kind = f"control points (fit {pairs.get('rms_m')} m)"
             from PIL import Image
             Image.MAX_IMAGE_PIXELS = None
             with Image.open(path) as im:
@@ -92,14 +99,14 @@ class Truth:
 
     def px_to_ll(self, px: np.ndarray) -> np.ndarray:
         if self.geotiff is None:
-            return apply_transform(self.fwd, px, "poly2")
+            return self.warp(px) if self.warp is not None else apply_transform(self.fwd, px, "poly2")
         T = self.geotiff
         x = T.c + T.a * (px[:, 0] + 0.5) + T.b * (px[:, 1] + 0.5); y = T.f + T.d * (px[:, 0] + 0.5) + T.e * (px[:, 1] + 0.5)
         return np.c_[self.to_wgs.transform(x, y)]
 
     def ll_to_px(self, ll: np.ndarray) -> np.ndarray:
         if self.geotiff is None:
-            return apply_transform(self.inv, ll, "poly2")
+            return self.warp.inverse(ll) if self.warp is not None else apply_transform(self.inv, ll, "poly2")
         x, y = self.from_wgs.transform(ll[:, 0], ll[:, 1])
         inv = ~self.geotiff
         return np.array([inv * (a, b) for a, b in zip(x, y)]) - 0.5

@@ -18,10 +18,12 @@ dependencies = [
     "opencv-python-headless",
     "rasterio",
     "mapbox-vector-tile",
+    "scipy",
 ]
 
 [project.optional-dependencies]
 test = ["pytest"]
+bench = ["truststore"]
 
 [tool.setuptools.packages.find]
 include = ["ga*"]
