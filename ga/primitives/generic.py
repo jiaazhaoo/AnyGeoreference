@@ -146,6 +146,34 @@ def hypothesis_agreement(state, tol_m: float = 200.0):
             Evidence("matchers_distance_m", round(d, 1), "deterministic", "geometry")]
 
 
+def series_correction(state):
+    """Move the grid cues' record coordinates by the series field the batch learned without this sheet (ga.series),
+    when the batch passed one in the record ('series_field'). Nothing happens without it. The placement that follows
+    is in the world's position as the series' other sheets see it; only this sheet's own external check can confirm it."""
+    from ..series import correct, offset_at
+    field = (state.sheet.record or {}).get("series_field")
+    if not field:
+        return []
+    new, moved = [], []
+    for c in state.cues:
+        if c.kind == "grid" and "," in c.text:
+            lon, lat = (float(v) for v in c.text.split(",")[:2])
+            lo, la = correct(field, lon, lat)
+            dx, dy = offset_at(field, lon, lat)
+            moved.append(math.hypot(float(dx), float(dy)))
+            c = Cue(c.sheet, c.kind, f"{float(lo)!r},{float(la)!r}", c.bbox, c.reader, c.confidence)
+        new.append(c)
+    state.cues[:] = new
+    if not moved:
+        return []
+    return [Evidence("series_corrected", True, "deterministic", "basemap",
+                     note=f"record moved {min(moved):.0f}-{max(moved):.0f} m by the series field from {field['anchors_near']} nearby sheets "
+                          f"(bandwidth {field['h_km']:.0f} km, their leave-one-out error {field['loo_m']:.0f} m); this sheet not among them")]
+
+
+register(Primitive("series_correction", "basemap", True, ("cue",), "evidence",
+                   "the record's coordinates moved by a series field learned across the batch from other sheets' external checks "
+                   "(ga.series); a no-op unless the batch passes one in", series_correction))
 register(Primitive("control_point_fit", "geometry", True, ("cue",), "hypothesis",
                    "least-squares fit of grid cues (printed coordinates at sheet pixels) -> transform; similarity / affine / poly2",
                    control_point_fit))

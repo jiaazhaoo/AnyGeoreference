@@ -227,8 +227,22 @@ def basemap_shift(rgb: np.ndarray, coeffs: np.ndarray, model: str, crs: str, bou
         return {"why": "OpenStreetMap has too little water here to compare"}
     win = cv2.createHanningWindow((a.shape[1], a.shape[0]), cv2.CV_32F)
     (dx, dy), resp = cv2.phaseCorrelate(a, b, win)
+    # the same in each quadrant of the placed area: one shift cannot see a placement that is right in the middle and
+    # wrong at the edges (a scale, a rotation, a frame that is not a rectangle in the record's coordinates)
+    local = []
+    H, W = a.shape
+    for qy in (0, 1):
+        for qx in (0, 1):
+            sl = (slice(qy * H // 2, (qy + 1) * H // 2), slice(qx * W // 2, (qx + 1) * W // 2))
+            aq, bq, cq = a[sl], b[sl], covered[sl]
+            wq = float((aq > 40)[cq].mean()) if cq.any() else 0.0
+            if wq < min_water or float((bq > 40).mean()) < min_water:
+                local.append(None); continue
+            (qdx, qdy), qr = cv2.phaseCorrelate(np.ascontiguousarray(aq), np.ascontiguousarray(bq),
+                                                cv2.createHanningWindow((aq.shape[1], aq.shape[0]), cv2.CV_32F))
+            local.append({"dx_m": qdx * res_m, "dy_m": -qdy * res_m, "response": float(qr)})
     return {"dx_m": dx * res_m, "dy_m": -dy * res_m, "response": float(resp), "water": water,
-            "osm_lines": len(lines), "osm_areas": len(polys), "source": source}
+            "osm_lines": len(lines), "osm_areas": len(polys), "source": source, "local": local}
 
 
 def basemap_agreement(state, tol_m: float = 60.0, min_response: float = 0.05):
@@ -262,7 +276,21 @@ def basemap_agreement(state, tol_m: float = 60.0, min_response: float = 0.05):
     return [Evidence("basemap_agree", bool(d <= tol_m), "deterministic", "basemap",
                      note=f"water vs OSM: shift {d:.0f} m (dx {r['dx_m']:+.0f}, dy {r['dy_m']:+.0f}), response {r['response']:.3f}, "
                           f"sheet water {r['water']:.1%}, {r['osm_areas']} areas + {r['osm_lines']} lines from {r['source']}; tol {tol_m} m"),
-            Evidence("basemap_shift_m", round(d, 1), "deterministic", "basemap")]
+            Evidence("basemap_shift_m", round(d, 1), "deterministic", "basemap"),
+            Evidence("basemap_offset_m", (round(r["dx_m"], 1), round(r["dy_m"], 1)), "deterministic", "basemap",
+                     note="the world is this far east and north of where the placement puts the sheet"),
+            _local_evidence(r, tol_m, min_response)]
+
+
+def _local_evidence(r: dict, tol_m: float, min_response: float, min_quadrants: int = 2):
+    """basemap_local_agree: True when at least `min_quadrants` quadrants have water to compare and every one of them
+    agrees within tol_m; False when any quadrant clearly disagrees; None when too few quadrants can be compared."""
+    q = [x for x in r.get("local", []) if x and x["response"] >= min_response]
+    d = [math.hypot(x["dx_m"], x["dy_m"]) for x in q]
+    note = "quadrants " + ", ".join(f"{v:.0f} m" for v in d) + f" ({len(q)} of 4 comparable; tol {tol_m} m)"
+    if any(v > tol_m for v in d):
+        return Evidence("basemap_local_agree", False, "deterministic", "basemap", note=note)
+    return Evidence("basemap_local_agree", True if len(q) >= min_quadrants else None, "deterministic", "basemap", note=note)
 
 
 register(Primitive("basemap_agreement", "basemap", True, ("hypothesis",), "evidence",

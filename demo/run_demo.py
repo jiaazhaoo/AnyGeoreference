@@ -33,7 +33,7 @@ from ga.primitives.generic import apply_transform              # noqa: E402
 from ga.primitives.graticule import _fit_of                    # noqa: E402
 
 KIND = "survey_graticule"
-PLACE = ["graticule_marks", "control_point_fit", "residual_check", "basemap_agreement"]
+PLACE = ["graticule_marks", "series_correction", "control_point_fit", "residual_check", "basemap_agreement"]
 RIGHT_M = 100.0          # a placement is right when no point of the map area is more than this from the archive's
 DEFAULT_DATA = str(ROOT / "demo" / "data")
 
@@ -149,10 +149,15 @@ def overlay(path: Path, state, case: dict, out: Path, truth: Truth, scale: float
     return str(p.relative_to(out.parent)) if out.parent in p.parents else str(p)
 
 
-def run_case(case: dict, base: str, data: Path, out: Path, reg, decider) -> list[dict]:
+def place_case(case: dict, base: str, data: Path, reg, series_field: dict | None = None):
+    """Every scan of the case placed on its own, then each checked against the other. With a series field (learned
+    from the batch's other sheets), the record's coordinates are moved by it first."""
     paths = [fetch(base, rel, data) for rel in case["scans"]]
     bounds = case.get("bounds_per_scan") or [case["bounds"]] * len(paths)
-    states = [run(sheet_for(p, case, b), reg, FixedPlan(PLACE)) for p, b in zip(paths, bounds)]
+    sheets = [sheet_for(p, case, b) for p, b in zip(paths, bounds)]
+    if series_field:
+        sheets = [dataclasses.replace(sh, record={**sh.record, "series_field": series_field}) for sh in sheets]
+    states = [run(sh, reg, FixedPlan(PLACE)) for sh in sheets]
     for i, st in enumerate(states):
         sib = states[1 - i] if len(states) == 2 else None
         if st.hypotheses and sib is not None and sib.hypotheses:
@@ -162,12 +167,34 @@ def run_case(case: dict, base: str, data: Path, out: Path, reg, decider) -> list
                                                  "basemap_note": sev["basemap_agree"].note if "basemap_agree" in sev else ""}}
             st.sheet = dataclasses.replace(st.sheet, meta=meta)
             step(st, reg, "edition_agreement")
+    return paths, states
+
+
+def series_anchors(case: dict, states) -> list:
+    """The case as one anchor of the batch's series field: its scans' water shifts against OpenStreetMap."""
+    from ga.series import anchors_from
+    shifts = []
+    for st in states:
+        ev = {e.name: e for e in st.evidence}
+        if st.hypotheses and "basemap_offset_m" in ev and ev.get("basemap_agree") is not None and ev["basemap_agree"].value is not None:
+            shifts.append(tuple(ev["basemap_offset_m"].value))
+    w, s, e, n = case["bounds"]
+    return anchors_from(case["id"], (w + e) / 2, (s + n) / 2, shifts)
+
+
+def needs_series(states) -> bool:
+    """A sheet whose own water disagrees with OpenStreetMap is the one a series error would explain."""
+    return any(e.name == "basemap_agree" and e.value is False for st in states for e in st.evidence)
+
+
+def score_case(case: dict, paths, states, out: Path, decider) -> list[dict]:
     rows = []
     truths = case.get("truth") or [None] * len(paths)
     for p, st, tp in zip(paths, states, truths):
         v = decider.decide(st)
         ev = {e.name: e for e in st.evidence}
         row = {"case": case["id"], "scan": p.stem, "control": case.get("control"), "action": v.action, "why": v.why or "",
+               "series": ev["series_corrected"].note if "series_corrected" in ev else None,
                "nodes": len(st.cues), "seconds": round(st.seconds, 2),
                "residual_m": round(ev["residual_rms"].value, 1) if "residual_rms" in ev else None,
                "graticule": ev["graticule_found"].note if "graticule_found" in ev else None,
@@ -175,6 +202,8 @@ def run_case(case: dict, base: str, data: Path, out: Path, reg, decider) -> list
                "editions_agree": ev["editions_agree"].value if "editions_agree" in ev else None,
                "basemap": ev["basemap_agree"].note if "basemap_agree" in ev else None,
                "basemap_agree": ev["basemap_agree"].value if "basemap_agree" in ev else None,
+               "basemap_local": ev["basemap_local_agree"].note if "basemap_local_agree" in ev else None,
+               "basemap_local_agree": ev["basemap_local_agree"].value if "basemap_local_agree" in ev else None,
                "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
         if st.hypotheses:
             truth = Truth(p, tp)
@@ -233,7 +262,7 @@ def tally(rows: list[dict]) -> dict:
     return t
 
 
-DECISION_CODE = ("ga/primitives/graticule.py", "ga/primitives/basemap.py", "ga/primitives/generic.py", "ga/kinds.py", "ga/decide.py", "ga/guard.py", "ga/loop.py")
+DECISION_CODE = ("ga/series.py", "demo/run_demo.py", "ga/primitives/graticule.py", "ga/primitives/basemap.py", "ga/primitives/generic.py", "ga/kinds.py", "ga/decide.py", "ga/guard.py", "ga/loop.py")
 
 
 def provenance() -> dict:
@@ -257,26 +286,41 @@ def main() -> int:
     ap.add_argument("--data", default=DEFAULT_DATA)
     ap.add_argument("--out", default=str(ROOT / "demo" / "out"))
     ap.add_argument("--only", nargs="*")
+    ap.add_argument("--no-series", action="store_true", help="each sheet on its own: no series field learned across the batch")
     a = ap.parse_args()
     spec = json.loads(Path(a.cases).read_text())
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     reg = kinds.registry_for(KIND)
     decider = Decider(kinds.policy_for(KIND), None, lambda st: st.hypotheses[0].score if st.hypotheses else None)
     rows, errors, t0 = [], [], time.time()
-    for case in spec["cases"]:
-        if a.only and case["id"] not in a.only:
-            continue
+    data = Path(a.data) if not spec.get("data_dir") or a.data != DEFAULT_DATA else ROOT / spec["data_dir"]
+    cases = [c for c in spec["cases"] if not a.only or c["id"] in a.only]
+    placed = {}
+    for case in cases:                                                  # pass 1: every sheet on its own reading
         print(f"{case['id']}: {case['sheet']}", flush=True)
         try:
-            case_rows = run_case(case, spec.get("base_url"), Path(a.data) if not spec.get("data_dir") or a.data != DEFAULT_DATA else ROOT / spec["data_dir"], out, reg, decider)
+            placed[case["id"]] = place_case(case, spec.get("base_url"), data, reg)
         except Exception as e:                                          # noqa: BLE001  one bad scan is a row, not the end of the run
             print(f"  ERROR {type(e).__name__}: {str(e)[:120]}", flush=True)
             errors.append({"case": case["id"], "error": f"{type(e).__name__}: {str(e)[:200]}"})
+    if not a.no_series:                                                 # pass 2: the series field, each sheet left out of its own
+        from ga.series import SeriesField
+        field = SeriesField([an for c in cases if c["id"] in placed for an in series_anchors(c, placed[c["id"]][1])])
+        for case in cases:
+            if case["id"] not in placed or not needs_series(placed[case["id"]][1]):
+                continue
+            w, s_, e, n = case["bounds"]
+            f = field.predict((w + e) / 2, (s_ + n) / 2, exclude=case["id"])
+            print(f"{case['id']}: own water disagrees; series field " + (f"{f['coef_dx'][0]:+.0f}/{f['coef_dy'][0]:+.0f} m (loo {f['loo_m']:.0f} m)" if f else "refused"), flush=True)
+            if f:
+                placed[case["id"]] = place_case(case, spec.get("base_url"), data, reg, series_field=f)
+    for case in cases:
+        if case["id"] not in placed:
             continue
-        for r in case_rows:
+        for r in score_case(case, *placed[case["id"]], out, decider):
             rows.append(r)
-            tr = f"{r['truth']['median_m']:.0f}/{r['truth']['max_m']:.0f} m from USGS" if r.get("truth") else "no placement"
-            print(f"  {r['scan']:<40} {r['action']:<8} {tr}   {r['why'][:70]}", flush=True)
+            tr = f"{r['truth']['median_m']:.0f}/{r['truth']['max_m']:.0f} m from truth" if r.get("truth") else "no placement"
+            print(f"  {r['case']} {r['scan']:<40} {r['action']:<8} {tr}   {r['why'][:70]}", flush=True)
     real = [r for r in rows if not r["control"]]; ctrl = [r for r in rows if r["control"]]
     t = {"sheets": tally(real), "controls": tally(ctrl)}
     def line(name, x, n):

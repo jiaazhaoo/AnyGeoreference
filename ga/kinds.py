@@ -44,7 +44,8 @@ SOI_1INCH = Recipe(
         {"id": "residual_and_structure", "when": "residual_within_bound and matchers_agree == True", "to": "accept"},
         # not for a frame read by its corners alone: two editions share the frame and the content, so they agree when the
         # sheet's content sits off its own graticule (seen on 19th-century sheets, 150-250 m); only the external check sees it
-        {"id": "residual_and_edition", "when": "residual_within_bound and editions_agree == True and graticule_frame_only != True", "to": "accept"},
+        # nor for a placement moved by the series field: both editions are moved alike, so only the external check tests it
+        {"id": "residual_and_edition", "when": "residual_within_bound and editions_agree == True and graticule_frame_only != True and series_corrected != True", "to": "accept"},
         {"id": "editions_disagree", "when": "editions_agree == False", "from": "accept", "to": "review"},
     ),
     expected_accuracy_m=(5.0, 30.0), expected_cost_per_sheet=0.0,
@@ -95,7 +96,8 @@ SURVEY_GRATICULE = Recipe(
         # edition placed on its own (same content in the same place) or the sheet's water against OpenStreetMap's
         # not for a frame read by its corners alone: two editions share the frame and the content, so they agree when the
         # sheet's content sits off its own graticule (seen on 19th-century sheets, 150-250 m); only the external check sees it
-        {"id": "residual_and_edition", "when": "residual_within_bound and editions_agree == True and graticule_frame_only != True", "to": "accept"},
+        # nor for a placement moved by the series field: both editions are moved alike, so only the external check tests it
+        {"id": "residual_and_edition", "when": "residual_within_bound and editions_agree == True and graticule_frame_only != True and series_corrected != True", "to": "accept"},
         {"id": "residual_and_basemap", "when": "residual_within_bound and basemap_agree == True", "to": "accept"},
         {"id": "editions_disagree", "when": "editions_agree == False", "from": "accept", "to": "review"},
         # editions agree with each other when the record is wrong or both scans were misread alike; an external
@@ -104,6 +106,10 @@ SURVEY_GRATICULE = Recipe(
         # two scans that agree share their fate: the partner shown wrong by the external reference takes this one along
         {"id": "partner_shown_wrong", "when": "editions_agree == True and partner_basemap_agree == False", "from": "accept", "to": "review"},
         {"id": "graticule_ambiguous", "when": "graticule_ambiguous == True", "from": "accept", "to": "review"},
+        # a placement moved by the series field is a better starting point, not a verified one: on the sheets that need it
+        # (1870s-90s Saxon), the content is distorted inside the sheet (the best affine fit to the truth itself has its
+        # worst point at 73 m median, 123 m p90), and neither the water's shift nor its shifts per quadrant see what is left
+        {"id": "series_needs_review", "when": "series_corrected == True", "from": "accept", "to": "review"},
     ),
     expected_accuracy_m=(10.0, 40.0), expected_cost_per_sheet=0.0,
     note="truth: the archive's published georeference (USGS GeoTIFF), never read by the loop; bounds and interval from the record; OSM water is a reference, not truth")
@@ -121,7 +127,7 @@ SPECS = {
                                           Step("cross_edition_agreement")), SOI_1INCH.policy_rules, "lib-v0"),
     "street_map": AdapterSpec("street_map", (Step("claude_read", {"headless": True}), Step("place_lookup"), Step("road_junction_locate"), Step("road_name_fit"),
                                             Step("places_in_footprint"), Step("hypothesis_agreement")), STREET_MAP.policy_rules, "lib-v0"),
-    "survey_graticule": AdapterSpec("survey_graticule", (Step("graticule_marks"), Step("control_point_fit", {"model": "poly2", "crs": "EPSG:4267", "min_points": 6, "fallback": "affine"}),
+    "survey_graticule": AdapterSpec("survey_graticule", (Step("graticule_marks"), Step("series_correction"), Step("control_point_fit", {"model": "poly2", "crs": "EPSG:4267", "min_points": 6, "fallback": "affine"}),
                                                         Step("residual_check", {"bound": 30.0, "geographic": True}), Step("basemap_agreement"),
                                                         Step("edition_agreement")),
                                     SURVEY_GRATICULE.policy_rules, "lib-v0"),
