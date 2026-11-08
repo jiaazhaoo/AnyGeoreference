@@ -16,6 +16,7 @@ dependencies = [
     "pyproj",
     "Pillow",
     "opencv-python-headless",
+    "rasterio",
 ]
 
 [project.optional-dependencies]

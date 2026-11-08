@@ -79,7 +79,26 @@ STREET_MAP = Recipe(
     expected_accuracy_m=(30.0, 400.0), expected_cost_per_sheet=0.0,
     note="labels on their named roads is the matcher; place names inside the footprint is the second family; old maps get a wider tolerance")
 
-KINDS = {r.name: r for r in (PLANS_GB, SOI_1INCH, UNLABELLED_RASTER, STREET_MAP)}
+SURVEY_GRATICULE = Recipe(
+    name="survey_graticule", kind="historical_map",
+    profile=Profile("any survey sheet that prints its graticule as lines across the map (USGS 15' quadrangles, 1880s-1950s)", (), (),
+                    ("grid",), printed_grid="graticule", scale_hint="1:62500", era="1880-1960",
+                    measured_by={"printed_grid": "graticule_lines"}),
+    cues=("grid",),
+    references=("record-text",),
+    matchers=("control_point_fit",),
+    verifications=("residual_check", "edition_agreement"),
+    policy_rules=(
+        # the residual at the nodes proves self-consistency only (see soi_1inch): accept needs another edition of the
+        # same sheet, placed on its own and matched by map content, to put the same features in the same place
+        {"id": "residual_and_edition", "when": "residual_within_bound and editions_agree == True", "to": "accept"},
+        {"id": "editions_disagree", "when": "editions_agree == False", "from": "accept", "to": "review"},
+        {"id": "graticule_ambiguous", "when": "graticule_ambiguous == True", "from": "accept", "to": "review"},
+    ),
+    expected_accuracy_m=(10.0, 40.0), expected_cost_per_sheet=0.0,
+    note="truth: the archive's published georeference (USGS GeoTIFF), never read by the loop; bounds and interval from the record")
+
+KINDS = {r.name: r for r in (PLANS_GB, SOI_1INCH, UNLABELLED_RASTER, STREET_MAP, SURVEY_GRATICULE)}
 
 # the ordered composition each kind runs (the FixedPlan); the Planner picks from the same names
 SPECS = {
@@ -92,6 +111,9 @@ SPECS = {
                                           Step("cross_edition_agreement")), SOI_1INCH.policy_rules, "lib-v0"),
     "street_map": AdapterSpec("street_map", (Step("claude_read", {"headless": True}), Step("place_lookup"), Step("road_junction_locate"), Step("road_name_fit"),
                                             Step("places_in_footprint"), Step("hypothesis_agreement")), STREET_MAP.policy_rules, "lib-v0"),
+    "survey_graticule": AdapterSpec("survey_graticule", (Step("graticule_lines"), Step("control_point_fit", {"model": "poly2", "crs": "EPSG:4267", "min_points": 6}),
+                                                        Step("residual_check", {"bound": 30.0, "geographic": True}), Step("edition_agreement")),
+                                    SURVEY_GRATICULE.policy_rules, "lib-v0"),
     "unlabelled_raster": AdapterSpec("unlabelled_raster", (Step("hint_area"), Step("edge_structure"), Step("reference_render"),
                                                           Step("structure_match_orb"), Step("overlay_agreement")), UNLABELLED_RASTER.policy_rules, "lib-v0"),
 }
@@ -128,3 +150,17 @@ def registry_for(kind: str, stubs: dict | None = None) -> ToolRegistry:
 
 def plan_for(kind: str) -> list[str]:
     return [s.primitive for s in SPECS[kind].steps]
+
+
+class _Facts(dict):
+    """Facts for a rule's condition: a fact no step produced reads as None, never as an error."""
+    def __missing__(self, key):
+        return None
+
+
+def policy_for(kind: str):
+    """The kind's policy rules as an evalcore Policy (default: review)."""
+    from evalcore import Policy, Rule
+    rules = [Rule(r["id"], (lambda f, e=r["when"]: bool(eval(e, {"__builtins__": {}}, _Facts(f)))), r["to"],
+                  (r["from"],) if "from" in r else None, when_text=r["when"]) for r in KINDS[kind].policy_rules]
+    return Policy(f"{kind}-rules", "v0", rules)

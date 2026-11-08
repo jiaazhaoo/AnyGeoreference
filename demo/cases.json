@@ -1,0 +1,31 @@
+{
+ "about": "Public USGS historical topographic sheets (public domain), as published in the USGS Historical Topographic Map Collection. The loop reads pixels only; each GeoTIFF's own georeference is the truth, read by the scorer and never by the loop. A case is a sheet the record names (neatline bounds as printed at the corners, graticule interval) and two scans of it: two editions, or two printings.",
+ "base_url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Maps/HistoricalTopo/GeoTIFF/",
+ "cases": [
+  {"id": "boston_bay", "sheet": "Boston Bay, MA (15')", "bounds": [-71.0, 42.25, -70.75, 42.5], "interval_min": 5,
+   "scans": ["MA/MA_Boston%20Bay_352523_1892_62500_geo.tif", "MA/MA_Boston%20Bay_352517_1903_62500_geo.tif"]},
+  {"id": "ithaca", "sheet": "Ithaca, NY (15')", "bounds": [-76.75, 42.25, -76.5, 42.5], "interval_min": 5,
+   "scans": ["NY/NY_Ithaca_130084_1893_62500_geo.tif", "NY/NY_Ithaca_130086_1895_62500_geo.tif"]},
+  {"id": "princeton_nj", "sheet": "Princeton, NJ (15')", "bounds": [-74.75, 40.25, -74.5, 40.5], "interval_min": 5,
+   "scans": ["NJ/NJ_Princeton_255340_1888_62500_geo.tif", "NJ/NJ_Princeton_255344_1906_62500_geo.tif"]},
+  {"id": "pasadena", "sheet": "Pasadena, CA (15')", "bounds": [-118.25, 34.0, -118.0, 34.25], "interval_min": 5,
+   "scans": ["CA/CA_Pasadena_298494_1896_62500_geo.tif", "CA/CA_Pasadena_298498_1900_62500_geo.tif"]},
+  {"id": "gettysburg", "sheet": "Gettysburg, PA (15')", "bounds": [-77.25, 39.75, -77.0, 40.0], "interval_min": 5,
+   "scans": ["PA/PA_Gettysburg_167815_1908_62500_geo.tif", "PA/PA_Gettysburg_170857_1908_62500_geo.tif"]},
+  {"id": "princeton_ky", "sheet": "Princeton, KY (15')", "bounds": [-88.0, 37.0, -87.75, 37.25], "interval_min": 5,
+   "scans": ["KY/KY_Princeton_803910_1908_62500_geo.tif", "KY/KY_Princeton_709578_1910_62500_geo.tif"]},
+  {"id": "duluth", "sheet": "Duluth, MN (15')", "bounds": [-92.25, 46.75, -92.0, 47.0], "interval_min": 5,
+   "scans": ["MN/MN_Duluth_804593_1895_62500_geo.tif", "MN/MN_Duluth_504380_1953_62500_geo.tif"]},
+
+  {"id": "control_wrong_pair", "control": "two different sheets passed as editions of one: the content check finds nothing to compare, so nothing may be accepted",
+   "sheet": "Ithaca, NY (15') with a Princeton, NJ scan as its 'edition'", "bounds": [-76.75, 42.25, -76.5, 42.5], "interval_min": 5,
+   "scans": ["NY/NY_Ithaca_130084_1893_62500_geo.tif", "NJ/NJ_Princeton_255340_1888_62500_geo.tif"],
+   "bounds_per_scan": [[-76.75, 42.25, -76.5, 42.5], [-74.75, 40.25, -74.5, 40.5]]},
+  {"id": "control_no_lines", "control": "a 1:24,000 sheet prints its graticule as edge ticks and crosses, not lines: the reader must find nothing and the loop abstain",
+   "sheet": "Ithaca East, NY (7.5')", "bounds": [-76.5, 42.375, -76.375, 42.5], "interval_min": 2.5,
+   "scans": ["NY/NY_Ithaca%20East_130071_1949_24000_geo.tif", "NY/NY_Ithaca%20East_130073_1951_24000_geo.tif"]},
+  {"id": "control_record_typo", "control": "the record's bounds are one interval off (a typo): both scans are read the same wrong way and agree with each other; the evidence cannot see a wrong record",
+   "sheet": "Boston Bay, MA (15') with west and east 5' too far west", "bounds": [-71.0833333333, 42.25, -70.8333333333, 42.5], "interval_min": 5,
+   "scans": ["MA/MA_Boston%20Bay_352523_1892_62500_geo.tif", "MA/MA_Boston%20Bay_352517_1903_62500_geo.tif"]}
+ ]
+}

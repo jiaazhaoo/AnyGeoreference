@@ -132,7 +132,7 @@ def table() -> str:
     return "\n".join(rows)
 
 
-from . import generic, plans_gb, soi, raster, claude_reader   # noqa: E402,F401  (registration on import)
+from . import generic, graticule, plans_gb, soi, raster, claude_reader   # noqa: E402,F401  (registration on import)
 
 
 def load_generated() -> list[str]:

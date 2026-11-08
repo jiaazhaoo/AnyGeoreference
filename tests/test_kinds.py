@@ -10,10 +10,10 @@ from ga.primitives import LIBRARY, generic, table
 
 def test_library_and_three_kinds_validate():
     assert len(LIBRARY) >= 20
-    for k in ("plans_gb", "soi_1inch", "unlabelled_raster", "street_map"):
+    for k in ("plans_gb", "soi_1inch", "unlabelled_raster", "street_map", "survey_graticule"):
         assert kinds.validate(k) == [], k
     assert "declared" in table()                      # some primitives are declared-only on purpose
-    assert set(kinds.KINDS) == {"plans_gb", "soi_1inch", "unlabelled_raster", "street_map"}
+    assert set(kinds.KINDS) == {"plans_gb", "soi_1inch", "unlabelled_raster", "street_map", "survey_graticule"}
 
 
 def test_control_point_fit_recovers_affine():

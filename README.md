@@ -2,7 +2,43 @@
 
 **Put any scanned drawing or map on the Earth, say how sure you are, and say no when you are not.**
 
-Status: v0 design and core loop (2026-11). Kinds placed so far: scanned planning drawings (Great Britain) and historical 1-inch survey sheets (South Asia). A new kind is a recipe, not a rewrite; the core does not change.
+Status: v0 design and core loop (2026-11). Kinds placed so far: scanned planning drawings (Great Britain), historical 1-inch survey sheets (South Asia) and USGS historical quadrangles (public demo below). A new kind is a recipe, not a rewrite; the core does not change.
+
+## Try it: public sheets, external truth, one command
+
+```bash
+git clone https://github.com/jiaazhaoo/AnyGeoreference.git && cd AnyGeoreference
+python -m venv .venv && . .venv/bin/activate && pip install -e ".[test]"
+python demo/run_demo.py          # fetches 16 public-domain USGS scans (~125 MB) once; then ~25 s, CPU only
+```
+
+No model, no API key, no GPU, no private data. Each case is a USGS historical topographic sheet (1888–1953, seven
+states) given as two scans of the same sheet (two editions, or two printings). The record holds only what a person
+reads off the sheet's corners: the neatline bounds and the graticule interval. Each scan is placed from its pixels
+alone (`graticule_lines`, then a poly2 fit and the residual at the nodes). Its placement is then checked against the
+other scan's, by map content. The two scans are resampled onto one lon/lat grid, the graticule is masked out (it
+agrees by construction), and the coast, roads and contours must line up (`edition_agreement`). The policy accepts
+only when that second family agrees. Only after the decision does the scorer open each GeoTIFF's own georeference,
+which is the truth, and measure the distance on a 7 × 7 grid over the map.
+
+![An accepted placement and a caught misread](docs/img/demo_usgs.jpg)
+
+| | scans | accepted, right | accepted, wrong | to review | abstained |
+|---|---|---|---|---|---|
+| sheets | 14 | 12 (median 6–19 m, worst point 24–38 m from USGS) | 0 | 2 | 0 |
+| controls | 6 | 0 | 2 (the record typo, by design) | 2 | 2 |
+
+- **The caught misread.** Duluth 1953 has no graticule lines, only ticks, and the Public Land Survey's one-mile
+  sections cover it. The reader took four section lines as the graticule. The fit is self-consistent (residual
+  9.7 m at the nodes) and the placement is 26 km off. The other edition's content lines up nowhere, so the sheet goes
+  to review. A residual proves only that the fit agrees with itself; this is why acceptance needs a second family.
+- **Controls.** The two 1:24,000 sheets print ticks and crosses, not lines: the reader finds nothing and the loop
+  abstains. A pair of two different sheets has no overlap to compare: review. **The known hole:** a record whose
+  bounds are one interval off is read the same wrong way on both scans, both scans agree, and both are accepted
+  6.9 km off. Nothing in the evidence can see a wrong record. Reading the corner labels would be a third family;
+  it is not built.
+
+Per-scan table and overlays: `demo/out/` after a run. Method and numbers: `docs/FINDINGS.md`.
 
 ## Why
 

@@ -174,3 +174,31 @@ per tool, and the watcher reports stalls); planner params of the wrong type or g
 worked at their defaults (now cast or dropped, defaults preferred); the generated tiling check could never run
 because the executor ran sheets one by one (batch agreement now runs at batch level). Lesson: the planner's own
 parameter tuning made a placeable sheet fail; defaults tuned on real sheets beat guessed values.
+
+**Public demo: USGS historical quadrangles, a graticule reader written for it, 2026-11-08.** The bound graticule
+reader lives in a private repository, so a generic one was written from scratch (`ga/primitives/graticule.py`,
+OpenCV and numpy only). Thin dark lines are found by a ridge test across the line (darker than both pixels 3 px
+away), so water tint and type do not compete with a hairline. Strip profiles with a small skew search give
+candidate lines with a strength (the share of the span where the line is present). Every evenly spaced family of
+n+1 lines is enumerated per axis, and a meridian family and a parallel family are paired only when their spacing
+ratio is cos(latitude) (paper or a projected raster) or 1 (a raster in degrees), within 3 %. Each kept line is
+refined strip by strip, with its own slope, because meridians converge. On Boston Bay the 16 nodes come out in
+0.4 s. Median node distance from the USGS georeference is 9–10 m, and the worst node is about 50 m, at the west
+neatline: the printed line sits about 10 px from where USGS's own georeference puts −71°, while the east edge
+matches to a pixel. Part of every "error" below is the archive's.
+
+The second family was first feature matching (SIFT + RANSAC) between the two scans. Two printings of the 1903
+edition share 1,588 inliers, but the 1892 and 1903 editions share 9. The 1903 edition was re-drawn: its lettering,
+wave lines and hachures are new. Replaced by resampling both scans onto one lon/lat grid through their own
+placements, masking the graticule bands (they agree by construction) and phase-correlating the rest. Results: a
+re-drawn edition pair shifts 31 m, two printings shift 1 m, and a simulated misread one meridian off shifts 6,863 m
+(5′ of longitude there is 6,853 m).
+
+Ten cases, 20 scans (`demo/cases.json`). On the 14 scans of seven real sheets: 12 accepted, all right (median
+6–19 m, worst grid point 24–38 m from USGS). Two went to review: Duluth 1953, where the Public Land Survey section
+grid was read as the graticule (residual 9.7 m, placement 26 km off, the content check found no correlation), and
+its 1895 partner, which was right but had nobody to agree with. Controls: two 1:24,000 sheets (ticks, no lines)
+abstain; a pair of two different sheets goes to review (no overlap). A record with the bounds one interval off is
+accepted 6.9 km off on both scans: the evidence cannot see a wrong record. That is the next family to build
+(reading the printed corner coordinates). The 1:24,000 abstention is honest, not a capability: a tick-and-cross
+reader would place them.

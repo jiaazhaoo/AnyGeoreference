@@ -5,3 +5,7 @@ __pycache__/
 *.sqlite
 *.db
 open_names
+.venv/
+*.egg-info/
+demo/data/
+demo/out/
