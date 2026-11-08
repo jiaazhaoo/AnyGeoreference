@@ -1,0 +1,661 @@
+{
+ "about": "Coordinate-free cases drawn by benchmarks/coordfree.py (rule in its docstring) from the source file below. A system under test reads only the window image and one hint string.",
+ "rule": {
+  "seed": 20261121,
+  "n": 40,
+  "shrink": 0.08,
+  "window": [
+   0.4,
+   0.7
+  ],
+  "long_side": 3000,
+  "tiers": [
+   "none",
+   "region",
+   "title"
+  ]
+ },
+ "source": "benchmarks/usgs15_heldout_v4.json",
+ "cases": [
+  {
+   "id": "u001",
+   "source_case": "q001",
+   "scan_index": 0,
+   "scan": "UT/UT_Kanab_241731_1957_62500_geo.tif",
+   "window": [
+    0.4843,
+    0.6368,
+    0.0822,
+    0.0738
+   ],
+   "hints": {
+    "region": "Utah, United States",
+    "title": "Kanab, Utah, United States"
+   }
+  },
+  {
+   "id": "u002",
+   "source_case": "q002",
+   "scan_index": 0,
+   "scan": "UT/UT_Sunnyside_252195_1915_62500_geo.tif",
+   "window": [
+    0.4481,
+    0.5051,
+    0.1642,
+    0.3641
+   ],
+   "hints": {
+    "region": "Utah, United States",
+    "title": "Sunnyside, Utah, United States"
+   }
+  },
+  {
+   "id": "u003",
+   "source_case": "q003",
+   "scan_index": 1,
+   "scan": "PA/NJ_Dingmans%20Ferry_255164_1954_62500_geo.tif",
+   "window": [
+    0.5032,
+    0.6702,
+    0.2448,
+    0.918
+   ],
+   "hints": {
+    "region": "New Jersey, United States",
+    "title": "Dingmans Ferry, New Jersey, United States"
+   }
+  },
+  {
+   "id": "u004",
+   "source_case": "q004",
+   "scan_index": 1,
+   "scan": "OH/OH_Antrim_474324_1911_62500_geo.tif",
+   "window": [
+    0.4236,
+    0.4446,
+    0.2305,
+    0.2101
+   ],
+   "hints": {
+    "region": "Ohio, United States",
+    "title": "Antrim, Ohio, United States"
+   }
+  },
+  {
+   "id": "u005",
+   "source_case": "q005",
+   "scan_index": 0,
+   "scan": "CA/CA_Hayden%20Hill_297648_1956_62500_geo.tif",
+   "window": [
+    0.6729,
+    0.5563,
+    0.8621,
+    0.6445
+   ],
+   "hints": {
+    "region": "California, United States",
+    "title": "Hayden Hill, California, United States"
+   }
+  },
+  {
+   "id": "u006",
+   "source_case": "q006",
+   "scan_index": 0,
+   "scan": "MN/MN_Rochester_471521_1939_62500_geo.tif",
+   "window": [
+    0.4652,
+    0.6603,
+    0.1751,
+    0.263
+   ],
+   "hints": {
+    "region": "Minnesota, United States",
+    "title": "Rochester, Minnesota, United States"
+   }
+  },
+  {
+   "id": "u007",
+   "source_case": "q007",
+   "scan_index": 1,
+   "scan": "MO/MO_Utica_325308_1951_62500_geo.tif",
+   "window": [
+    0.6664,
+    0.5154,
+    0.9318,
+    0.6609
+   ],
+   "hints": {
+    "region": "Missouri, United States",
+    "title": "Dawn, Missouri, United States"
+   }
+  },
+  {
+   "id": "u008",
+   "source_case": "q008",
+   "scan_index": 1,
+   "scan": "CA/CA_Copco_297179_1962_62500_geo.tif",
+   "window": [
+    0.5295,
+    0.5557,
+    0.2192,
+    0.6906
+   ],
+   "hints": {
+    "region": "California, United States",
+    "title": "Copco, California, United States"
+   }
+  },
+  {
+   "id": "u009",
+   "source_case": "q009",
+   "scan_index": 0,
+   "scan": "IN/IN_Velpen_160578_1903_62500_geo.tif",
+   "window": [
+    0.6631,
+    0.613,
+    0.4725,
+    0.4824
+   ],
+   "hints": {
+    "region": "Indiana, United States",
+    "title": "Velpen, Indiana, United States"
+   }
+  },
+  {
+   "id": "u010",
+   "source_case": "q010",
+   "scan_index": 0,
+   "scan": "IA/IA_Ogden_175294_1951_62500_geo.tif",
+   "window": [
+    0.6575,
+    0.5499,
+    0.7412,
+    0.8092
+   ],
+   "hints": {
+    "region": "Iowa, United States",
+    "title": "Ogden, Iowa, United States"
+   }
+  },
+  {
+   "id": "u011",
+   "source_case": "q011",
+   "scan_index": 0,
+   "scan": "WI/WI_River%20Falls_803005_1946_62500_geo.tif",
+   "window": [
+    0.5177,
+    0.5384,
+    0.992,
+    0.9884
+   ],
+   "hints": {
+    "region": "Wisconsin, United States",
+    "title": "River Falls, Wisconsin, United States"
+   }
+  },
+  {
+   "id": "u012",
+   "source_case": "q012",
+   "scan_index": 0,
+   "scan": "AZ/AZ_Swisshelm_464954_1922_62500_geo.tif",
+   "window": [
+    0.4542,
+    0.4922,
+    0.1916,
+    0.0077
+   ],
+   "hints": {
+    "region": "Arizona, United States",
+    "title": "Swisshelm Mtn, Arizona, United States"
+   }
+  },
+  {
+   "id": "u013",
+   "source_case": "q013",
+   "scan_index": 1,
+   "scan": "TX/TX_Darco_109106_1958_62500_geo.tif",
+   "window": [
+    0.5123,
+    0.6426,
+    0.3079,
+    0.0306
+   ],
+   "hints": {
+    "region": "Texas, United States",
+    "title": "Darco, Texas, United States"
+   }
+  },
+  {
+   "id": "u014",
+   "source_case": "q014",
+   "scan_index": 0,
+   "scan": "IA/IA_Lehigh_174999_1923_62500_geo.tif",
+   "window": [
+    0.5242,
+    0.5853,
+    0.7056,
+    0.1278
+   ],
+   "hints": {
+    "region": "Iowa, United States",
+    "title": "Lehigh, Iowa, United States"
+   }
+  },
+  {
+   "id": "u015",
+   "source_case": "q015",
+   "scan_index": 1,
+   "scan": "NV/NV_Illipah_321004_1951_62500_geo.tif",
+   "window": [
+    0.4665,
+    0.5476,
+    0.8264,
+    0.3438
+   ],
+   "hints": {
+    "region": "Nevada, United States",
+    "title": "Illipah, Nevada, United States"
+   }
+  },
+  {
+   "id": "u016",
+   "source_case": "q016",
+   "scan_index": 1,
+   "scan": "KY/KY_Tompkinsville_804035_1929_62500_geo.tif",
+   "window": [
+    0.4913,
+    0.6231,
+    0.2507,
+    0.0236
+   ],
+   "hints": {
+    "region": "Kentucky, United States",
+    "title": "Tompkinsville, Kentucky, United States"
+   }
+  },
+  {
+   "id": "u017",
+   "source_case": "q017",
+   "scan_index": 0,
+   "scan": "SC/SC_Tigerville_261964_1959_62500_geo.tif",
+   "window": [
+    0.6987,
+    0.4704,
+    0.6281,
+    0.937
+   ],
+   "hints": {
+    "region": "South Carolina, United States",
+    "title": "Tigerville, South Carolina, United States"
+   }
+  },
+  {
+   "id": "u018",
+   "source_case": "q018",
+   "scan_index": 1,
+   "scan": "KY/KY_Mammoth%20Cave_709211_1923_62500_geo.tif",
+   "window": [
+    0.6667,
+    0.5689,
+    0.114,
+    0.7292
+   ],
+   "hints": {
+    "region": "Kentucky, United States",
+    "title": "Mammoth Cave, Kentucky, United States"
+   }
+  },
+  {
+   "id": "u019",
+   "source_case": "q019",
+   "scan_index": 1,
+   "scan": "CA/CA_Fall%20River%20Mills_297456_1961_62500_geo.tif",
+   "window": [
+    0.6023,
+    0.6978,
+    0.3025,
+    0.6553
+   ],
+   "hints": {
+    "region": "California, United States",
+    "title": "Fall River Mills, California, United States"
+   }
+  },
+  {
+   "id": "u020",
+   "source_case": "q020",
+   "scan_index": 1,
+   "scan": "OH/OH_Bainbridge_224862_1917_62500_geo.tif",
+   "window": [
+    0.4229,
+    0.6269,
+    0.3063,
+    0.5339
+   ],
+   "hints": {
+    "region": "Ohio, United States",
+    "title": "Bainbridge, Ohio, United States"
+   }
+  },
+  {
+   "id": "u021",
+   "source_case": "q021",
+   "scan_index": 0,
+   "scan": "MT/MT_Duck%20Creek%20Pass_267978_1950_62500_geo.tif",
+   "window": [
+    0.6094,
+    0.4157,
+    0.5298,
+    0.0438
+   ],
+   "hints": {
+    "region": "Montana, United States",
+    "title": "Duck Creek Pass, Montana, United States"
+   }
+  },
+  {
+   "id": "u022",
+   "source_case": "q022",
+   "scan_index": 0,
+   "scan": "KS/KS_Girard_801766_1948_62500_geo.tif",
+   "window": [
+    0.5166,
+    0.4682,
+    0.1661,
+    0.8996
+   ],
+   "hints": {
+    "region": "Kansas, United States",
+    "title": "Girard, Kansas, United States"
+   }
+  },
+  {
+   "id": "u023",
+   "source_case": "q023",
+   "scan_index": 0,
+   "scan": "NV/NV_Battle%20Mountain_320700_1957_62500_geo.tif",
+   "window": [
+    0.4891,
+    0.4886,
+    0.1737,
+    0.6967
+   ],
+   "hints": {
+    "region": "Nevada, United States",
+    "title": "Battle Mountain, Nevada, United States"
+   }
+  },
+  {
+   "id": "u024",
+   "source_case": "q024",
+   "scan_index": 0,
+   "scan": "ND/ND_Noonan_285360_1950_62500_geo.tif",
+   "window": [
+    0.6265,
+    0.6312,
+    0.1144,
+    0.5571
+   ],
+   "hints": {
+    "region": "North Dakota, United States",
+    "title": "Noonan, North Dakota, United States"
+   }
+  },
+  {
+   "id": "u025",
+   "source_case": "q025",
+   "scan_index": 1,
+   "scan": "MI/MI_Schoolcraft_471000_1943_62500_geo.tif",
+   "window": [
+    0.6908,
+    0.6851,
+    0.8768,
+    0.2091
+   ],
+   "hints": {
+    "region": "Michigan, United States",
+    "title": "Schoolcraft, Michigan, United States"
+   }
+  },
+  {
+   "id": "u026",
+   "source_case": "q026",
+   "scan_index": 1,
+   "scan": "WI/WI_Porterfield_802956_1963_62500_geo.tif",
+   "window": [
+    0.559,
+    0.6497,
+    0.7846,
+    0.9614
+   ],
+   "hints": {
+    "region": "Wisconsin, United States",
+    "title": "Porterfield, Wisconsin, United States"
+   }
+  },
+  {
+   "id": "u027",
+   "source_case": "q027",
+   "scan_index": 1,
+   "scan": "OH/OH_Elmore_224998_1903_62500_geo.tif",
+   "window": [
+    0.6558,
+    0.4316,
+    0.6169,
+    0.7754
+   ],
+   "hints": {
+    "region": "Ohio, United States",
+    "title": "Elmore, Ohio, United States"
+   }
+  },
+  {
+   "id": "u028",
+   "source_case": "q028",
+   "scan_index": 0,
+   "scan": "ID/ID_Triangle_239313_1965_62500_geo.tif",
+   "window": [
+    0.5714,
+    0.4529,
+    0.9876,
+    0.7978
+   ],
+   "hints": {
+    "region": "Idaho, United States",
+    "title": "Triangle, Idaho, United States"
+   }
+  },
+  {
+   "id": "u029",
+   "source_case": "q029",
+   "scan_index": 0,
+   "scan": "CO/CO_Como_402263_1937_62500_geo.tif",
+   "window": [
+    0.6857,
+    0.4831,
+    0.5939,
+    0.3831
+   ],
+   "hints": {
+    "region": "Colorado, United States",
+    "title": "Como, Colorado, United States"
+   }
+  },
+  {
+   "id": "u030",
+   "source_case": "q030",
+   "scan_index": 1,
+   "scan": "OH/OH_Bellefontaine_224055_1944_62500_geo.tif",
+   "window": [
+    0.4173,
+    0.4087,
+    0.5142,
+    0.7623
+   ],
+   "hints": {
+    "region": "Ohio, United States",
+    "title": "Bellefontaine, Ohio, United States"
+   }
+  },
+  {
+   "id": "u031",
+   "source_case": "q031",
+   "scan_index": 1,
+   "scan": "ME/ME_The%20Forks_306812_1956_62500_geo.tif",
+   "window": [
+    0.6901,
+    0.646,
+    0.6625,
+    0.6266
+   ],
+   "hints": {
+    "region": "Maine, United States",
+    "title": "The Forks, Maine, United States"
+   }
+  },
+  {
+   "id": "u032",
+   "source_case": "q032",
+   "scan_index": 1,
+   "scan": "AZ/AZ_Tanner%20Wash_315093_1954_62500_geo.tif",
+   "window": [
+    0.6792,
+    0.5663,
+    0.7805,
+    0.2241
+   ],
+   "hints": {
+    "region": "Arizona, United States",
+    "title": "Tanner Wash, Arizona, United States"
+   }
+  },
+  {
+   "id": "u033",
+   "source_case": "q033",
+   "scan_index": 1,
+   "scan": "CA/CA_Bristol%20Lake_296914_1956_62500_geo.tif",
+   "window": [
+    0.4768,
+    0.4148,
+    0.0816,
+    0.8888
+   ],
+   "hints": {
+    "region": "California, United States",
+    "title": "Bristol Lake, California, United States"
+   }
+  },
+  {
+   "id": "u034",
+   "source_case": "q034",
+   "scan_index": 1,
+   "scan": "OK/OK_Broken%20Bow_802192_1959_62500_geo.tif",
+   "window": [
+    0.4095,
+    0.5391,
+    0.9259,
+    0.3189
+   ],
+   "hints": {
+    "region": "Oklahoma, United States",
+    "title": "Broken Bow, Oklahoma, United States"
+   }
+  },
+  {
+   "id": "u035",
+   "source_case": "q035",
+   "scan_index": 0,
+   "scan": "OR/OR_Spray_282903_1953_62500_geo.tif",
+   "window": [
+    0.4224,
+    0.4523,
+    0.5295,
+    0.6427
+   ],
+   "hints": {
+    "region": "Oregon, United States",
+    "title": "Spray, Oregon, United States"
+   }
+  },
+  {
+   "id": "u036",
+   "source_case": "q036",
+   "scan_index": 1,
+   "scan": "NV/NV_Schell%20Peaks_321266_1959_62500_geo.tif",
+   "window": [
+    0.4434,
+    0.6466,
+    0.0161,
+    0.3705
+   ],
+   "hints": {
+    "region": "Nevada, United States",
+    "title": "Schell Peaks, Nevada, United States"
+   }
+  },
+  {
+   "id": "u037",
+   "source_case": "q037",
+   "scan_index": 0,
+   "scan": "OH/OH_Gambier_225154_1912_62500_geo.tif",
+   "window": [
+    0.5905,
+    0.5559,
+    0.9551,
+    0.422
+   ],
+   "hints": {
+    "region": "Ohio, United States",
+    "title": "Gambier, Ohio, United States"
+   }
+  },
+  {
+   "id": "u038",
+   "source_case": "q038",
+   "scan_index": 0,
+   "scan": "LA/LA_New%20Roads_334867_1963_62500_geo.tif",
+   "window": [
+    0.6579,
+    0.4331,
+    0.6641,
+    0.2917
+   ],
+   "hints": {
+    "region": "Louisiana, United States",
+    "title": "New Roads, Louisiana, United States"
+   }
+  },
+  {
+   "id": "u039",
+   "source_case": "q039",
+   "scan_index": 0,
+   "scan": "UT/UT_Santaquin_251746_1951_62500_geo.tif",
+   "window": [
+    0.5069,
+    0.4019,
+    0.8098,
+    0.4985
+   ],
+   "hints": {
+    "region": "Utah, United States",
+    "title": "Santaquin, Utah, United States"
+   }
+  },
+  {
+   "id": "u040",
+   "source_case": "q040",
+   "scan_index": 1,
+   "scan": "MI/MI_Perch%20Lake_470952_1954_62500_geo.tif",
+   "window": [
+    0.4581,
+    0.5058,
+    0.2909,
+    0.4988
+   ],
+   "hints": {
+    "region": "Michigan, United States",
+    "title": "Perch Lake, Michigan, United States"
+   }
+  }
+ ]
+}

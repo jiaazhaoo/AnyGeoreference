@@ -1,0 +1,341 @@
+{
+ "about": "Coordinate-free cases drawn by benchmarks/coordfree.py (rule in its docstring) from the source file below. A system under test reads only the window image and one hint string.",
+ "rule": {
+  "seed": 20261122,
+  "n": 20,
+  "shrink": 0.08,
+  "window": [
+   0.4,
+   0.7
+  ],
+  "long_side": 3000,
+  "tiers": [
+   "none",
+   "region",
+   "title"
+  ]
+ },
+ "source": "benchmarks/slub_heldout_v2.json",
+ "cases": [
+  {
+   "id": "g001",
+   "source_case": "s001",
+   "scan_index": 0,
+   "scan": "df_dk_0000398.jpg",
+   "window": [
+    0.5879,
+    0.6005,
+    0.0362,
+    0.628
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Sebnitz, Germany"
+   }
+  },
+  {
+   "id": "g002",
+   "source_case": "s002",
+   "scan_index": 0,
+   "scan": "df_dk_0010001_1840_1885.jpg",
+   "window": [
+    0.4514,
+    0.5494,
+    0.4922,
+    0.6315
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Dänschenburg, Germany"
+   }
+  },
+  {
+   "id": "g003",
+   "source_case": "s003",
+   "scan_index": 1,
+   "scan": "df_dk_0010001_4743_1894.jpg",
+   "window": [
+    0.5196,
+    0.4785,
+    0.6919,
+    0.8059
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Mutzschen, Germany"
+   }
+  },
+  {
+   "id": "g004",
+   "source_case": "s004",
+   "scan_index": 1,
+   "scan": "df_dk_0010001_4954_1893.jpg",
+   "window": [
+    0.6721,
+    0.501,
+    0.8664,
+    0.3912
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Löbau, Germany"
+   }
+  },
+  {
+   "id": "g005",
+   "source_case": "s005",
+   "scan_index": 1,
+   "scan": "df_dk_0010001_5140_1896.jpg",
+   "window": [
+    0.5815,
+    0.689,
+    0.5985,
+    0.7725
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Meerane, Germany"
+   }
+  },
+  {
+   "id": "g006",
+   "source_case": "s006",
+   "scan_index": 1,
+   "scan": "df_dk_0000115.jpg",
+   "window": [
+    0.5748,
+    0.6849,
+    0.8554,
+    0.768
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Riesa, Germany"
+   }
+  },
+  {
+   "id": "g007",
+   "source_case": "s007",
+   "scan_index": 1,
+   "scan": "df_dk_0010001_4741_1888.jpg",
+   "window": [
+    0.4787,
+    0.4181,
+    0.4498,
+    0.3444
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Naunhof, Germany"
+   }
+  },
+  {
+   "id": "g008",
+   "source_case": "s008",
+   "scan_index": 0,
+   "scan": "df_dk_0010001_5437_1878.jpg",
+   "window": [
+    0.4547,
+    0.4892,
+    0.6728,
+    0.3938
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Pausa, Germany"
+   }
+  },
+  {
+   "id": "g009",
+   "source_case": "s009",
+   "scan_index": 0,
+   "scan": "df_dk_0000069.jpg",
+   "window": [
+    0.5614,
+    0.4384,
+    0.4244,
+    0.5745
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Thammenhain, Germany"
+   }
+  },
+  {
+   "id": "g010",
+   "source_case": "s010",
+   "scan_index": 0,
+   "scan": "df_dk_0000489.jpg",
+   "window": [
+    0.5352,
+    0.5717,
+    0.3395,
+    0.4063
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Langenbernsdorf, Germany"
+   }
+  },
+  {
+   "id": "g011",
+   "source_case": "s011",
+   "scan_index": 1,
+   "scan": "df_dk_0010001_4425_1891.jpg",
+   "window": [
+    0.5791,
+    0.6559,
+    0.7143,
+    0.859
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Göttingen, Germany"
+   }
+  },
+  {
+   "id": "g012",
+   "source_case": "s012",
+   "scan_index": 1,
+   "scan": "df_dk_0010001_4639_1892.jpg",
+   "window": [
+    0.6752,
+    0.5199,
+    0.4336,
+    0.1619
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Markranstädt, Germany"
+   }
+  },
+  {
+   "id": "g013",
+   "source_case": "s013",
+   "scan_index": 1,
+   "scan": "df_dk_0010001_5151_1887.jpg",
+   "window": [
+    0.5263,
+    0.4844,
+    0.6367,
+    0.3801
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Schöna, Germany"
+   }
+  },
+  {
+   "id": "g014",
+   "source_case": "s014",
+   "scan_index": 1,
+   "scan": "df_dk_0010001_4940_1896.jpg",
+   "window": [
+    0.6738,
+    0.4627,
+    0.8716,
+    0.7015
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Regis, Germany"
+   }
+  },
+  {
+   "id": "g015",
+   "source_case": "s015",
+   "scan_index": 0,
+   "scan": "df_dk_0000093.jpg",
+   "window": [
+    0.6238,
+    0.4468,
+    0.9954,
+    0.563
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Leipzig, Germany"
+   }
+  },
+  {
+   "id": "g016",
+   "source_case": "s016",
+   "scan_index": 1,
+   "scan": "df_dk_0010001_4732_1877.jpg",
+   "window": [
+    0.4238,
+    0.5978,
+    0.4289,
+    0.2808
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Kindelbrück, Germany"
+   }
+  },
+  {
+   "id": "g017",
+   "source_case": "s017",
+   "scan_index": 0,
+   "scan": "df_dk_0010001_4541_1874.jpg",
+   "window": [
+    0.4867,
+    0.4355,
+    0.2435,
+    0.7699
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Eilenburg, Germany"
+   }
+  },
+  {
+   "id": "g018",
+   "source_case": "s018",
+   "scan_index": 1,
+   "scan": "df_dk_0000311.jpg",
+   "window": [
+    0.4651,
+    0.6097,
+    0.3482,
+    0.6101
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Dresden, Germany"
+   }
+  },
+  {
+   "id": "g019",
+   "source_case": "s019",
+   "scan_index": 0,
+   "scan": "df_dk_0000366.jpg",
+   "window": [
+    0.5923,
+    0.6049,
+    0.8816,
+    0.4075
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Frankenberg, Germany"
+   }
+  },
+  {
+   "id": "g020",
+   "source_case": "s020",
+   "scan_index": 0,
+   "scan": "df_dk_0010001_5639_1877.jpg",
+   "window": [
+    0.469,
+    0.6535,
+    0.9084,
+    0.6591
+   ],
+   "hints": {
+    "region": "Germany",
+    "title": "Adorf, Germany"
+   }
+  }
+ ]
+}

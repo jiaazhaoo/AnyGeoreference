@@ -447,3 +447,28 @@ sheet's offset. Its own water check, which the prediction never saw, would then 
   (roads, buildings, or the library's own control points if they could be had).
 - Seven held-out draws, 1,300 scans, and the only wrong acceptances are the 3 from the first unchanged run on the
   second family.
+
+## 2026-11-08 (later): a coordinate-free benchmark
+
+*Why:* every result so far starts from the sheet's printed corners and graticule interval. With those, placement is
+reading and fitting. It shows nothing about a map that carries no coordinates, which is the case that matters.
+
+*What was built* (`benchmarks/coordfree.py`, rule in its docstring):
+- Windows cut from the map body of truth-bearing scans: 40–70 % of each side, at a seeded random position, inside
+  the sheet bounds shrunk by 8 %. The margin, its labels and edge ticks are outside every window. North stays up.
+- The truth is the source georeference (USGS GeoTIFF, or SLUB control points) moved by the crop. On the 60
+  development windows the truth grid lies inside the sheet bounds every time, and its extent matches the drawn window
+  fraction to 0.01.
+- Three hint tiers per window: none, region, title. Sheet numbers are stripped from titles because a sheet index is a
+  coordinate. The title place need not lie inside the window.
+- Scoring takes control pairs in window pixels and WGS84, so any system can be scored. Right = worst grid point
+  within 100 m; placements are also graded within 1 km and 10 km.
+
+*Sets:* development `coordfree_dev_usgs` (40, from seen USGS v4) and `coordfree_dev_slub` (20, from seen SLUB v2).
+Held out: `coordfree_heldout_v1`, 100 fresh USGS quadrangles (source draw `coordfree_src_usgs_v1.json`, seed
+20261123, every earlier draw excluded; windows seed 20261124). Committed before any window was built or any system
+run on it. Later graticule draws must exclude `coordfree_src_usgs_v1.json`.
+
+*Known limits of v1:* windows keep north up and the scan's resolution, so orientation and scale are easier than on a
+real coordinate-free map. Interior graticule crosses without labels stay. One German title (Verny) is now in France,
+as a 1876 catalogue would leave it. There is no fresh German source, so the held-out set is USGS only.

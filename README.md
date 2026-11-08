@@ -134,6 +134,36 @@ python benchmarks/sample_slub.py --n 50 --seed 20261115 --exclude benchmarks/slu
 python demo/run_demo.py --cases benchmarks/slub_heldout_v2.json --out benchmarks/out/slub_heldout_v2
 ```
 
+### Coordinate-free: no corners, no graticule, no labels
+
+Every benchmark above hands the system the sheet's corner coordinates and its graticule interval. With those, placing
+a sheet is reading marks and fitting. The hard case is a map that carries none of it.
+`benchmarks/coordfree.py` builds that case from scans whose georeference is already known. It cuts a window out of
+the map body: 40–70 % of each side, at a random place, inside the sheet bounds shrunk by 8 %. The margin, its
+coordinate labels and every edge tick are left outside. The truth is the source georeference moved by the crop, so
+it comes for free. A system under test reads the window image and one hint, run three ways:
+
+| tier | hint |
+|---|---|
+| none | nothing |
+| region | the state, or the country (`West Virginia, United States`; `Germany`) |
+| title | the place in the catalogue title, any sheet number or scale removed (`Harrisville, West Virginia, United States`; `Dillenburg, Germany`) |
+
+Right is the same as above: the worst of 7 × 7 points over the window within 100 m. Placements that are not right are
+still graded by their median distance (within 1 km, within 10 km), because finding the area is a capability of its
+own.
+
+| set | source | cases | status |
+|---|---|---|---|
+| `coordfree_dev_usgs` | 40 quadrangles of USGS v4 (seen) | 40 × 3 tiers | development |
+| `coordfree_dev_slub` | 20 sheets of SLUB v2 (seen) | 20 × 3 tiers | development |
+| `coordfree_heldout_v1` | 100 fresh USGS quadrangles (seed 20261123, every earlier draw excluded), one scan each (seed 20261124) | 100 × 3 tiers | held out, not built or run yet |
+
+```bash
+python benchmarks/coordfree.py build benchmarks/coordfree_dev_usgs.json      # windows + truth under benchmarks/data/coordfree/
+python benchmarks/coordfree.py score benchmarks/coordfree_dev_usgs.json my_results.json
+```
+
 ## Why
 
 Georeferencing a scanned plan is a multi-step task that needs both reading and computing: somebody has to read the

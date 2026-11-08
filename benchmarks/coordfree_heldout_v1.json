@@ -1,0 +1,1621 @@
+{
+ "about": "Coordinate-free cases drawn by benchmarks/coordfree.py (rule in its docstring) from the source file below. A system under test reads only the window image and one hint string.",
+ "rule": {
+  "seed": 20261124,
+  "n": null,
+  "shrink": 0.08,
+  "window": [
+   0.4,
+   0.7
+  ],
+  "long_side": 3000,
+  "tiers": [
+   "none",
+   "region",
+   "title"
+  ]
+ },
+ "source": "benchmarks/coordfree_src_usgs_v1.json",
+ "cases": [
+  {
+   "id": "h001",
+   "source_case": "q001",
+   "scan_index": 0,
+   "scan": "CA/CA_Nipomo_298366_1922_62500_geo.tif",
+   "window": [
+    0.6026,
+    0.401,
+    0.6721,
+    0.6915
+   ],
+   "hints": {
+    "region": "California, United States",
+    "title": "Nipomo, California, United States"
+   }
+  },
+  {
+   "id": "h002",
+   "source_case": "q002",
+   "scan_index": 0,
+   "scan": "OR/OR_Breitenbush%20Hot%20Springs_282274_1961_62500_geo.tif",
+   "window": [
+    0.6632,
+    0.5395,
+    0.942,
+    0.7598
+   ],
+   "hints": {
+    "region": "Oregon, United States",
+    "title": "Breitenbush Hot Springs, Oregon, United States"
+   }
+  },
+  {
+   "id": "h003",
+   "source_case": "q003",
+   "scan_index": 1,
+   "scan": "WI/WI_Denmark_801503_1954_62500_geo.tif",
+   "window": [
+    0.633,
+    0.5706,
+    0.0758,
+    0.7247
+   ],
+   "hints": {
+    "region": "Wisconsin, United States",
+    "title": "Denmark, Wisconsin, United States"
+   }
+  },
+  {
+   "id": "h004",
+   "source_case": "q004",
+   "scan_index": 0,
+   "scan": "NY/NY_Hempstead_139676_1898_62500_geo.tif",
+   "window": [
+    0.6828,
+    0.5915,
+    0.2915,
+    0.0271
+   ],
+   "hints": {
+    "region": "New York, United States",
+    "title": "Hempstead, New York, United States"
+   }
+  },
+  {
+   "id": "h005",
+   "source_case": "q005",
+   "scan_index": 1,
+   "scan": "MN/MN_Rockford_505641_1958_62500_geo.tif",
+   "window": [
+    0.5769,
+    0.4218,
+    0.5287,
+    0.8288
+   ],
+   "hints": {
+    "region": "Minnesota, United States",
+    "title": "Rockford, Minnesota, United States"
+   }
+  },
+  {
+   "id": "h006",
+   "source_case": "q006",
+   "scan_index": 0,
+   "scan": "KY/KY_Eddyville_708575_1931_62500_geo.tif",
+   "window": [
+    0.535,
+    0.6226,
+    0.2279,
+    0.2593
+   ],
+   "hints": {
+    "region": "Kentucky, United States",
+    "title": "Eddyville, Kentucky, United States"
+   }
+  },
+  {
+   "id": "h007",
+   "source_case": "q007",
+   "scan_index": 1,
+   "scan": "LA/LA_Campti_334343_1957_62500_geo.tif",
+   "window": [
+    0.4807,
+    0.6415,
+    0.1398,
+    0.3352
+   ],
+   "hints": {
+    "region": "Louisiana, United States",
+    "title": "Campti, Louisiana, United States"
+   }
+  },
+  {
+   "id": "h008",
+   "source_case": "q008",
+   "scan_index": 1,
+   "scan": "UT/UT_Gold%20Hill_249519_1928_62500_geo.tif",
+   "window": [
+    0.4132,
+    0.6769,
+    0.9693,
+    0.517
+   ],
+   "hints": {
+    "region": "Utah, United States",
+    "title": "Gold Hill, Utah, United States"
+   }
+  },
+  {
+   "id": "h009",
+   "source_case": "q009",
+   "scan_index": 1,
+   "scan": "OH/OH_Loramie_225648_1944_62500_geo.tif",
+   "window": [
+    0.6348,
+    0.5437,
+    0.7374,
+    0.5154
+   ],
+   "hints": {
+    "region": "Ohio, United States",
+    "title": "Loramie, Ohio, United States"
+   }
+  },
+  {
+   "id": "h010",
+   "source_case": "q010",
+   "scan_index": 1,
+   "scan": "CA/CA_Stepladder%20Mts_301758_1956_62500_geo.tif",
+   "window": [
+    0.4629,
+    0.6595,
+    0.7959,
+    0.1803
+   ],
+   "hints": {
+    "region": "California, United States",
+    "title": "Center Hills, California, United States"
+   }
+  },
+  {
+   "id": "h011",
+   "source_case": "q011",
+   "scan_index": 0,
+   "scan": "AL/AL_Bay%20Minette_305484_1941_62500_geo.tif",
+   "window": [
+    0.6495,
+    0.5474,
+    0.3972,
+    0.7408
+   ],
+   "hints": {
+    "region": "Alabama, United States",
+    "title": "Bay Minette, Alabama, United States"
+   }
+  },
+  {
+   "id": "h012",
+   "source_case": "q012",
+   "scan_index": 0,
+   "scan": "MS/MS_Blue%20Mountain_336816_1955_62500_geo.tif",
+   "window": [
+    0.5249,
+    0.6686,
+    0.9343,
+    0.3888
+   ],
+   "hints": {
+    "region": "Mississippi, United States",
+    "title": "Blue Mountain, Mississippi, United States"
+   }
+  },
+  {
+   "id": "h013",
+   "source_case": "q013",
+   "scan_index": 0,
+   "scan": "OR/OR_Fish%20Creek%20Mtn_282494_1956_62500_geo.tif",
+   "window": [
+    0.5384,
+    0.5449,
+    0.9326,
+    0.5703
+   ],
+   "hints": {
+    "region": "Oregon, United States",
+    "title": "Fish Creek Mtn, Oregon, United States"
+   }
+  },
+  {
+   "id": "h014",
+   "source_case": "q014",
+   "scan_index": 0,
+   "scan": "WY/WY_Tinton_342274_1958_62500_geo.tif",
+   "window": [
+    0.4101,
+    0.5474,
+    0.557,
+    0.4945
+   ],
+   "hints": {
+    "region": "Wyoming, United States",
+    "title": "Tinton, Wyoming, United States"
+   }
+  },
+  {
+   "id": "h015",
+   "source_case": "q015",
+   "scan_index": 0,
+   "scan": "MO/MO_Augusta_324688_1948_62500_geo.tif",
+   "window": [
+    0.6996,
+    0.5403,
+    0.6836,
+    0.035
+   ],
+   "hints": {
+    "region": "Missouri, United States",
+    "title": "Augusta, Missouri, United States"
+   }
+  },
+  {
+   "id": "h016",
+   "source_case": "q016",
+   "scan_index": 1,
+   "scan": "VA/VA_Warm%20Springs_188692_1946_62500_geo.tif",
+   "window": [
+    0.5155,
+    0.6848,
+    0.6355,
+    0.5831
+   ],
+   "hints": {
+    "region": "Virginia, United States",
+    "title": "Warm Springs, Virginia, United States"
+   }
+  },
+  {
+   "id": "h017",
+   "source_case": "q017",
+   "scan_index": 0,
+   "scan": "GA/GA_Kingsland_247494_1918_62500_geo.tif",
+   "window": [
+    0.4268,
+    0.6524,
+    0.2748,
+    0.6873
+   ],
+   "hints": {
+    "region": "Georgia, United States",
+    "title": "Kingsland, Georgia, United States"
+   }
+  },
+  {
+   "id": "h018",
+   "source_case": "q018",
+   "scan_index": 1,
+   "scan": "IL/IL_Mt%20Carroll_309786_1944_62500_geo.tif",
+   "window": [
+    0.5662,
+    0.6868,
+    0.2041,
+    0.4398
+   ],
+   "hints": {
+    "region": "Illinois, United States",
+    "title": "Mt Carroll, Illinois, United States"
+   }
+  },
+  {
+   "id": "h019",
+   "source_case": "q019",
+   "scan_index": 0,
+   "scan": "CO/CO_Electric%20Peak_402871_1959_62500_geo.tif",
+   "window": [
+    0.4018,
+    0.5398,
+    0.6772,
+    0.3901
+   ],
+   "hints": {
+    "region": "Colorado, United States",
+    "title": "Electric Peak, Colorado, United States"
+   }
+  },
+  {
+   "id": "h020",
+   "source_case": "q020",
+   "scan_index": 1,
+   "scan": "NV/NV_Dixie%20Flats_320860_1952_62500_geo.tif",
+   "window": [
+    0.4657,
+    0.6841,
+    0.4534,
+    0.9335
+   ],
+   "hints": {
+    "region": "Nevada, United States",
+    "title": "Dixie Flats, Nevada, United States"
+   }
+  },
+  {
+   "id": "h021",
+   "source_case": "q021",
+   "scan_index": 0,
+   "scan": "LA/LA_Bonita_334293_1935_62500_geo.tif",
+   "window": [
+    0.5083,
+    0.5098,
+    0.9986,
+    0.3577
+   ],
+   "hints": {
+    "region": "Louisiana, United States",
+    "title": "Bonita, Louisiana, United States"
+   }
+  },
+  {
+   "id": "h022",
+   "source_case": "q022",
+   "scan_index": 0,
+   "scan": "MI/MI_Ishpeming_470833_1952_62500_geo.tif",
+   "window": [
+    0.6056,
+    0.5013,
+    0.3885,
+    0.6573
+   ],
+   "hints": {
+    "region": "Michigan, United States",
+    "title": "Ishpeming, Michigan, United States"
+   }
+  },
+  {
+   "id": "h023",
+   "source_case": "q023",
+   "scan_index": 0,
+   "scan": "CA/CA_Lucia_465894_1921_62500_geo.tif",
+   "window": [
+    0.5889,
+    0.6099,
+    0.2156,
+    0.5533
+   ],
+   "hints": {
+    "region": "California, United States",
+    "title": "Lucia, California, United States"
+   }
+  },
+  {
+   "id": "h024",
+   "source_case": "q024",
+   "scan_index": 0,
+   "scan": "NY/NY_Lake%20Placid_139780_1896_62500_geo.tif",
+   "window": [
+    0.4183,
+    0.6888,
+    0.2155,
+    0.046
+   ],
+   "hints": {
+    "region": "New York, United States",
+    "title": "Lake Placid, New York, United States"
+   }
+  },
+  {
+   "id": "h025",
+   "source_case": "q025",
+   "scan_index": 1,
+   "scan": "LA/LA_Ferriday_334534_1961_62500_geo.tif",
+   "window": [
+    0.4129,
+    0.5899,
+    0.4833,
+    0.5943
+   ],
+   "hints": {
+    "region": "Louisiana, United States",
+    "title": "Ferriday, Louisiana, United States"
+   }
+  },
+  {
+   "id": "h026",
+   "source_case": "q026",
+   "scan_index": 1,
+   "scan": "AL/AL_Autaugaville_305478_1957_62500_geo.tif",
+   "window": [
+    0.4637,
+    0.6655,
+    0.0882,
+    0.5286
+   ],
+   "hints": {
+    "region": "Alabama, United States",
+    "title": "Autaugaville, Alabama, United States"
+   }
+  },
+  {
+   "id": "h027",
+   "source_case": "q027",
+   "scan_index": 1,
+   "scan": "ME/ME_Pierce%20Pond_460749_1958_62500_geo.tif",
+   "window": [
+    0.4606,
+    0.4225,
+    0.5765,
+    0.3215
+   ],
+   "hints": {
+    "region": "Maine, United States",
+    "title": "Pierce Pond, Maine, United States"
+   }
+  },
+  {
+   "id": "h028",
+   "source_case": "q028",
+   "scan_index": 0,
+   "scan": "UT/UT_Wellington_252684_1915_62500_geo.tif",
+   "window": [
+    0.4048,
+    0.6133,
+    0.4308,
+    0.4502
+   ],
+   "hints": {
+    "region": "Utah, United States",
+    "title": "Wellington, Utah, United States"
+   }
+  },
+  {
+   "id": "h029",
+   "source_case": "q029",
+   "scan_index": 1,
+   "scan": "PA/PA_Berlin_170312_1944_62500_geo.tif",
+   "window": [
+    0.5603,
+    0.5516,
+    0.2701,
+    0.9936
+   ],
+   "hints": {
+    "region": "Pennsylvania, United States",
+    "title": "Berlin, Pennsylvania, United States"
+   }
+  },
+  {
+   "id": "h030",
+   "source_case": "q030",
+   "scan_index": 0,
+   "scan": "TX/TX_Rusk_116540_1943_62500_geo.tif",
+   "window": [
+    0.4527,
+    0.6381,
+    0.832,
+    0.9985
+   ],
+   "hints": {
+    "region": "Texas, United States",
+    "title": "Rusk, Texas, United States"
+   }
+  },
+  {
+   "id": "h031",
+   "source_case": "q031",
+   "scan_index": 0,
+   "scan": "MS/MS_Coffeeville_336856_1955_62500_geo.tif",
+   "window": [
+    0.6623,
+    0.6601,
+    0.7238,
+    0.1801
+   ],
+   "hints": {
+    "region": "Mississippi, United States",
+    "title": "Coffeeville, Mississippi, United States"
+   }
+  },
+  {
+   "id": "h032",
+   "source_case": "q032",
+   "scan_index": 1,
+   "scan": "VT/VT_Wallingford_338197_1955_62500_geo.tif",
+   "window": [
+    0.506,
+    0.5588,
+    0.8216,
+    0.9026
+   ],
+   "hints": {
+    "region": "Vermont, United States",
+    "title": "Wallingford, Vermont, United States"
+   }
+  },
+  {
+   "id": "h033",
+   "source_case": "q033",
+   "scan_index": 0,
+   "scan": "MT/MT_Alpine_267804_1956_62500_geo.tif",
+   "window": [
+    0.4854,
+    0.5648,
+    0.0349,
+    0.4624
+   ],
+   "hints": {
+    "region": "Montana, United States",
+    "title": "Alpine, Montana, United States"
+   }
+  },
+  {
+   "id": "h034",
+   "source_case": "q034",
+   "scan_index": 1,
+   "scan": "MS/MS_Union%20Church_337133_1963_62500_geo.tif",
+   "window": [
+    0.4968,
+    0.5442,
+    0.743,
+    0.3413
+   ],
+   "hints": {
+    "region": "Mississippi, United States",
+    "title": "Union Church, Mississippi, United States"
+   }
+  },
+  {
+   "id": "h035",
+   "source_case": "q035",
+   "scan_index": 1,
+   "scan": "WA/WA_Port%20Orchard_243230_1937_62500_geo.tif",
+   "window": [
+    0.6012,
+    0.5515,
+    0.3002,
+    0.7119
+   ],
+   "hints": {
+    "region": "Washington, United States",
+    "title": "Port Orchard, Washington, United States"
+   }
+  },
+  {
+   "id": "h036",
+   "source_case": "q036",
+   "scan_index": 0,
+   "scan": "TX/TX_Gay%20Hill_108429_1914_62500_geo.tif",
+   "window": [
+    0.6692,
+    0.6814,
+    0.985,
+    0.1975
+   ],
+   "hints": {
+    "region": "Texas, United States",
+    "title": "Gay Hill, Texas, United States"
+   }
+  },
+  {
+   "id": "h037",
+   "source_case": "q037",
+   "scan_index": 1,
+   "scan": "WY/WY_Betty%20Reservoir_342029_1959_62500_geo.tif",
+   "window": [
+    0.675,
+    0.4123,
+    0.4869,
+    0.2843
+   ],
+   "hints": {
+    "region": "Wyoming, United States",
+    "title": "Betty Reservoir, Wyoming, United States"
+   }
+  },
+  {
+   "id": "h038",
+   "source_case": "q038",
+   "scan_index": 1,
+   "scan": "WA/WA_Morton_242407_1957_62500_geo.tif",
+   "window": [
+    0.6403,
+    0.4701,
+    0.4986,
+    0.7093
+   ],
+   "hints": {
+    "region": "Washington, United States",
+    "title": "Morton, Washington, United States"
+   }
+  },
+  {
+   "id": "h039",
+   "source_case": "q039",
+   "scan_index": 0,
+   "scan": "OH/OH_West%20Columbus_226559_1923_62500_geo.tif",
+   "window": [
+    0.5281,
+    0.5839,
+    0.4233,
+    0.3369
+   ],
+   "hints": {
+    "region": "Ohio, United States",
+    "title": "West Columbus, Ohio, United States"
+   }
+  },
+  {
+   "id": "h040",
+   "source_case": "q040",
+   "scan_index": 1,
+   "scan": "UT/UT_Tabernacle%20Hill_252237_1962_62500_geo.tif",
+   "window": [
+    0.4807,
+    0.513,
+    0.2838,
+    0.3092
+   ],
+   "hints": {
+    "region": "Utah, United States",
+    "title": "Tabernacle Hill, Utah, United States"
+   }
+  },
+  {
+   "id": "h041",
+   "source_case": "q041",
+   "scan_index": 1,
+   "scan": "UT/UT_Fiddler%20Butte_249263_1953_62500_geo.tif",
+   "window": [
+    0.6968,
+    0.6034,
+    0.9462,
+    0.1574
+   ],
+   "hints": {
+    "region": "Utah, United States",
+    "title": "Fiddler Butte, Utah, United States"
+   }
+  },
+  {
+   "id": "h042",
+   "source_case": "q042",
+   "scan_index": 0,
+   "scan": "WI/WI_Neshkoro_802923_1918_62500_geo.tif",
+   "window": [
+    0.5843,
+    0.4116,
+    0.5855,
+    0.8401
+   ],
+   "hints": {
+    "region": "Wisconsin, United States",
+    "title": "Neshkoro, Wisconsin, United States"
+   }
+  },
+  {
+   "id": "h043",
+   "source_case": "q043",
+   "scan_index": 1,
+   "scan": "CA/CA_Jamul_297824_1955_62500_geo.tif",
+   "window": [
+    0.4776,
+    0.6089,
+    0.6688,
+    0.4851
+   ],
+   "hints": {
+    "region": "California, United States",
+    "title": "Jamul, California, United States"
+   }
+  },
+  {
+   "id": "h044",
+   "source_case": "q044",
+   "scan_index": 1,
+   "scan": "MI/MI_North%20Manitou_278384_1956_62500_geo.tif",
+   "window": [
+    0.5781,
+    0.5284,
+    0.8342,
+    0.2107
+   ],
+   "hints": {
+    "region": "Michigan, United States",
+    "title": "North Manitou, Michigan, United States"
+   }
+  },
+  {
+   "id": "h045",
+   "source_case": "q045",
+   "scan_index": 1,
+   "scan": "VA/VA_Wise_188753_1921_62500_geo.tif",
+   "window": [
+    0.4971,
+    0.4478,
+    0.8389,
+    0.9688
+   ],
+   "hints": {
+    "region": "Virginia, United States",
+    "title": "Wise, Virginia, United States"
+   }
+  },
+  {
+   "id": "h046",
+   "source_case": "q046",
+   "scan_index": 1,
+   "scan": "TX/TX_Grapevine_108587_1959_62500_geo.tif",
+   "window": [
+    0.4486,
+    0.6455,
+    0.6196,
+    0.5476
+   ],
+   "hints": {
+    "region": "Texas, United States",
+    "title": "Grapevine, Texas, United States"
+   }
+  },
+  {
+   "id": "h047",
+   "source_case": "q047",
+   "scan_index": 1,
+   "scan": "CA/CA_San%20Francisco_298897_1915_62500_geo.tif",
+   "window": [
+    0.4939,
+    0.4163,
+    0.4647,
+    0.5971
+   ],
+   "hints": {
+    "region": "California, United States",
+    "title": "San Francisco, California, United States"
+   }
+  },
+  {
+   "id": "h048",
+   "source_case": "q048",
+   "scan_index": 0,
+   "scan": "CA/CA_Cedarville_297070_1962_62500_geo.tif",
+   "window": [
+    0.4538,
+    0.4643,
+    0.3229,
+    0.1514
+   ],
+   "hints": {
+    "region": "California, United States",
+    "title": "Cedarville, California, United States"
+   }
+  },
+  {
+   "id": "h049",
+   "source_case": "q049",
+   "scan_index": 1,
+   "scan": "GA/GA_Whigham_247610_1955_62500_geo.tif",
+   "window": [
+    0.6918,
+    0.4342,
+    0.9548,
+    0.3553
+   ],
+   "hints": {
+    "region": "Georgia, United States",
+    "title": "Whigham, Georgia, United States"
+   }
+  },
+  {
+   "id": "h050",
+   "source_case": "q050",
+   "scan_index": 1,
+   "scan": "PA/PA_Corry_172477_1932_62500_geo.tif",
+   "window": [
+    0.481,
+    0.5058,
+    0.1957,
+    0.7063
+   ],
+   "hints": {
+    "region": "Pennsylvania, United States",
+    "title": "Corry, Pennsylvania, United States"
+   }
+  },
+  {
+   "id": "h051",
+   "source_case": "q051",
+   "scan_index": 1,
+   "scan": "WV/WV_Beckley_253332_1932_62500_geo.tif",
+   "window": [
+    0.6632,
+    0.5777,
+    0.5984,
+    0.8606
+   ],
+   "hints": {
+    "region": "West Virginia, United States",
+    "title": "Beckley, West Virginia, United States"
+   }
+  },
+  {
+   "id": "h052",
+   "source_case": "q052",
+   "scan_index": 1,
+   "scan": "IL/IL_De%20Kalb_468417_1937_62500_geo.tif",
+   "window": [
+    0.597,
+    0.4822,
+    0.2691,
+    0.6796
+   ],
+   "hints": {
+    "region": "Illinois, United States",
+    "title": "De Kalb, Illinois, United States"
+   }
+  },
+  {
+   "id": "h053",
+   "source_case": "q053",
+   "scan_index": 1,
+   "scan": "MS/MS_Bude_336822_1962_62500_geo.tif",
+   "window": [
+    0.5166,
+    0.4188,
+    0.2716,
+    0.6039
+   ],
+   "hints": {
+    "region": "Mississippi, United States",
+    "title": "Bude, Mississippi, United States"
+   }
+  },
+  {
+   "id": "h054",
+   "source_case": "q054",
+   "scan_index": 1,
+   "scan": "KY/KY_Vanceburg_709911_1949_62500_geo.tif",
+   "window": [
+    0.527,
+    0.6514,
+    0.2221,
+    0.5671
+   ],
+   "hints": {
+    "region": "Kentucky, United States",
+    "title": "Vanceburg, Kentucky, United States"
+   }
+  },
+  {
+   "id": "h055",
+   "source_case": "q055",
+   "scan_index": 1,
+   "scan": "OK/OK_Luther_802535_1909_62500_geo.tif",
+   "window": [
+    0.6436,
+    0.6995,
+    0.9475,
+    0.146
+   ],
+   "hints": {
+    "region": "Oklahoma, United States",
+    "title": "Luther, Oklahoma, United States"
+   }
+  },
+  {
+   "id": "h056",
+   "source_case": "q056",
+   "scan_index": 1,
+   "scan": "IL/IL_Pana_309866_1949_62500_geo.tif",
+   "window": [
+    0.4286,
+    0.4013,
+    0.2898,
+    0.1625
+   ],
+   "hints": {
+    "region": "Illinois, United States",
+    "title": "Pana, Illinois, United States"
+   }
+  },
+  {
+   "id": "h057",
+   "source_case": "q057",
+   "scan_index": 0,
+   "scan": "TX/TX_Monument%20Spring_111141_1920_62500_geo.tif",
+   "window": [
+    0.5963,
+    0.6341,
+    0.1488,
+    0.7164
+   ],
+   "hints": {
+    "region": "Texas, United States",
+    "title": "Monument Spring, Texas, United States"
+   }
+  },
+  {
+   "id": "h058",
+   "source_case": "q058",
+   "scan_index": 1,
+   "scan": "OH/OH_Defiance_224657_1909_62500_geo.tif",
+   "window": [
+    0.4202,
+    0.6046,
+    0.419,
+    0.0348
+   ],
+   "hints": {
+    "region": "Ohio, United States",
+    "title": "Defiance, Ohio, United States"
+   }
+  },
+  {
+   "id": "h059",
+   "source_case": "q059",
+   "scan_index": 1,
+   "scan": "NE/NE_Spade%20Ranch_471725_1950_62500_geo.tif",
+   "window": [
+    0.4747,
+    0.4909,
+    0.5118,
+    0.4542
+   ],
+   "hints": {
+    "region": "Nebraska, United States",
+    "title": "Spade Ranch, Nebraska, United States"
+   }
+  },
+  {
+   "id": "h060",
+   "source_case": "q060",
+   "scan_index": 1,
+   "scan": "WA/WA_Stanwood_243996_1943_62500_geo.tif",
+   "window": [
+    0.449,
+    0.6948,
+    0.0798,
+    0.3492
+   ],
+   "hints": {
+    "region": "Washington, United States",
+    "title": "Stanwood, Washington, United States"
+   }
+  },
+  {
+   "id": "h061",
+   "source_case": "q061",
+   "scan_index": 0,
+   "scan": "ID/ID_Simmons%20Peak_239274_1957_62500_geo.tif",
+   "window": [
+    0.6504,
+    0.633,
+    0.9679,
+    0.5975
+   ],
+   "hints": {
+    "region": "Idaho, United States",
+    "title": "Simmons Peak, Idaho, United States"
+   }
+  },
+  {
+   "id": "h062",
+   "source_case": "q062",
+   "scan_index": 0,
+   "scan": "NE/NE_Kearney_317821_1894_62500_geo.tif",
+   "window": [
+    0.6371,
+    0.5676,
+    0.3793,
+    0.5144
+   ],
+   "hints": {
+    "region": "Nebraska, United States",
+    "title": "Kearney, Nebraska, United States"
+   }
+  },
+  {
+   "id": "h063",
+   "source_case": "q063",
+   "scan_index": 0,
+   "scan": "WA/WA_Tanwax%20Lake_244204_1941_62500_geo.tif",
+   "window": [
+    0.4078,
+    0.5927,
+    0.2029,
+    0.7209
+   ],
+   "hints": {
+    "region": "Washington, United States",
+    "title": "Ohop Valley, Washington, United States"
+   }
+  },
+  {
+   "id": "h064",
+   "source_case": "q064",
+   "scan_index": 1,
+   "scan": "MO/MO_Princeton_325169_1948_62500_geo.tif",
+   "window": [
+    0.5247,
+    0.5455,
+    0.6301,
+    0.2342
+   ],
+   "hints": {
+    "region": "Missouri, United States",
+    "title": "Princeton, Missouri, United States"
+   }
+  },
+  {
+   "id": "h065",
+   "source_case": "q065",
+   "scan_index": 1,
+   "scan": "WY/WY_Fifty-Five%20Ranch_342103_1959_62500_geo.tif",
+   "window": [
+    0.4707,
+    0.6794,
+    0.0087,
+    0.4483
+   ],
+   "hints": {
+    "region": "Wyoming, United States",
+    "title": "Fifty-Five Ranch, Wyoming, United States"
+   }
+  },
+  {
+   "id": "h066",
+   "source_case": "q066",
+   "scan_index": 1,
+   "scan": "MI/MI_Woodville_278610_1958_62500_geo.tif",
+   "window": [
+    0.5617,
+    0.4492,
+    0.0251,
+    0.8347
+   ],
+   "hints": {
+    "region": "Michigan, United States",
+    "title": "Woodville, Michigan, United States"
+   }
+  },
+  {
+   "id": "h067",
+   "source_case": "q067",
+   "scan_index": 0,
+   "scan": "OR/OR_Lebanon_463237_1940_62500_geo.tif",
+   "window": [
+    0.6463,
+    0.5951,
+    0.906,
+    0.5579
+   ],
+   "hints": {
+    "region": "Oregon, United States",
+    "title": "Lebanon, Oregon, United States"
+   }
+  },
+  {
+   "id": "h068",
+   "source_case": "q068",
+   "scan_index": 1,
+   "scan": "NM/NM_Jemez_191072_1952_62500_geo.tif",
+   "window": [
+    0.4794,
+    0.4211,
+    0.9684,
+    0.9635
+   ],
+   "hints": {
+    "region": "New Mexico, United States",
+    "title": "Jemez, New Mexico, United States"
+   }
+  },
+  {
+   "id": "h069",
+   "source_case": "q069",
+   "scan_index": 0,
+   "scan": "OR/OR_Prospect_282818_1956_62500_geo.tif",
+   "window": [
+    0.5354,
+    0.4385,
+    0.3096,
+    0.318
+   ],
+   "hints": {
+    "region": "Oregon, United States",
+    "title": "Prospect, Oregon, United States"
+   }
+  },
+  {
+   "id": "h070",
+   "source_case": "q070",
+   "scan_index": 1,
+   "scan": "AZ/AZ_Kaka_314711_1958_62500_geo.tif",
+   "window": [
+    0.5884,
+    0.4136,
+    0.9761,
+    0.1927
+   ],
+   "hints": {
+    "region": "Arizona, United States",
+    "title": "Kaka, Arizona, United States"
+   }
+  },
+  {
+   "id": "h071",
+   "source_case": "q071",
+   "scan_index": 0,
+   "scan": "NY/NY_Auburn_136732_1902_62500_geo.tif",
+   "window": [
+    0.5047,
+    0.6483,
+    0.0604,
+    0.1724
+   ],
+   "hints": {
+    "region": "New York, United States",
+    "title": "Auburn, New York, United States"
+   }
+  },
+  {
+   "id": "h072",
+   "source_case": "q072",
+   "scan_index": 1,
+   "scan": "PA/PA_Hawley_461759_1938_62500_geo.tif",
+   "window": [
+    0.6001,
+    0.496,
+    0.9917,
+    0.3473
+   ],
+   "hints": {
+    "region": "Pennsylvania, United States",
+    "title": "Hawley, Pennsylvania, United States"
+   }
+  },
+  {
+   "id": "h073",
+   "source_case": "q073",
+   "scan_index": 1,
+   "scan": "PA/PA_Coudersport_172397_1938_62500_geo.tif",
+   "window": [
+    0.6896,
+    0.6707,
+    0.0803,
+    0.9169
+   ],
+   "hints": {
+    "region": "Pennsylvania, United States",
+    "title": "Coudersport, Pennsylvania, United States"
+   }
+  },
+  {
+   "id": "h074",
+   "source_case": "q074",
+   "scan_index": 1,
+   "scan": "OH/OH_St%20Paris_227033_1944_62500_geo.tif",
+   "window": [
+    0.5636,
+    0.5252,
+    0.8409,
+    0.0329
+   ],
+   "hints": {
+    "region": "Ohio, United States",
+    "title": "St. Paris, Ohio, United States"
+   }
+  },
+  {
+   "id": "h075",
+   "source_case": "q075",
+   "scan_index": 0,
+   "scan": "WY/WY_Walcott_342288_1914_62500_geo.tif",
+   "window": [
+    0.6427,
+    0.4222,
+    0.6238,
+    0.1678
+   ],
+   "hints": {
+    "region": "Wyoming, United States",
+    "title": "Walcott, Wyoming, United States"
+   }
+  },
+  {
+   "id": "h076",
+   "source_case": "q076",
+   "scan_index": 1,
+   "scan": "WY/WY_Pilot%20Peak_342229_1956_62500_geo.tif",
+   "window": [
+    0.5526,
+    0.6913,
+    0.1313,
+    0.5333
+   ],
+   "hints": {
+    "region": "Wyoming, United States",
+    "title": "Pilot Peak, Wyoming, United States"
+   }
+  },
+  {
+   "id": "h077",
+   "source_case": "q077",
+   "scan_index": 1,
+   "scan": "LA/LA_Calvin_334334_1955_62500_geo.tif",
+   "window": [
+    0.5559,
+    0.6643,
+    0.274,
+    0.9397
+   ],
+   "hints": {
+    "region": "Louisiana, United States",
+    "title": "Calvin, Louisiana, United States"
+   }
+  },
+  {
+   "id": "h078",
+   "source_case": "q078",
+   "scan_index": 0,
+   "scan": "IL/IL_Thebes_310004_1939_62500_geo.tif",
+   "window": [
+    0.6305,
+    0.6813,
+    0.1845,
+    0.0287
+   ],
+   "hints": {
+    "region": "Illinois, United States",
+    "title": "Thebes, Illinois, United States"
+   }
+  },
+  {
+   "id": "h079",
+   "source_case": "q079",
+   "scan_index": 1,
+   "scan": "WY/WY_Moorcroft_342184_1957_62500_geo.tif",
+   "window": [
+    0.4816,
+    0.4203,
+    0.2697,
+    0.2457
+   ],
+   "hints": {
+    "region": "Wyoming, United States",
+    "title": "Moorcroft, Wyoming, United States"
+   }
+  },
+  {
+   "id": "h080",
+   "source_case": "q080",
+   "scan_index": 1,
+   "scan": "CA/CA_Hemet_465736_1943_62500_geo.tif",
+   "window": [
+    0.6918,
+    0.6019,
+    0.173,
+    0.7277
+   ],
+   "hints": {
+    "region": "California, United States",
+    "title": "Hemet, California, United States"
+   }
+  },
+  {
+   "id": "h081",
+   "source_case": "q081",
+   "scan_index": 0,
+   "scan": "WA/WA_Doe%20Mountain_240869_1963_62500_geo.tif",
+   "window": [
+    0.4415,
+    0.4234,
+    0.4845,
+    0.2466
+   ],
+   "hints": {
+    "region": "Washington, United States",
+    "title": "Doe Mountain, Washington, United States"
+   }
+  },
+  {
+   "id": "h082",
+   "source_case": "q082",
+   "scan_index": 1,
+   "scan": "FL/FL_Fort%20Barrancas_467394_1943_62500_geo.tif",
+   "window": [
+    0.5298,
+    0.4061,
+    0.5497,
+    0.199
+   ],
+   "hints": {
+    "region": "Alabama, United States",
+    "title": "Fort Barrancas, Alabama, United States"
+   }
+  },
+  {
+   "id": "h083",
+   "source_case": "q083",
+   "scan_index": 1,
+   "scan": "KS/KS_Tennis_512626_1944_62500_geo.tif",
+   "window": [
+    0.4235,
+    0.5168,
+    0.1285,
+    0.2085
+   ],
+   "hints": {
+    "region": "Kansas, United States",
+    "title": "Tennis, Kansas, United States"
+   }
+  },
+  {
+   "id": "h084",
+   "source_case": "q084",
+   "scan_index": 0,
+   "scan": "WI/WI_Strum_803048_1927_62500_geo.tif",
+   "window": [
+    0.6241,
+    0.4409,
+    0.262,
+    0.0165
+   ],
+   "hints": {
+    "region": "Wisconsin, United States",
+    "title": "Strum, Wisconsin, United States"
+   }
+  },
+  {
+   "id": "h085",
+   "source_case": "q085",
+   "scan_index": 1,
+   "scan": "WI/WI_Casco_801446_1952_62500_geo.tif",
+   "window": [
+    0.6029,
+    0.6875,
+    0.8166,
+    0.9401
+   ],
+   "hints": {
+    "region": "Wisconsin, United States",
+    "title": "Casco, Wisconsin, United States"
+   }
+  },
+  {
+   "id": "h086",
+   "source_case": "q086",
+   "scan_index": 0,
+   "scan": "MI/MI_Charlotte_278049_1949_62500_geo.tif",
+   "window": [
+    0.6684,
+    0.5672,
+    0.8845,
+    0.1254
+   ],
+   "hints": {
+    "region": "Michigan, United States",
+    "title": "Charlotte, Michigan, United States"
+   }
+  },
+  {
+   "id": "h087",
+   "source_case": "q087",
+   "scan_index": 0,
+   "scan": "OR/OR_Chetco%20Peak_282331_1954_62500_geo.tif",
+   "window": [
+    0.6652,
+    0.5415,
+    0.6056,
+    0.4273
+   ],
+   "hints": {
+    "region": "Oregon, United States",
+    "title": "Chetco Peak, Oregon, United States"
+   }
+  },
+  {
+   "id": "h088",
+   "source_case": "q088",
+   "scan_index": 0,
+   "scan": "OR/OR_Colton_282352_1955_62500_geo.tif",
+   "window": [
+    0.5148,
+    0.5675,
+    0.022,
+    0.5076
+   ],
+   "hints": {
+    "region": "Oregon, United States",
+    "title": "Colton, Oregon, United States"
+   }
+  },
+  {
+   "id": "h089",
+   "source_case": "q089",
+   "scan_index": 0,
+   "scan": "IL/IL_Sibley_468764_1947_62500_geo.tif",
+   "window": [
+    0.5361,
+    0.6665,
+    0.9218,
+    0.6436
+   ],
+   "hints": {
+    "region": "Illinois, United States",
+    "title": "Sibley, Illinois, United States"
+   }
+  },
+  {
+   "id": "h090",
+   "source_case": "q090",
+   "scan_index": 0,
+   "scan": "CA/CA_Boron_296870_1954_62500_geo.tif",
+   "window": [
+    0.688,
+    0.6301,
+    0.8864,
+    0.2073
+   ],
+   "hints": {
+    "region": "California, United States",
+    "title": "Boron, California, United States"
+   }
+  },
+  {
+   "id": "h091",
+   "source_case": "q091",
+   "scan_index": 1,
+   "scan": "AZ/AZ_Holbrook_314674_1955_62500_geo.tif",
+   "window": [
+    0.4413,
+    0.6028,
+    0.3821,
+    0.2029
+   ],
+   "hints": {
+    "region": "Arizona, United States",
+    "title": "Holbrook, Arizona, United States"
+   }
+  },
+  {
+   "id": "h092",
+   "source_case": "q092",
+   "scan_index": 1,
+   "scan": "GA/GA_Stilesboro_247570_1908_62500_geo.tif",
+   "window": [
+    0.5514,
+    0.6411,
+    0.0917,
+    0.1593
+   ],
+   "hints": {
+    "region": "Georgia, United States",
+    "title": "Stilesboro, Georgia, United States"
+   }
+  },
+  {
+   "id": "h093",
+   "source_case": "q093",
+   "scan_index": 1,
+   "scan": "IL/IL_Dixon_309396_1950_62500_geo.tif",
+   "window": [
+    0.5333,
+    0.4791,
+    0.3504,
+    0.9086
+   ],
+   "hints": {
+    "region": "Illinois, United States",
+    "title": "Dixon, Illinois, United States"
+   }
+  },
+  {
+   "id": "h094",
+   "source_case": "q094",
+   "scan_index": 1,
+   "scan": "MT/MT_Arlee_267817_1959_62500_geo.tif",
+   "window": [
+    0.5538,
+    0.5815,
+    0.954,
+    0.115
+   ],
+   "hints": {
+    "region": "Montana, United States",
+    "title": "Arlee, Montana, United States"
+   }
+  },
+  {
+   "id": "h095",
+   "source_case": "q095",
+   "scan_index": 1,
+   "scan": "AZ/AZ_Nazlini_314845_1955_62500_geo.tif",
+   "window": [
+    0.6385,
+    0.4313,
+    0.5564,
+    0.9248
+   ],
+   "hints": {
+    "region": "Arizona, United States",
+    "title": "Nazlini, Arizona, United States"
+   }
+  },
+  {
+   "id": "h096",
+   "source_case": "q096",
+   "scan_index": 1,
+   "scan": "WI/WI_Tomah_503574_1949_62500_geo.tif",
+   "window": [
+    0.4762,
+    0.517,
+    0.7705,
+    0.175
+   ],
+   "hints": {
+    "region": "Wisconsin, United States",
+    "title": "Tomah, Wisconsin, United States"
+   }
+  },
+  {
+   "id": "h097",
+   "source_case": "q097",
+   "scan_index": 1,
+   "scan": "MO/MO_Puxico_325173_1939_62500_geo.tif",
+   "window": [
+    0.4987,
+    0.5564,
+    0.4797,
+    0.653
+   ],
+   "hints": {
+    "region": "Missouri, United States",
+    "title": "Puxico, Missouri, United States"
+   }
+  },
+  {
+   "id": "h098",
+   "source_case": "q098",
+   "scan_index": 1,
+   "scan": "GA/GA_Lumpkin_247508_1955_62500_geo.tif",
+   "window": [
+    0.6066,
+    0.5723,
+    0.8785,
+    0.3806
+   ],
+   "hints": {
+    "region": "Georgia, United States",
+    "title": "Lumpkin, Georgia, United States"
+   }
+  },
+  {
+   "id": "h099",
+   "source_case": "q099",
+   "scan_index": 1,
+   "scan": "ID/ID_Donkey%20Hills_239038_1956_62500_geo.tif",
+   "window": [
+    0.4049,
+    0.6534,
+    0.3872,
+    0.5751
+   ],
+   "hints": {
+    "region": "Idaho, United States",
+    "title": "Donkey Hills, Idaho, United States"
+   }
+  },
+  {
+   "id": "h100",
+   "source_case": "q100",
+   "scan_index": 0,
+   "scan": "NY/NY_Montauk_144191_1904_62500_geo.tif",
+   "window": [
+    0.6181,
+    0.5888,
+    0.9706,
+    0.8849
+   ],
+   "hints": {
+    "region": "New York, United States",
+    "title": "Montauk, New York, United States"
+   }
+  }
+ ]
+}
