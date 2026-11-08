@@ -170,6 +170,24 @@ def tally(rows: list[dict]) -> dict:
     return t
 
 
+DECISION_CODE = ("ga/primitives/graticule.py", "ga/primitives/generic.py", "ga/kinds.py", "ga/decide.py", "ga/guard.py", "ga/loop.py")
+
+
+def provenance() -> dict:
+    """Which code made these numbers: the commit, whether ga/ differed from it, and a hash of the decision code."""
+    import subprocess
+    def git(*args):
+        try:
+            return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, timeout=20).stdout.strip()
+        except Exception:                                               # noqa: BLE001  not a checkout: say so
+            return ""
+    h = hashlib.sha256()
+    for f in DECISION_CODE:
+        h.update(f.encode()); h.update((ROOT / f).read_bytes())
+    return {"commit": git("rev-parse", "--short", "HEAD") or "unknown", "ga_modified": bool(git("status", "--porcelain", "--", "ga")),
+            "decision_code_sha256": h.hexdigest(), "library_version": kinds.SPECS[KIND].library_version}
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--cases", default=str(ROOT / "demo" / "cases.json"))
@@ -181,12 +199,18 @@ def main() -> int:
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     reg = kinds.registry_for(KIND)
     decider = Decider(kinds.policy_for(KIND), None, lambda st: st.hypotheses[0].score if st.hypotheses else None)
-    rows, t0 = [], time.time()
+    rows, errors, t0 = [], [], time.time()
     for case in spec["cases"]:
         if a.only and case["id"] not in a.only:
             continue
         print(f"{case['id']}: {case['sheet']}", flush=True)
-        for r in run_case(case, spec["base_url"], Path(a.data), out, reg, decider):
+        try:
+            case_rows = run_case(case, spec["base_url"], Path(a.data), out, reg, decider)
+        except Exception as e:                                          # noqa: BLE001  one bad scan is a row, not the end of the run
+            print(f"  ERROR {type(e).__name__}: {str(e)[:120]}", flush=True)
+            errors.append({"case": case["id"], "error": f"{type(e).__name__}: {str(e)[:200]}"})
+            continue
+        for r in case_rows:
             rows.append(r)
             tr = f"{r['truth']['median_m']:.0f}/{r['truth']['max_m']:.0f} m from USGS" if r.get("truth") else "no placement"
             print(f"  {r['scan']:<40} {r['action']:<8} {tr}   {r['why'][:70]}", flush=True)
@@ -194,10 +218,12 @@ def main() -> int:
     t = {"sheets": tally(real), "controls": tally(ctrl)}
     def line(name, x, n):
         return f"{name} ({n} scans): " + ", ".join(f"{k} {v}" for k, v in x.items())
+    prov = provenance()
     md = (table(rows) + "\n\n" + line("sheets", t["sheets"], len(real)) + "  \n" + line("controls", t["controls"], len(ctrl))
-          + f"  \n{len(rows)} scans in {time.time() - t0:.0f} s\n")
+          + f"  \n{len(rows)} scans in {time.time() - t0:.0f} s; {len(errors)} cases failed to run"
+          + f"  \ncode {prov['commit']}{' (ga/ modified!)' if prov['ga_modified'] else ''}, decision code sha256 {prov['decision_code_sha256'][:12]}\n")
     (out / "results.md").write_text(md)
-    (out / "results.json").write_text(json.dumps({"tally": t, "rows": rows}, indent=1))
+    (out / "results.json").write_text(json.dumps({"provenance": prov, "cases_file": a.cases, "tally": t, "errors": errors, "rows": rows}, indent=1))
     print("\n" + md)
     print(f"written: {out / 'results.md'}, {out / 'results.json'}, overlays in {out}")
     return 0

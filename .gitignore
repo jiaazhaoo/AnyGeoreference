@@ -9,3 +9,5 @@ open_names
 *.egg-info/
 demo/data/
 demo/out/
+benchmarks/data/
+benchmarks/out/
