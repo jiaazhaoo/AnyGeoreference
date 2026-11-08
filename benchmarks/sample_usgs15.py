@@ -7,7 +7,8 @@ Rule (the whole of it):
 2. For each point, the USGS Historical Topographic Map Collection's GeoTIFFs at 1:62,500 whose catalogue bounding
    box is a 15' x 15' quadrangle containing the point. A point over the sea, Canada, Mexico or an area never mapped
    at 1:62,500 yields nothing and is skipped.
-3. A quadrangle enters once, only with two or more scans, and never if it is in the development set (demo/cases.json).
+3. A quadrangle enters once, only with two or more scans, and never if it is in the development set (demo/cases.json)
+   or in an earlier draw passed with --exclude (a draw that has been looked at is development data).
 4. Its two scans: if the scans span two or more publication years, two distinct years at random, then one scan of
    each year at random; otherwise two scans at random. All draws from one seeded generator, in point order.
 5. Stop at n quadrangles.
@@ -70,11 +71,14 @@ def main() -> int:
     ap.add_argument("--seed", type=int, default=20261108)
     ap.add_argument("--points", type=int, default=3000, help="how many random points to draw at most")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--exclude", nargs="*", default=[], help="earlier case files whose quadrangles may not be drawn again")
     a = ap.parse_args()
     rng = random.Random(a.seed)
     pts = [(round(rng.uniform(CONUS[0], CONUS[2]), 5), round(rng.uniform(CONUS[1], CONUS[3]), 5)) for _ in range(a.points)]
     dev = json.loads((ROOT / "demo" / "cases.json").read_text())
     dev_bounds = {tuple(round(v, 6) for v in c["bounds"]) for c in dev["cases"] if not c.get("control")}
+    for f in a.exclude:
+        dev_bounds |= {tuple(round(v, 6) for v in c["bounds"]) for c in json.loads(Path(f).read_text())["cases"]}
     pick = random.Random(a.seed + 1)
     cases, seen, stats = [], set(dev_bounds), {"points": 0, "no_answer": 0, "no_quad": 0, "one_scan": 0, "dev_or_seen": 0}
     with ThreadPoolExecutor(6) as ex:
@@ -107,7 +111,7 @@ def main() -> int:
     out = {"about": "Held-out USGS 15' quadrangles drawn by benchmarks/sample_usgs15.py (rule in its docstring); never used "
                     "to set any threshold. Same format as demo/cases.json.",
            "rule": {"seed": a.seed, "n": a.n, "conus": CONUS, "scale": "1:62500", "extent_deg": 0.25,
-                    "excluded": "the development quadrangles in demo/cases.json"},
+                    "excluded": ["demo/cases.json"] + list(a.exclude)},
            "draw": stats, "base_url": BASE, "cases": cases}
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps(out, indent=1))

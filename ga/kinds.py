@@ -81,9 +81,9 @@ STREET_MAP = Recipe(
 
 SURVEY_GRATICULE = Recipe(
     name="survey_graticule", kind="historical_map",
-    profile=Profile("any survey sheet that prints its graticule as lines across the map (USGS 15' quadrangles, 1880s-1950s)", (), (),
-                    ("grid",), printed_grid="graticule", scale_hint="1:62500", era="1880-1960",
-                    measured_by={"printed_grid": "graticule_lines"}),
+    profile=Profile("any survey sheet with a neatline and a printed graticule: lines across the map, or edge ticks and interior crosses (USGS quadrangles, 1880s-1970s)", (), (),
+                    ("grid",), printed_grid="graticule", scale_hint="1:62500 / 1:24000", era="1880-1980",
+                    measured_by={"printed_grid": "graticule_marks"}),
     cues=("grid",),
     references=("record-text",),
     matchers=("control_point_fit",),
@@ -111,7 +111,7 @@ SPECS = {
                                           Step("cross_edition_agreement")), SOI_1INCH.policy_rules, "lib-v0"),
     "street_map": AdapterSpec("street_map", (Step("claude_read", {"headless": True}), Step("place_lookup"), Step("road_junction_locate"), Step("road_name_fit"),
                                             Step("places_in_footprint"), Step("hypothesis_agreement")), STREET_MAP.policy_rules, "lib-v0"),
-    "survey_graticule": AdapterSpec("survey_graticule", (Step("graticule_lines"), Step("control_point_fit", {"model": "poly2", "crs": "EPSG:4267", "min_points": 6}),
+    "survey_graticule": AdapterSpec("survey_graticule", (Step("graticule_marks"), Step("control_point_fit", {"model": "poly2", "crs": "EPSG:4267", "min_points": 6}),
                                                         Step("residual_check", {"bound": 30.0, "geographic": True}), Step("edition_agreement")),
                                     SURVEY_GRATICULE.policy_rules, "lib-v0"),
     "unlabelled_raster": AdapterSpec("unlabelled_raster", (Step("hint_area"), Step("edge_structure"), Step("reference_render"),

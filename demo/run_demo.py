@@ -4,7 +4,7 @@
     python demo/run_demo.py --only boston_bay control_record_typo
 
 Per case the record gives what a person reads off the sheet's corners (neatline bounds, graticule interval) and two
-scans of that sheet. Each scan is placed on its own: graticule_lines -> control_point_fit (poly2) -> residual_check.
+scans of that sheet. Each scan is placed on its own: graticule_marks -> control_point_fit (poly2) -> residual_check.
 Then each placement is checked against the other scan's by map content (edition_agreement), and the kind's policy
 decides accept / review / abstain. Only after that does the scorer open each GeoTIFF's own georeference (the truth)
 and measure how far the placement is from it. No model, no API key, no GPU; deterministic.
@@ -33,7 +33,7 @@ from ga.primitives.generic import apply_transform              # noqa: E402
 from ga.primitives.graticule import _fit_of                    # noqa: E402
 
 KIND = "survey_graticule"
-PLACE = ["graticule_lines", "control_point_fit", "residual_check"]
+PLACE = ["graticule_marks", "control_point_fit", "residual_check"]
 RIGHT_M = 100.0          # a placement is right when no point of the map area is more than this from the archive's
 
 

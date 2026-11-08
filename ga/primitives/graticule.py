@@ -63,18 +63,17 @@ def _shifted_sum(P, centres, W, slope):
 
 
 def find_lines(gray: np.ndarray, axis: str, n_strips: int = 24, max_slope: float = 0.02, min_strength: float = 0.2):
-    """Long straight lines along one axis. Returns (lines, slope): each line is (position at mid-span, strength),
-    strength being the share of the span on which the line is present. A global skew is searched first; each line's
-    own slope (meridians converge) is refined later, on the lines that are kept."""
+    """Long straight lines along one axis. Returns (lines, slope, ctx): each line is (position at mid-span, strength,
+    own slope), strength being the share of the span on which the line is present; `slope` is the dominant one.
+    Every line gets its own slope from a slope x position accumulator: meridians converge, so the two side neatlines
+    of a sheet lean opposite ways, and one global skew smears whichever side it does not fit below the threshold."""
     mask = ridge_mask(gray, axis)
     P, centres, L, W = _strip_profiles(mask, axis, n_strips)
-    best = None
-    for s in np.linspace(-max_slope, max_slope, 201):
-        prof = _shifted_sum(P, centres, W, s)
-        sc = float(np.sort(prof)[-16:].sum())
-        if best is None or sc > best[0]:
-            best = (sc, float(s), prof)
-    _, slope, prof = best
+    slopes = np.linspace(-max_slope, max_slope, 201)
+    A = np.stack([_shifted_sum(P, centres, W, s) for s in slopes])          # (slope, position)
+    best_s = A.argmax(0)
+    prof = A.max(0)
+    dominant = float(slopes[int(np.argmax(np.sort(A, 1)[:, -16:].sum(1)))])
     prof = prof.copy()
     sep = max(8, int(0.01 * L))
     out = []
@@ -82,15 +81,15 @@ def find_lines(gray: np.ndarray, axis: str, n_strips: int = 24, max_slope: float
         i = int(prof.argmax()); v = float(prof[i])
         if v < min_strength:
             break
-        out.append((float(i), v))
+        out.append((float(i), v, float(slopes[best_s[i]])))
         prof[max(0, i - sep):i + sep + 1] = 0
-    return sorted(out), slope, (P, centres, W)
+    return sorted(out), dominant, (P, centres, W)
 
 
 def families(lines, n: int, length: int, min_interval: float = 0.08, tol: float = 0.012):
     """Every set of n+1 evenly spaced lines among `lines`: (mean strength, positions, spacing), best first. The two
     ends fix the spacing; each interior line must be found within `tol` of an interval of its expected place."""
-    pos = np.array([p for p, _ in lines]); st = np.array([s for _, s in lines])
+    pos = np.array([ln[0] for ln in lines]); st = np.array([ln[1] for ln in lines])
     out = []
     for i in range(len(pos)):
         for j in range(i + 1, len(pos)):
@@ -170,8 +169,9 @@ def read_graticule(gray: np.ndarray, west: float, south: float, east: float, nor
     best = combos[0]
     rival = next((c for c in combos[1:] if c[1][1] != best[1][1] or c[2][1] != best[2][1]), None)
     _, fh, fv, space, ratio = best
-    hlines = [refine_line(*hctx, p, hs) for p in fh[1]]          # y = a x + b
-    vlines = [refine_line(*vctx, p, vs) for p in fv[1]]          # x = c y + d
+    hsl = {ln[0]: ln[2] for ln in hl}; vsl = {ln[0]: ln[2] for ln in vl}
+    hlines = [refine_line(*hctx, p, hsl.get(p, hs)) for p in fh[1]]          # y = a x + b
+    vlines = [refine_line(*vctx, p, vsl.get(p, vs)) for p in fv[1]]          # x = c y + d
     nodes = []
     for j, (a, b, _) in enumerate(hlines):
         for i, (c, d, _) in enumerate(vlines):
@@ -306,6 +306,221 @@ def edition_agreement(state, tol_m: float = 60.0, min_response: float = 0.05):
             Evidence("editions_distance_m", round(d, 1), "deterministic", "edition")]
 
 
+# -- the frame and its marks: graticules printed as lines, as ticks and crosses, or both ----------------------------
+def _mark_maps(gray: np.ndarray):
+    """Cumulative maps for fast stroke tests: horizontal strokes summed along x, vertical strokes along y (each
+    ridge mask thickened by one pixel across the stroke), and paper-vs-ink summed in 2-D."""
+    import cv2
+    h = cv2.dilate(ridge_mask(gray, "h"), np.ones((3, 1), np.uint8))
+    v = cv2.dilate(ridge_mask(gray, "v"), np.ones((1, 3), np.uint8))
+    hc = np.zeros((h.shape[0], h.shape[1] + 1), np.float32); hc[:, 1:] = np.cumsum(h, 1)
+    vc = np.zeros((v.shape[0] + 1, v.shape[1]), np.float32); vc[1:, :] = np.cumsum(v, 0)
+    ink = cv2.integral((gray < 200).astype(np.uint8)).astype(np.float64)
+    return hc, vc, ink
+
+
+def _box(ink, x0, y0, x1, y1) -> float:
+    H, W = ink.shape[0] - 1, ink.shape[1] - 1
+    x0, x1 = int(max(0, min(W, x0))), int(max(0, min(W, x1))); y0, y1 = int(max(0, min(H, y0))), int(max(0, min(H, y1)))
+    if x1 <= x0 or y1 <= y0:
+        return 0.0
+    return float(ink[y1, x1] - ink[y0, x1] - ink[y1, x0] + ink[y0, x0]) / ((x1 - x0) * (y1 - y0))
+
+
+def _hrun(hc, y, x0, x1) -> float:
+    """Share of [x0, x1) on row y covered by a horizontal stroke."""
+    H, W = hc.shape[0], hc.shape[1] - 1
+    y = int(round(y)); x0, x1 = int(max(0, min(W, round(x0)))), int(max(0, min(W, round(x1))))
+    if not 0 <= y < H or x1 <= x0:
+        return 0.0
+    return float(hc[y, x1] - hc[y, x0]) / (x1 - x0)
+
+
+def _vrun(vc, x, y0, y1) -> float:
+    H, W = vc.shape[0] - 1, vc.shape[1]
+    x = int(round(x)); y0, y1 = int(max(0, min(H, round(y0)))), int(max(0, min(H, round(y1))))
+    if not 0 <= x < W or y1 <= y0:
+        return 0.0
+    return float(vc[y1, x] - vc[y0, x]) / (y1 - y0)
+
+
+def _cross(hc, vc, x, y, arm: int, gap: int = 3) -> float:
+    """A cross (or two crossing lines) centred at (x, y): the weaker of its two strokes, each tested on both sides."""
+    h = 0.5 * (_hrun(hc, y, x - arm, x - gap) + _hrun(hc, y, x + gap, x + arm))
+    v = 0.5 * (_vrun(vc, x, y - arm, y - gap) + _vrun(vc, x, y + gap, y + arm))
+    return min(h, v)
+
+
+def _tick(hc, vc, x, y, side: str, arm: int, gap: int = 3) -> tuple[float, float]:
+    """A tick at a neatline point: a stroke perpendicular to the edge on one side of it. Returns (one-sidedness,
+    stronger side). A ruled grid crosses the neatline and runs on both sides; a graticule tick or meridian does not."""
+    if side in ("top", "bottom"):
+        a, b = _vrun(vc, x, y - gap - arm, y - gap), _vrun(vc, x, y + gap, y + gap + arm)
+    else:
+        a, b = _hrun(hc, y, x - gap - arm, x - gap), _hrun(hc, y, x + gap, x + gap + arm)
+    return max(a, b) - min(a, b), max(a, b)
+
+
+def _search(fn, x, y, r: int, step: int = 1):
+    best = (-1.0, x, y)
+    for dy in range(-r, r + 1, step):
+        for dx in range(-r, r + 1, step):
+            v = fn(x + dx, y + dy)
+            if v > best[0]:
+                best = (v, x + dx, y + dy)
+    return best
+
+
+def _corner(hl, vl):
+    """Intersection of a horizontal line y = a x + b with a vertical line x = c y + d."""
+    a, b = hl; c, d = vl
+    y = (a * d + b) / (1 - a * c)
+    return c * y + d, y
+
+
+def read_frame_marks(gray: np.ndarray, west: float, south: float, east: float, north: float, interval_min: float = 5.0,
+                     pixel_space: str = "paper", ratio_tol: float = 0.03, top_k: int = 6, mark_min: float = 0.5,
+                     band: float = 0.012, max_frames: int = 12):
+    """The neatline and the graticule marks on it and inside it, for sheets that print the graticule as full lines,
+    as edge ticks and interior crosses, or as both.
+
+    1. Neatline: among rectangles of long lines with the shape of the record's bounds (cos(lat) x the bounds on paper;
+       the bounds as they are only for a raster the record says is in degrees), the one where the map content stops
+       on every side (judged by its weakest side) and whose edge nodes carry one-sided marks. A ruled grid (sections,
+       roads) runs on both sides of its lines and does not stop the content; a rival frame scoring nearly as well
+       makes the reading ambiguous. ("The outermost frame with marks" was tried on the development set and fails:
+       a collar line just outside the neatline picks up the corner labels as marks.)
+    2. Every graticule node of the bounds is predicted from the four corners and confirmed or not: a one-sided tick
+       on the edges, a cross inside. Confirmed nodes and the four corners are returned with their printed lon/lat.
+    Returns a dict with found False and the reason when no rectangle fits."""
+    step = interval_min / 60.0
+    n_cols, n_rows = round((east - west) / step), round((north - south) / step)
+    if n_cols < 1 or n_rows < 1:
+        raise ValueError("bounds smaller than one graticule interval")
+    lat0 = (north + south) / 2
+    # a scan of a paper sheet has metric pixels; "degrees" is for a raster already resampled to lon/lat, and only
+    # the record can say so. Trying both lets a ruled square grid pass for a graticule.
+    shapes = {"paper": math.cos(math.radians(lat0)) * (east - west) / (north - south), "degrees": (east - west) / (north - south)}
+    expected = {k: v for k, v in shapes.items() if pixel_space in (k, "auto")}
+    H, W = gray.shape
+    hl, hs, hctx = find_lines(gray, "h")
+    vl, vs, vctx = find_lines(gray, "v")
+    hc, vc, ink = _mark_maps(gray)
+    if len(hl) < 2 or len(vl) < 2:
+        return {"found": False, "why": f"{len(hl)} horizontal and {len(vl)} vertical long lines"}
+    B = max(6, int(band * max(H, W)))
+    # each long line refined once; candidate edges are scored by where the content stops
+    H_ = {ln[0]: refine_line(*hctx, ln[0], ln[2])[:2] for ln in hl}
+    V_ = {ln[0]: refine_line(*vctx, ln[0], ln[2])[:2] for ln in vl}
+    def edge_scores(pos, axis):
+        if axis == "h":
+            a = _box(ink, 0.2 * W, pos - B, 0.8 * W, pos - 3); b = _box(ink, 0.2 * W, pos + 3, 0.8 * W, pos + B)
+        else:
+            a = _box(ink, pos - B, 0.2 * H, pos - 3, 0.8 * H); b = _box(ink, pos + 3, 0.2 * H, pos + B, 0.8 * H)
+        return b - a, a - b                                   # (as a top / left edge, as a bottom / right edge)
+    hp = [ln[0] for ln in hl]; vp = [ln[0] for ln in vl]
+    hs_ = {p: edge_scores(p, "h") for p in hp}; vs_ = {p: edge_scores(p, "v") for p in vp}
+    tops = sorted(hp, key=lambda p: -hs_[p][0])[:top_k]
+    bots = sorted(hp, key=lambda p: -hs_[p][1])[:top_k]
+    lefts = sorted(vp, key=lambda p: -vs_[p][0])[:top_k]
+    rights = sorted(vp, key=lambda p: -vs_[p][1])[:top_k]
+    rects = []
+    for t in tops:
+        for b in bots:
+            if b - t < 0.25 * H:
+                continue
+            for l in lefts:
+                for r in rights:
+                    if r - l < 0.25 * W:
+                        continue
+                    ratio = (r - l) / (b - t)
+                    for space, e in expected.items():
+                        if abs(ratio / e - 1) <= ratio_tol:
+                            # a neatline stops the content on every side: the frame is as good as its weakest side
+                            contrast = min(hs_[t][0], hs_[b][1], vs_[l][0], vs_[r][1])
+                            rects.append((contrast, t, b, l, r, space, ratio))
+    if not rects:
+        return {"found": False, "why": f"{len(hl)} x {len(vl)} long lines; no rectangle with the shape of the bounds"}
+    rects.sort(key=lambda x: -x[0])
+
+    def evaluate(rect):
+        contrast, t, b, l, r, space, ratio = rect
+        tl, tr = _corner(H_[t], V_[l]), _corner(H_[t], V_[r])
+        bl, br = _corner(H_[b], V_[l]), _corner(H_[b], V_[r])
+        dx, dy = (r - l) / n_cols, (b - t) / n_rows
+        arm = max(8, int(0.01 * min(dx, dy))); rad = max(4, int(0.012 * min(dx, dy)))
+        def at(i, j):                                          # bilinear from the corners: curvature over 15' is ~1 px
+            u, v = i / n_cols, j / n_rows
+            top = (tl[0] + u * (tr[0] - tl[0]), tl[1] + u * (tr[1] - tl[1]))
+            bot = (bl[0] + u * (br[0] - bl[0]), bl[1] + u * (br[1] - bl[1]))
+            return top[0] + v * (bot[0] - top[0]), top[1] + v * (bot[1] - top[1])
+        nodes, edge_s, inner_s = [(tl[0], tl[1], west, north), (tr[0], tr[1], east, north), (bl[0], bl[1], west, south), (br[0], br[1], east, south)], [], []
+        for j in range(n_rows + 1):
+            for i in range(n_cols + 1):
+                if (i in (0, n_cols)) and (j in (0, n_rows)):
+                    continue
+                x, y = at(i, j)
+                lon, lat = west + i * step, north - j * step
+                if i in (0, n_cols) or j in (0, n_rows):
+                    side = "top" if j == 0 else "bottom" if j == n_rows else "left" if i == 0 else "right"
+                    along = (lambda q, _x=x, _y=y, _s=side: (_x + q, _y) if _s in ("top", "bottom") else (_x, _y + q))
+                    (one, strong), q = max(((_tick(hc, vc, *along(q), side, arm), q) for q in range(-rad, rad + 1)), key=lambda z: z[0][0])
+                    ok = one >= mark_min and strong >= mark_min
+                    edge_s.append(ok)
+                    if ok:
+                        nodes.append((*along(q), lon, lat))
+                else:
+                    v, cx, cy = _search(lambda X, Y: _cross(hc, vc, X, Y, arm), int(round(x)), int(round(y)), rad)
+                    inner_s.append(v >= mark_min)
+                    if v >= mark_min:
+                        nodes.append((float(cx), float(cy), lon, lat))
+        e_frac = float(np.mean(edge_s)) if edge_s else 0.0
+        i_frac = float(np.mean(inner_s)) if inner_s else 1.0
+        return {"score": contrast + e_frac + 0.5 * i_frac, "contrast": contrast, "edge_marks": e_frac, "inner_marks": i_frac,
+                "nodes": nodes, "pixel_space": space, "ratio": ratio, "expected_ratio": expected[space],
+                "corners": [tl, tr, br, bl], "lines": (t, b, l, r)}
+
+    scored = sorted((evaluate(r) for r in rects[:max_frames]), key=lambda z: -z["score"])
+    best = scored[0]
+    rival = next((z for z in scored[1:] if z["lines"] != best["lines"]), None)
+    return {"found": True, **best, "rival_score": rival["score"] if rival else None,
+            "n_expected_marks": (n_cols + 1) * (n_rows + 1) - 4}
+
+
+def graticule_marks(state, interval_min: float = 5.0, ambiguity: float = 0.85, min_marks: float = 0.5):
+    """Primitive: the record's neatline bounds and interval -> the four neatline corners and every graticule node
+    confirmed by a mark (one-sided edge tick, interior cross, or crossing graticule lines), as grid cues; evidence on
+    the frame (where content stops), the share of marks found, and how clear the choice of frame was. A frame whose
+    marks are mostly missing yields nothing: four corners alone do not show that the rectangle is the neatline."""
+    rec = {**dict(state.sheet.meta), **dict(state.sheet.record)}
+    b = rec.get("bounds")
+    if not b:
+        return []
+    west, south, east, north = (float(v) for v in b)
+    interval_min = float(rec.get("interval_min", interval_min))
+    g = read_frame_marks(gray_of(state.sheet.image), west, south, east, north, interval_min, rec.get("pixel_space", "paper"))
+    if not g["found"]:
+        state.evidence.append(Evidence("graticule_found", False, "deterministic", "sheet-reader", note=g["why"][:200]))
+        return []
+    marks = (len(g["nodes"]) - 4) / max(1, g["n_expected_marks"])
+    rival = g["rival_score"]
+    ambiguous = rival is not None and rival >= ambiguity * g["score"]
+    found = marks >= min_marks
+    state.evidence.append(Evidence("graticule_found", bool(found), "deterministic", "sheet-reader",
+                                   note=f"{len(g['nodes'])} nodes (4 corners + {len(g['nodes']) - 4}/{g['n_expected_marks']} marks: edge {g['edge_marks']:.0%}, "
+                                        f"inside {g['inner_marks']:.0%}); content stops at the frame by {g['contrast']:.2f}; "
+                                        f"shape {g['ratio']:.4f} (expected {g['expected_ratio']:.4f}, {g['pixel_space']})"))
+    state.evidence.append(Evidence("graticule_marks", round(marks, 3), "deterministic", "sheet-reader"))
+    state.evidence.append(Evidence("graticule_ambiguous", bool(ambiguous), "deterministic", "sheet-reader",
+                                   note=f"best frame {g['score']:.2f}, next {rival:.2f}" if rival is not None else "no rival frame"))
+    if not found:
+        return []
+    state.layers.append(Layer(state.sheet.digest, "frame", "points", g["corners"],
+                              meta={k: g[k] for k in ("pixel_space", "ratio", "contrast", "edge_marks", "inner_marks")}))
+    return [Cue(state.sheet.digest, "grid", f"{lon},{lat}", (x - 1, y - 1, x + 1, y + 1), "graticule_marks")
+            for x, y, lon, lat in g["nodes"]]
+
+
 register(Primitive("graticule_lines", "sheet-reader", True, (), "cue",
                    "generic graticule reader: the record's neatline bounds + interval -> every meridian x parallel node as a grid cue; "
                    "thin-line profiles, evenly spaced families, spacing ratio checked against cos(latitude); OpenCV only",
@@ -313,3 +528,7 @@ register(Primitive("graticule_lines", "sheet-reader", True, (), "cue",
 register(Primitive("edition_agreement", "geometry", True, ("hypothesis",), "evidence",
                    "another edition of the same sheet, placed on its own: both scans warped onto one lon/lat grid through their own "
                    "placements, graticule masked, map content phase-correlated; the shift must be near zero", edition_agreement, "generic", requires=("opencv",)))
+register(Primitive("graticule_marks", "sheet-reader", True, (), "cue",
+                   "generic graticule reader for lines, ticks and crosses: the neatline (shape of the bounds, content stops at it, "
+                   "one-sided edge marks) and every node confirmed by a mark -> grid cues; OpenCV only",
+                   graticule_marks, "generic", requires=("opencv",), sheet_params=("interval_min",)))

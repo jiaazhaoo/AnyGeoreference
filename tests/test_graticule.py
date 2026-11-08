@@ -102,3 +102,58 @@ def test_fit_note_round_trips():
     h = control_point_fit(st, model="poly2", crs="EPSG:4267")[0]
     c, m = _fit_of(h)
     assert m == "poly2" and c.shape == (6, 2)
+
+
+def _ticks_sheet(seed=1, dx=1300.0, offset=(320, 300), grid=True):
+    """A 1950s-style sheet: neatline, one-sided edge ticks, interior crosses, no graticule lines; optionally a
+    section-like square grid ruled across the map and through the neatline (the Duluth trap)."""
+    lat0 = (BOUNDS[1] + BOUNDS[3]) / 2
+    dy = dx / math.cos(math.radians(lat0))
+    W, H = int(2 * offset[0] + 3 * dx), int(2 * offset[1] + 3 * dy)
+    img = np.full((H, W), 248, np.uint8)
+    x0, y0, x1, y1 = offset[0], offset[1], int(offset[0] + 3 * dx), int(offset[1] + 3 * dy)
+    scene = cv2.resize(_scene(seed), (x1 - x0, y1 - y0))
+    img[y0:y1, x0:x1] = np.minimum(scene, 185)                       # map content: tinted, stops at the neatline
+    if grid:                                                          # square "sections", 1/5 of an interval, through the frame
+        s = dx / 5
+        for k in range(-3, 40):
+            x = int(x0 + 0.37 * s + k * s); y = int(y0 + 0.61 * s + k * s)
+            if x0 - 60 < x < x1 + 60:
+                cv2.line(img, (x, y0 - 60), (x, y1 + 60), 30, 2)
+            if y0 - 60 < y < y1 + 60:
+                cv2.line(img, (x0 - 60, y), (x1 + 60, y), 30, 2)
+    cv2.rectangle(img, (x0, y0), (x1, y1), 0, 2)
+    nodes = []
+    for j in range(4):
+        for i in range(4):
+            x, y = x0 + i * dx, y0 + j * dy
+            nodes.append((x, y, BOUNDS[0] + i * STEP, BOUNDS[3] - j * STEP))
+            X, Y = int(round(x)), int(round(y))
+            if j == 0 and 0 < i < 3: cv2.line(img, (X, Y), (X, Y + 26), 0, 2)
+            if j == 3 and 0 < i < 3: cv2.line(img, (X, Y - 26), (X, Y), 0, 2)
+            if i == 0 and 0 < j < 3: cv2.line(img, (X, Y), (X + 26, Y), 0, 2)
+            if i == 3 and 0 < j < 3: cv2.line(img, (X - 26, Y), (X, Y), 0, 2)
+            if 0 < i < 3 and 0 < j < 3:
+                cv2.line(img, (X - 20, Y), (X + 20, Y), 0, 2); cv2.line(img, (X, Y - 20), (X, Y + 20), 0, 2)
+    return img, nodes
+
+
+def test_marks_reader_places_a_ticks_and_crosses_sheet_through_a_ruled_grid():
+    from ga.primitives.graticule import read_frame_marks
+    img, truth = _ticks_sheet()
+    g = read_frame_marks(img, *BOUNDS, interval_min=5.0)
+    assert g["found"] and g["pixel_space"] == "paper"
+    t = {(round(lo, 6), round(la, 6)): (x, y) for x, y, lo, la in truth}
+    errs = [math.hypot(x - t[(round(lo, 6), round(la, 6))][0], y - t[(round(lo, 6), round(la, 6))][1]) for x, y, lo, la in g["nodes"]]
+    assert len(g["nodes"]) >= 12 and max(errs) < 4.0
+
+
+def test_marks_reader_finds_no_frame_on_a_bare_grid():
+    from ga.primitives.graticule import read_frame_marks
+    img = np.full((5200, 4200), 248, np.uint8)
+    for k in range(0, 4200, 260):
+        cv2.line(img, (k, 0), (k, 5199), 30, 2)
+    for k in range(0, 5200, 260):
+        cv2.line(img, (0, k), (4199, k), 30, 2)
+    g = read_frame_marks(img, *BOUNDS, interval_min=5.0)
+    assert not g["found"] or (len(g["nodes"]) - 4) / g["n_expected_marks"] < 0.5 or g["contrast"] <= 0.05
