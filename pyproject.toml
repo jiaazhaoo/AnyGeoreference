@@ -17,6 +17,7 @@ dependencies = [
     "Pillow",
     "opencv-python-headless",
     "rasterio",
+    "mapbox-vector-tile",
 ]
 
 [project.optional-dependencies]

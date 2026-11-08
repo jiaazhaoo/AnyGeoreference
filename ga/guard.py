@@ -28,7 +28,8 @@ REFERENCES_USED = {
     "toponym_constellation_fit": ("gazetteer",),
 }
 # the facts the policies treat as a second family, by evidence name
-SECOND_FAMILY_FACTS = ("places_in_footprint", "address_in_footprint", "overlay_agreement", "editions_agree", "batch_agreement", "matchers_agree")
+SECOND_FAMILY_FACTS = ("places_in_footprint", "address_in_footprint", "overlay_agreement", "editions_agree", "batch_agreement", "matchers_agree",
+                       "basemap_agree", "partner_basemap_agree")
 
 
 def references_of(matcher: str) -> set[str]:

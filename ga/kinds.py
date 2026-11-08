@@ -85,18 +85,24 @@ SURVEY_GRATICULE = Recipe(
                     ("grid",), printed_grid="graticule", scale_hint="1:62500 / 1:24000", era="1880-1980",
                     measured_by={"printed_grid": "graticule_marks"}),
     cues=("grid",),
-    references=("record-text",),
+    references=("record-text", "basemap"),
     matchers=("control_point_fit",),
-    verifications=("residual_check", "edition_agreement"),
+    verifications=("residual_check", "basemap_agreement", "edition_agreement"),
     policy_rules=(
-        # the residual at the nodes proves self-consistency only (see soi_1inch): accept needs another edition of the
-        # same sheet, placed on its own and matched by map content, to put the same features in the same place
+        # the residual at the nodes proves self-consistency only (see soi_1inch): accept needs a second family, another
+        # edition placed on its own (same content in the same place) or the sheet's water against OpenStreetMap's
         {"id": "residual_and_edition", "when": "residual_within_bound and editions_agree == True", "to": "accept"},
+        {"id": "residual_and_basemap", "when": "residual_within_bound and basemap_agree == True", "to": "accept"},
         {"id": "editions_disagree", "when": "editions_agree == False", "from": "accept", "to": "review"},
+        # editions agree with each other when the record is wrong or both scans were misread alike; an external
+        # reference that disagrees outranks them
+        {"id": "basemap_disagrees", "when": "basemap_agree == False", "from": "accept", "to": "review"},
+        # two scans that agree share their fate: the partner shown wrong by the external reference takes this one along
+        {"id": "partner_shown_wrong", "when": "editions_agree == True and partner_basemap_agree == False", "from": "accept", "to": "review"},
         {"id": "graticule_ambiguous", "when": "graticule_ambiguous == True", "from": "accept", "to": "review"},
     ),
     expected_accuracy_m=(10.0, 40.0), expected_cost_per_sheet=0.0,
-    note="truth: the archive's published georeference (USGS GeoTIFF), never read by the loop; bounds and interval from the record")
+    note="truth: the archive's published georeference (USGS GeoTIFF), never read by the loop; bounds and interval from the record; OSM water is a reference, not truth")
 
 KINDS = {r.name: r for r in (PLANS_GB, SOI_1INCH, UNLABELLED_RASTER, STREET_MAP, SURVEY_GRATICULE)}
 
@@ -112,7 +118,8 @@ SPECS = {
     "street_map": AdapterSpec("street_map", (Step("claude_read", {"headless": True}), Step("place_lookup"), Step("road_junction_locate"), Step("road_name_fit"),
                                             Step("places_in_footprint"), Step("hypothesis_agreement")), STREET_MAP.policy_rules, "lib-v0"),
     "survey_graticule": AdapterSpec("survey_graticule", (Step("graticule_marks"), Step("control_point_fit", {"model": "poly2", "crs": "EPSG:4267", "min_points": 6}),
-                                                        Step("residual_check", {"bound": 30.0, "geographic": True}), Step("edition_agreement")),
+                                                        Step("residual_check", {"bound": 30.0, "geographic": True}), Step("basemap_agreement"),
+                                                        Step("edition_agreement")),
                                     SURVEY_GRATICULE.policy_rules, "lib-v0"),
     "unlabelled_raster": AdapterSpec("unlabelled_raster", (Step("hint_area"), Step("edge_structure"), Step("reference_render"),
                                                           Step("structure_match_orb"), Step("overlay_agreement")), UNLABELLED_RASTER.policy_rules, "lib-v0"),

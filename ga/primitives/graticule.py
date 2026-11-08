@@ -301,9 +301,14 @@ def edition_agreement(state, tol_m: float = 60.0, min_response: float = 0.05):
         return [Evidence("editions_agree", None, "deterministic", "edition",
                          note=f"vs {sib.get('id')}: content does not correlate (response {resp:.3f}); nothing to compare")]
     d = math.hypot(dx, dy)
-    return [Evidence("editions_agree", bool(d <= tol_m), "deterministic", "edition",
-                     note=f"vs {sib.get('id')}: content shift {d:.0f} m (dx {dx:+.0f}, dy {dy:+.0f}), response {resp:.3f}; tol {tol_m} m"),
-            Evidence("editions_distance_m", round(d, 1), "deterministic", "edition")]
+    out = [Evidence("editions_agree", bool(d <= tol_m), "deterministic", "edition",
+                    note=f"vs {sib.get('id')}: content shift {d:.0f} m (dx {dx:+.0f}, dy {dy:+.0f}), response {resp:.3f}; tol {tol_m} m"),
+           Evidence("editions_distance_m", round(d, 1), "deterministic", "edition")]
+    if d <= tol_m and sib.get("basemap_agree") is not None:
+        # agreement carries evidence across: a partner shown wrong by an external reference takes this scan with it
+        out.append(Evidence("partner_basemap_agree", bool(sib["basemap_agree"]), "deterministic", "basemap",
+                            note=f"{sib.get('id')} against the external reference: {sib.get('basemap_note', '')[:100]}"))
+    return out
 
 
 # -- the frame and its marks: graticules printed as lines, as ticks and crosses, or both ----------------------------
