@@ -202,3 +202,40 @@ abstain; a pair of two different sheets goes to review (no overlap). A record wi
 accepted 6.9 km off on both scans: the evidence cannot see a wrong record. That is the next family to build
 (reading the printed corner coordinates). The 1:24,000 abstention is honest, not a capability: a tick-and-cross
 reader would place them.
+
+**Held-out: 100 USGS 15' quadrangles drawn at random, run once, 2026-11-08.** The demo's sheets were hand-picked, and
+its thresholds were set by looking at Boston Bay, so its numbers are development numbers. Held-out protocol: a sampler
+that never opens an image (`benchmarks/sample_usgs15.py`; seeded uniform points over the contiguous US, the 15'
+1:62,500 quadrangle holding each point, two scans by a fixed draw, the development quadrangles excluded). The draw
+is 100 quadrangles, 31 states, editions 1893–1970, mostly from the 1940s and 1950s, and it reproduces byte for byte.
+The decision code was frozen at commit 72f30da (decision-code sha256 b97ec9ae7899, identical to the published demo),
+and the run was made once (690 s, no errors). Nothing below was tuned afterwards.
+
+200 scans: 55 accepted, **0 accepted wrong** (worst grid point of any accepted scan 42 m from USGS, median of worsts
+31 m); 40 to review (15 with a right placement, 25 with a wrong one); 105 abstained. By era: before 1930, 31 of
+44 accepted and nothing wrong reached review; 1930–1944, 21 of 41; from 1945 on, 3 of 115. Failure classes, each a
+capability, not a case:
+
+1. **No graticule lines (abstain, 88 of the 105 from 1945 on).** Later 15' sheets print the graticule as edge ticks and
+   interior crosses. The reader looks for lines only. Capability: a tick-and-cross reader (the same need as the
+   1:24,000 control).
+2. **Another grid taken for the graticule (25 wrong placements, all held back).** The Public Land Survey sections, as in
+   Duluth 1953, and other ruled grids. 20 of the 25 were read under the "raster in degrees" hypothesis (spacing ratio
+   1, which square sections satisfy), with the weakest line present on only 20–32 % of its span. The residual is no
+   help: 8–61 m at the nodes for placements 3–32 km off. The reader accepts too weak a family and has no reason to
+   prefer paper over degrees. Capability: the graticule must be the family that meets the neatline and carries the
+   ticks, and the pixel space must be decided once per sheet from evidence, not tried until a family fits.
+3. **The near miss: shared misreads agree.** In q048 and q096 both scans were read the same wrong way (same plate,
+   same section lines) and the content check said they agree (shift 0). They were kept from acceptance only
+   because a rival family scored at least 85 % of the chosen one (`graticule_ambiguous`), plus a residual over the
+   bound on one scan. The second family is not independent of a systematic reading error shared by both scans, and
+   the record typo control showed the same thing. Capability: a family that does not come from the sheet's own lines,
+   for example the map content against an external base map (coast, rivers, roads), or the printed corner
+   coordinates read as text.
+4. **Right placement, nobody to agree with (15 to review).** The partner scan abstained or was misread, so there was
+   nothing to compare. This resolves when classes 1 and 2 do.
+
+The development numbers (12 of 14 accepted) were optimistic about coverage (55 of 200 held-out) but not about
+safety: neither set had a wrong acceptance outside the deliberate record-typo control. Results:
+`benchmarks/results/usgs15_heldout_v1.md` and `.json`. A next change is measured on a fresh draw (a new seed),
+because this one has now been looked at.

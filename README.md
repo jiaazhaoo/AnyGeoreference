@@ -40,6 +40,32 @@ which is the truth, and measure the distance on a 7 × 7 grid over the map.
 
 Per-scan table and overlays: `demo/out/` after a run. Method and numbers: `docs/FINDINGS.md`.
 
+### Held-out: 100 quadrangles drawn at random, run once
+
+The demo's sheets were chosen by hand, and its thresholds were set by looking at Boston Bay. To measure without
+that bias, `benchmarks/sample_usgs15.py` draws quadrangles by a fixed, seeded rule that never opens an image:
+uniform random points over the contiguous US, the 15' quadrangle holding each point, two scans of it, and the
+development quadrangles excluded. The draw has 100 quadrangles in 31 states, editions 1893–1970, and it reproduces
+byte for byte. The decision code was frozen first (commit `72f30da`, unchanged since the demo) and then run once.
+The results below are exactly as they came out. Nothing was tuned afterwards.
+
+| 200 scans | accepted, right | accepted, wrong | to review: placement right / wrong | abstained |
+|---|---|---|---|---|
+| all | 55 (worst point ≤ 42 m from USGS) | **0** | 15 / 25 | 105 |
+| editions before 1930 (44) | 31 | 0 | 11 / 0 | 2 |
+| 1930–1944 (41) | 21 | 0 | 3 / 2 | 15 |
+| 1945 and later (115) | 3 | 0 | 1 / 23 | 88 |
+
+```bash
+python demo/run_demo.py --cases benchmarks/usgs15_heldout_v1.json --data benchmarks/data --out benchmarks/out/usgs15_heldout_v1   # ~1.4 GB, ~12 min
+```
+
+What it says about the system, not about the cases: the reader covers sheets that print the graticule as lines,
+which is most sheets before 1945, and on them it is accurate. Later sheets print ticks; the reader then finds
+nothing (88 abstentions) or takes another grid for the graticule (23 wrong placements, all held back). One near
+miss is reported in full in `docs/FINDINGS.md`: two scans from one printing plate can be misread identically, and
+then they agree. Per-scan results: `benchmarks/results/usgs15_heldout_v1.md`.
+
 ## Why
 
 Georeferencing a scanned plan is a multi-step task that needs both reading and computing: somebody has to read the
