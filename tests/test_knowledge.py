@@ -1,5 +1,5 @@
 import os, sys
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))); sys.path.insert(0, "/env/code/geo-eval")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ga.knowledge import Index, load
 
 SECTIONS = {"routing", "family", "reading", "reference", "geodesy", "transforms", "matcher", "verify", "truth", "failure", "operate", "build", "literature"}

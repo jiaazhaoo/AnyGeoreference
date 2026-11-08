@@ -1,5 +1,5 @@
 import os, sys
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))); sys.path.insert(0, "/env/code/geo-eval")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ga.execute import generic_policy, registry_for_plan
 from ga.plan import Plan
 from ga.recipe import AdapterSpec, Step

@@ -1,6 +1,5 @@
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, "/env/code/geo-eval")
 import numpy as np
 import pytest
 from evalcore import Evidence

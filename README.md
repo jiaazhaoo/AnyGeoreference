@@ -82,6 +82,15 @@ placement at 7 m sent to review, nine abstentions, no discordant pair); the plan
 fixed 11, stopped after 4 on sheets with nothing to place, and lost steps where tool contracts were too coarse.
 Details in `docs/FINDINGS.md`.
 
+## Install
+
+```bash
+git clone https://github.com/jiaazhaoo/AnyGeoreference.git && cd AnyGeoreference
+python -m venv .venv && . .venv/bin/activate
+pip install -e ".[test]"          # pulls geo-eval (the evaluation core) from GitHub
+python -m pytest -q tests
+```
+
 ## Run it
 
 ```bash

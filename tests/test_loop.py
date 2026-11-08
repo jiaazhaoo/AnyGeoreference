@@ -1,6 +1,5 @@
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, "/env/code/geo-eval")
 import pytest
 from evalcore import Calibrator, Evidence, Policy, Rule
 from ga import ABSTAIN, Candidate, Cue, Decider, FixedPlan, Hypothesis, Planner, Sheet, State, Tool, ToolRegistry, run

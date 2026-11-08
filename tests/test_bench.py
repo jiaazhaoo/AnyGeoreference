@@ -1,5 +1,5 @@
 import os, sys
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))); sys.path.insert(0, "/env/code/geo-eval")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ga import Hypothesis, Verdict, ABSTAIN
 from ga.bench import TruthCase, score, actions_of, labels_for_gate
 

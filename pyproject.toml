@@ -1,9 +1,28 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "anygeoreference"
 version = "0.1.0"
 description = "Put any scanned drawing or map on the Earth, say how sure you are, and say no when you are not"
+readme = "README.md"
+license = {text = "Apache-2.0"}
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "geo-eval @ git+https://github.com/jiaazhaoo/geo-eval.git",
+    "numpy",
+    "shapely>=2",
+    "pyproj",
+    "Pillow",
+    "opencv-python-headless",
+]
 
 [project.optional-dependencies]
 test = ["pytest"]
+
+[tool.setuptools.packages.find]
+include = ["ga*"]
+
+[tool.setuptools.package-data]
+"ga.knowledge" = ["cards/*.md"]

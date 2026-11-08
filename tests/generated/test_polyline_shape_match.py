@@ -4,7 +4,6 @@ import sys
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-sys.path.insert(0, "/env/code/geo-eval")
 
 from shapely.geometry import LineString
 
