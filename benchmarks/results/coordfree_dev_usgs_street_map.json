@@ -1,0 +1,2060 @@
+{
+ "cases": "benchmarks/coordfree_dev_usgs.json",
+ "kind": "street_map",
+ "tally": {
+  "none": {
+   "cases": 40,
+   "accepted right": 0,
+   "accepted wrong": 0,
+   "review": 0,
+   "abstain": 40,
+   "placed": 0,
+   "within 1 km": 0,
+   "within 10 km": 0
+  },
+  "region": {
+   "cases": 40,
+   "accepted right": 0,
+   "accepted wrong": 0,
+   "review": 0,
+   "abstain": 40,
+   "placed": 0,
+   "within 1 km": 0,
+   "within 10 km": 0
+  },
+  "title": {
+   "cases": 40,
+   "accepted right": 0,
+   "accepted wrong": 0,
+   "review": 0,
+   "abstain": 40,
+   "placed": 0,
+   "within 1 km": 0,
+   "within 10 km": 0
+  }
+ },
+ "rows": [
+  {
+   "id": "u001",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 16,
+    "road": 1,
+    "landmark": 5,
+    "number": 9
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u001",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 16,
+    "road": 1,
+    "landmark": 5,
+    "number": 9
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u001",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 16,
+    "road": 1,
+    "landmark": 5,
+    "number": 9
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u002",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 8,
+    "landmark": 1,
+    "number": 41
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u002",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 8,
+    "landmark": 1,
+    "number": 41
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u002",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 8,
+    "landmark": 1,
+    "number": 41
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u003",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 17,
+    "landmark": 23,
+    "text": 7,
+    "number": 7
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u003",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 17,
+    "landmark": 23,
+    "text": 7,
+    "number": 7
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u003",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 17,
+    "landmark": 23,
+    "text": 7,
+    "number": 7
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u004",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 12,
+    "number": 12,
+    "text": 2
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u004",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 12,
+    "number": 12,
+    "text": 2
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u004",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 12,
+    "number": 12,
+    "text": 2
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u005",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 29,
+    "landmark": 1,
+    "road": 2,
+    "text": 3,
+    "grid": 3,
+    "number": 8
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u005",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 29,
+    "landmark": 1,
+    "road": 2,
+    "text": 3,
+    "grid": 3,
+    "number": 8
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u005",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 29,
+    "landmark": 1,
+    "road": 2,
+    "text": 3,
+    "grid": 3,
+    "number": 8
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u006",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 6,
+    "landmark": 11,
+    "road": 2
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u006",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 6,
+    "landmark": 11,
+    "road": 2
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u006",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 6,
+    "landmark": 11,
+    "road": 2
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u007",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 8,
+    "landmark": 13,
+    "number": 1
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u007",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 8,
+    "landmark": 13,
+    "number": 1
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u007",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 8,
+    "landmark": 13,
+    "number": 1
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u008",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 8,
+    "landmark": 9,
+    "text": 1,
+    "number": 90
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u008",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 8,
+    "landmark": 9,
+    "text": 1,
+    "number": 90
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u008",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 8,
+    "landmark": 9,
+    "text": 1,
+    "number": 90
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u009",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 9,
+    "landmark": 3,
+    "text": 9
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u009",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 9,
+    "landmark": 3,
+    "text": 9
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u009",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 9,
+    "landmark": 3,
+    "text": 9
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u010",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 2,
+    "landmark": 13,
+    "road": 2,
+    "text": 1,
+    "number": 6
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u010",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 2,
+    "landmark": 13,
+    "road": 2,
+    "text": 1,
+    "number": 6
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u010",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 2,
+    "landmark": 13,
+    "road": 2,
+    "text": 1,
+    "number": 6
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u011",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 7,
+    "landmark": 10,
+    "road": 8,
+    "number": 6
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u011",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 7,
+    "landmark": 10,
+    "road": 8,
+    "number": 6
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u011",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 7,
+    "landmark": 10,
+    "road": 8,
+    "number": 6
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u012",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 4,
+    "landmark": 2,
+    "text": 2,
+    "number": 15
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u012",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 4,
+    "landmark": 2,
+    "text": 2,
+    "number": 15
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u012",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 4,
+    "landmark": 2,
+    "text": 2,
+    "number": 15
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u013",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 25,
+    "landmark": 9,
+    "text": 1,
+    "number": 1
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u013",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 25,
+    "landmark": 9,
+    "text": 1,
+    "number": 1
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u013",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 25,
+    "landmark": 9,
+    "text": 1,
+    "number": 1
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u014",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 15,
+    "landmark": 9,
+    "road": 8
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u014",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 15,
+    "landmark": 9,
+    "road": 8
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u014",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 15,
+    "landmark": 9,
+    "road": 8
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u015",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 5,
+    "landmark": 7,
+    "road": 2,
+    "number": 6,
+    "grid": 14
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u015",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 5,
+    "landmark": 7,
+    "road": 2,
+    "number": 6,
+    "grid": 14
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u015",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 5,
+    "landmark": 7,
+    "road": 2,
+    "number": 6,
+    "grid": 14
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u016",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 26,
+    "road": 6,
+    "number": 1
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u016",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 26,
+    "road": 6,
+    "number": 1
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u016",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 26,
+    "road": 6,
+    "number": 1
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u017",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 6,
+    "landmark": 26,
+    "road": 10,
+    "text": 10
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u017",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 6,
+    "landmark": 26,
+    "road": 10,
+    "text": 10
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u017",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 6,
+    "landmark": 26,
+    "road": 10,
+    "text": 10
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u018",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 18,
+    "road": 3,
+    "number": 2
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u018",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 18,
+    "road": 3,
+    "number": 2
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u018",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 18,
+    "road": 3,
+    "number": 2
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u019",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 16,
+    "road": 3,
+    "landmark": 7,
+    "grid": 4,
+    "number": 1,
+    "text": 1
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u019",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 16,
+    "road": 3,
+    "landmark": 7,
+    "grid": 4,
+    "number": 1,
+    "text": 1
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u019",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 16,
+    "road": 3,
+    "landmark": 7,
+    "grid": 4,
+    "number": 1,
+    "text": 1
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u020",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 6,
+    "landmark": 29
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u020",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 6,
+    "landmark": 29
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u020",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 6,
+    "landmark": 29
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u021",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 15,
+    "number": 36,
+    "text": 6
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u021",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 15,
+    "number": 36,
+    "text": 6
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u021",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 15,
+    "number": 36,
+    "text": 6
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u022",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 3,
+    "text": 6,
+    "landmark": 6,
+    "number": 36
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u022",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 3,
+    "text": 6,
+    "landmark": 6,
+    "number": 36
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u022",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 3,
+    "text": 6,
+    "landmark": 6,
+    "number": 36
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u023",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 7,
+    "road": 6,
+    "landmark": 10,
+    "number": 58
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u023",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 7,
+    "road": 6,
+    "landmark": 10,
+    "number": 58
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u023",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 7,
+    "road": 6,
+    "landmark": 10,
+    "number": 58
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u024",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 4,
+    "landmark": 8,
+    "text": 2,
+    "number": 3
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u024",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 4,
+    "landmark": 8,
+    "text": 2,
+    "number": 3
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u024",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 4,
+    "landmark": 8,
+    "text": 2,
+    "number": 3
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u025",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 6,
+    "landmark": 28,
+    "road": 8,
+    "number": 1
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u025",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 6,
+    "landmark": 28,
+    "road": 8,
+    "number": 1
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u025",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 6,
+    "landmark": 28,
+    "road": 8,
+    "number": 1
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u026",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 4,
+    "road": 2,
+    "landmark": 18,
+    "grid": 4,
+    "number": 7
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u026",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 4,
+    "road": 2,
+    "landmark": 18,
+    "grid": 4,
+    "number": 7
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u026",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 4,
+    "road": 2,
+    "landmark": 18,
+    "grid": 4,
+    "number": 7
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u027",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 6,
+    "text": 3,
+    "number": 10
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u027",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 6,
+    "text": 3,
+    "number": 10
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u027",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 6,
+    "text": 3,
+    "number": 10
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u028",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 20,
+    "landmark": 6,
+    "number": 47
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u028",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 20,
+    "landmark": 6,
+    "number": 47
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u028",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 20,
+    "landmark": 6,
+    "number": 47
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u029",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 4,
+    "landmark": 10,
+    "road": 2,
+    "number": 9
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u029",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 4,
+    "landmark": 10,
+    "road": 2,
+    "number": 9
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u029",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 4,
+    "landmark": 10,
+    "road": 2,
+    "number": 9
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u030",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 9,
+    "landmark": 5,
+    "road": 5,
+    "number": 9,
+    "text": 4
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u030",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 9,
+    "landmark": 5,
+    "road": 5,
+    "number": 9,
+    "text": 4
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u030",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 9,
+    "landmark": 5,
+    "road": 5,
+    "number": 9,
+    "text": 4
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u031",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 29,
+    "landmark": 3,
+    "road": 2,
+    "text": 1
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u031",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 29,
+    "landmark": 3,
+    "road": 2,
+    "text": 1
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u031",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 29,
+    "landmark": 3,
+    "road": 2,
+    "text": 1
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u032",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 4,
+    "landmark": 15,
+    "road": 3,
+    "number": 5
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u032",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 4,
+    "landmark": 15,
+    "road": 3,
+    "number": 5
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u032",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 4,
+    "landmark": 15,
+    "road": 3,
+    "number": 5
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u033",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "road": 2,
+    "number": 36,
+    "landmark": 6,
+    "grid": 9,
+    "text": 7
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u033",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "road": 2,
+    "number": 36,
+    "landmark": 6,
+    "grid": 9,
+    "text": 7
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u033",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "road": 2,
+    "number": 36,
+    "landmark": 6,
+    "grid": 9,
+    "text": 7
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u034",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 4,
+    "landmark": 14,
+    "number": 23
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u034",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 4,
+    "landmark": 14,
+    "number": 23
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u034",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 4,
+    "landmark": 14,
+    "number": 23
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u035",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 11,
+    "road": 2,
+    "number": 49
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u035",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 11,
+    "road": 2,
+    "number": 49
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u035",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 11,
+    "road": 2,
+    "number": 49
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u036",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "road": 1,
+    "place": 16,
+    "landmark": 2,
+    "text": 6,
+    "number": 19
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u036",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "road": 1,
+    "place": 16,
+    "landmark": 2,
+    "text": 6,
+    "number": 19
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u036",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "road": 1,
+    "place": 16,
+    "landmark": 2,
+    "text": 6,
+    "number": 19
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u037",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 12,
+    "landmark": 10,
+    "road": 1,
+    "text": 1,
+    "number": 3
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u037",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 12,
+    "landmark": 10,
+    "road": 1,
+    "text": 1,
+    "number": 3
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u037",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 12,
+    "landmark": 10,
+    "road": 1,
+    "text": 1,
+    "number": 3
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u038",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 26,
+    "landmark": 4,
+    "road": 6
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u038",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 26,
+    "landmark": 4,
+    "road": 6
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u038",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 26,
+    "landmark": 4,
+    "road": 6
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u039",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "road": 1,
+    "place": 11,
+    "landmark": 8,
+    "number": 33
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u039",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "road": 1,
+    "place": 11,
+    "landmark": 8,
+    "number": 33
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u039",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "road": 1,
+    "place": 11,
+    "landmark": 8,
+    "number": 33
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u040",
+   "tier": "none",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 22,
+    "landmark": 1,
+    "number": 45
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u040",
+   "tier": "region",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 22,
+    "landmark": 1,
+    "number": 45
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  },
+  {
+   "id": "u040",
+   "tier": "title",
+   "action": "abstain",
+   "why": "no placement hypothesis",
+   "cues": {
+    "place": 22,
+    "landmark": 1,
+    "number": 45
+   },
+   "errors": [
+    "place_lookup: OperationalError: unable to open database file",
+    "road_junction_locate: ModuleNotFoundError: No module named 'e2e_plan_extract'",
+    "road_name_fit: ModuleNotFoundError: No module named 'e2e_plan_extract'"
+   ]
+  }
+ ]
+}

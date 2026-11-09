@@ -50,7 +50,10 @@ def ask_json(system: str, user: str, model: str = "claude-sonnet-5", cache: str 
             if r["key"] == key:
                 return r["answer"]
     env = {"HOME": os.environ.get("HOME", ""), "PATH": os.environ.get("PATH", ""), "TERM": "xterm",
-           "CLAUDE_CONFIG_DIR": os.environ.get("GA_CLAUDE_CONFIG", DEFAULT_CONFIG)}
+           "USER": os.environ.get("USER", ""), "LOGNAME": os.environ.get("LOGNAME", os.environ.get("USER", ""))}   # the macOS keychain login needs the user
+    conf = os.environ.get("GA_CLAUDE_CONFIG") or (DEFAULT_CONFIG if Path(DEFAULT_CONFIG).is_dir() else None)
+    if conf:                    # otherwise the CLI's own login (on macOS its keychain entry is tied to the default config dir)
+        env["CLAUDE_CONFIG_DIR"] = conf
     wd = Path(workdir or os.environ.get("GA_CLAUDE_WORKDIR", DEFAULT_WORKDIR)); wd.mkdir(parents=True, exist_ok=True)
     cmd = ["claude", "-p", user, "--system-prompt", system + " Answer with exactly one JSON object and nothing else: no prose, no code fences.",
            "--output-format", "json", "--max-turns", str(max_turns), "--model", model]

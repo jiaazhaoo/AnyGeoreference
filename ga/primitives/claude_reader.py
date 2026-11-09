@@ -33,7 +33,7 @@ def _norm(t: str) -> str:
 def _read_once(state, f: Path, model: str, n: int) -> None:
     from ..claude_cli import ask_json
     w, h = state.sheet.meta.get("width", 0), state.sheet.meta.get("height", 0)
-    tail = f"\nRead the image file at this path with your Read tool: {state.sheet.image}"
+    tail = f'\nRead the image file at this absolute path (quoted; it may contain spaces) with your Read tool: "{Path(state.sheet.image).resolve()}"'
     if n > 1:
         tail += f"\n(Independent reading no. {n}: read the whole sheet again from scratch, edges and margins included.)"
     data = ask_json("You read scanned maps and drawings for a georeferencing system.",

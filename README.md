@@ -159,8 +159,16 @@ own.
 | `coordfree_dev_slub` | 20 sheets of SLUB v2 (seen) | 20 × 3 tiers | development |
 | `coordfree_heldout_v1` | 100 fresh USGS quadrangles (seed 20261123, every earlier draw excluded), one scan each (seed 20261124) | 100 × 3 tiers | held out, not built or run yet |
 
+**Baseline, development sets (2026-11-09):** the existing coordinate-free recipe (`street_map`: read names, look
+them up, fit roads, check places) placed **0 of 180** runs. The reader is not the problem: it read 6–40 place and
+landmark names in every window (median 18 on USGS, 22.5 on German sheets). Every later step failed. The place lookup
+is bound to Ordnance Survey Open Names, which covers Great Britain only and is not in this repository. The road
+matchers import a module that is not public. So the public system cannot place a map without coordinates anywhere
+outside Britain. That is the starting point the next capability is measured from. The held-out set is untouched.
+
 ```bash
 python benchmarks/coordfree.py build benchmarks/coordfree_dev_usgs.json      # windows + truth under benchmarks/data/coordfree/
+python benchmarks/run_coordfree.py benchmarks/coordfree_dev_usgs.json --kind street_map --out benchmarks/results/coordfree_dev_usgs_street_map
 python benchmarks/coordfree.py score benchmarks/coordfree_dev_usgs.json my_results.json
 ```
 

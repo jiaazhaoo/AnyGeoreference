@@ -472,3 +472,26 @@ run on it. Later graticule draws must exclude `coordfree_src_usgs_v1.json`.
 *Known limits of v1:* windows keep north up and the scan's resolution, so orientation and scale are easier than on a
 real coordinate-free map. Interior graticule crosses without labels stay. One German title (Verny) is now in France,
 as a 1876 catalogue would leave it. There is no fresh German source, so the held-out set is USGS only.
+
+## 2026-11-09: coordinate-free baseline (development sets only)
+
+`benchmarks/run_coordfree.py` runs a kind's fixed recipe on each window and tier; the record holds only the hint.
+Run: `street_map` (claude_read → place_lookup → road_junction_locate → road_name_fit → places_in_footprint), one
+reading per window (Sonnet through the CLI), shared by the three tiers.
+
+| set | runs | placed | names read per window (place + landmark) |
+|---|---|---|---|
+| coordfree_dev_usgs | 40 × 3 | 0 | median 18, range 6–40 |
+| coordfree_dev_slub | 20 × 3 | 0 | median 22.5, range 9–37 |
+
+- Every run abstained with "no placement hypothesis". In all 180, `place_lookup` failed to open its gazetteer
+  (Ordnance Survey Open Names: Great Britain only, not shipped), and both road matchers failed to import
+  `e2e_plan_extract`, a module that is not public.
+- The reader works on these windows: no window gave fewer than 6 names, and the US windows give names such as
+  "Mt Carmel Junction", "Yellowjacket Canyon", "Dianas Throne". Roads are rarely named on survey sheets (median 1.5
+  and 0.5), so a road-name matcher would not carry these maps even with its module.
+- Conclusion: outside Britain the public system has no way to turn a read name into a place. The missing capability
+  is a gazetteer with world coverage behind the existing name matchers (place_lookup, toponym_constellation_fit,
+  places_in_footprint), fetched per sheet like the water reference.
+- Two fixes to run the reader on a laptop: the CLI keeps its own login unless a config dir is given (and gets USER
+  for the macOS keychain), and the image path is passed absolute and quoted (a path with a space was misread).
