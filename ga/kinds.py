@@ -114,7 +114,29 @@ SURVEY_GRATICULE = Recipe(
     expected_accuracy_m=(10.0, 40.0), expected_cost_per_sheet=0.0,
     note="truth: the archive's published georeference (USGS GeoTIFF), never read by the loop; bounds and interval from the record; OSM water is a reference, not truth")
 
-KINDS = {r.name: r for r in (PLANS_GB, SOI_1INCH, UNLABELLED_RASTER, STREET_MAP, SURVEY_GRATICULE)}
+NAMED_MAP = Recipe(
+    name="named_map", kind="map_extract",
+    profile=Profile("any map or map extract carrying place and feature names, with no coordinates, graticule or corner values; any country, any era", (), (),
+                    ("place", "landmark"), printed_grid="none", measured_by={"text_kinds": "model reading"}),
+    cues=("place", "landmark", "road", "text"),
+    references=("gazetteer", "basemap"),
+    matchers=("name_fit",),
+    verifications=("water_refine",),
+    policy_rules=(
+        # fitted on the coordinate-free development sets (2026-11-09, docs/FINDINGS.md). Names alone place a sheet to
+        # about a label's length (a label sits beside its feature): 250-700 m, offered for review. The sheet's water
+        # against OpenStreetMap's (a second family) moves it onto the ground; accepted only when the whole sheet and
+        # every comparable quadrant agree with the water after the move (scale and rotation confirmed, not only the
+        # shift) and the names clearly beat any placement elsewhere
+        {"id": "too_few_names", "when": "(names_agree or 0) < 4", "to": "abstain"},
+        {"id": "names_agree", "when": "(names_agree or 0) >= 4", "to": "review"},
+        {"id": "names_and_water", "when": "(names_agree or 0) >= 5 and (names_agree or 0) >= (names_agree_elsewhere or 0) + 2 "
+                                          "and water_locked == True and water_local_agree == True", "to": "accept"},
+    ),
+    expected_accuracy_m=(20.0, 700.0), expected_cost_per_sheet=0.0,
+    note="world gazetteer (OpenStreetMap, fetched per sheet) for the names, OpenStreetMap water for the ground; accept needs both")
+
+KINDS = {r.name: r for r in (PLANS_GB, SOI_1INCH, UNLABELLED_RASTER, STREET_MAP, SURVEY_GRATICULE, NAMED_MAP)}
 
 # the ordered composition each kind runs (the FixedPlan); the Planner picks from the same names
 SPECS = {
@@ -131,6 +153,8 @@ SPECS = {
                                                         Step("residual_check", {"bound": 30.0, "geographic": True}), Step("basemap_agreement"),
                                                         Step("edition_agreement")),
                                     SURVEY_GRATICULE.policy_rules, "lib-v0"),
+    "named_map": AdapterSpec("named_map", (Step("claude_read", {"headless": True}), Step("name_search_area"), Step("name_fit"), Step("water_refine")),
+                             NAMED_MAP.policy_rules, "lib-v0"),
     "unlabelled_raster": AdapterSpec("unlabelled_raster", (Step("hint_area"), Step("edge_structure"), Step("reference_render"),
                                                           Step("structure_match_orb"), Step("overlay_agreement")), UNLABELLED_RASTER.policy_rules, "lib-v0"),
 }

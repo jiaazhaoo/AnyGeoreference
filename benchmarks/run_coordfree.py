@@ -54,9 +54,12 @@ def run_one(item, kind: str, reads: Path) -> tuple:
     cues = Counter(c.kind for c in st.cues)
     errors = [f"{t['tool']}: {t['error']}" for t in st.trace if t.get("error")]
     ans = {"action": "abstain" if v.action not in ("accept", "review") else v.action, "why": v.why,
-           "cues": dict(cues), "candidates": len(st.candidates), "hypotheses": len(st.hypotheses), "errors": errors}
+           "cues": dict(cues), "candidates": len(st.candidates), "hypotheses": len(st.hypotheses), "errors": errors,
+           "facts": {e.name: e.value for e in st.evidence if isinstance(e.value, (int, float, bool, str, type(None)))}}
     if ans["action"] != "abstain" and st.hypotheses:
         ans["pairs"] = pairs_of(st.hypotheses[0], sh.meta["width"], sh.meta["height"])
+    # every matcher's own placement, for the analysis only (the scorer reads "pairs": the decision's placement)
+    ans["by_matcher"] = {h.matcher: pairs_of(h, sh.meta["width"], sh.meta["height"]) for h in reversed(st.hypotheses)}
     return cid, tier, ans
 
 
@@ -84,7 +87,9 @@ def main() -> int:
     score = cf.score(a.cases, results, data)
     for r in score["rows"]:
         ans = results[r["id"]][r["tier"]]
-        r.update(cues=ans["cues"], errors=ans["errors"])
+        r.update(cues=ans["cues"], errors=ans["errors"], facts=ans.get("facts", {}))
+        truth = json.loads((data / "truth" / f"{r['id']}.json").read_text())
+        r["by_matcher"] = {m: cf.placement_error(p, truth) for m, p in ans.get("by_matcher", {}).items()}
     out.with_suffix(".json").write_text(json.dumps({"cases": a.cases, "kind": a.kind, "tally": score["tally"],
                                                     "rows": score["rows"]}, indent=1))
     print(json.dumps(score["tally"], indent=1))
