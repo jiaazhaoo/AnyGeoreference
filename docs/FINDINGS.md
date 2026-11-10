@@ -495,3 +495,88 @@ reading per window (Sonnet through the CLI), shared by the three tiers.
   places_in_footprint), fetched per sheet like the water reference.
 - Two fixes to run the reader on a laptop: the CLI keeps its own login unless a config dir is given (and gets USER
   for the macOS keychain), and the image path is passed absolute and quoted (a path with a space was misread).
+
+## 2026-11-09 (later): a world gazetteer, and the water to finish (development sets)
+
+*What was added* (`ga/gazetteer.py`, `ga/primitives/names_world.py`, recipe `named_map`):
+- **Gazetteer, fetched per sheet.** Nominatim (the OpenStreetMap geocoder) answers "where does this name occur", one
+  request per name at one a second, cached. The named features of the area come from the pinned OpenFreeMap vector
+  tiles the water check already uses (settlements, peaks, waterways, water names, points of interest, parks, roads),
+  plus the search's own answers inside the area. Overpass (live, complete, 40–170 s a query) is the alternative source
+  (`GA_GAZETTEER_SOURCE=overpass`); on one Utah window it found springs and cliffs the tiles lack (5 names agree
+  against 3), but at that speed a 60-window set takes hours and loads a shared server, so tiles are the default.
+- **Name matching** tolerates case, accents, spacing, compounds and abbreviations: "Hut Bg." = "Hutberg",
+  "Mt Carmel Junction" = "Mount Carmel Junction", "Wallpack Cem" = "Walpack Cemetery". It refuses a label that is part
+  of a longer name ("Virgin" ≠ "East Fork Virgin River") and a one-word name is matched as written ("Fork" ≠ "Fort").
+- **name_search_area**: every name is searched worldwide (or inside the hint's area); names found 40 times or more
+  are dropped as uninformative; the places where the most *different* names fall within 25 km become the candidates.
+- **name_fit**: two named points on the sheet paired with two gazetteer features give a similarity (north up within
+  15°); the one that puts the most other names on a feature of the same name wins, refined on nearest points of
+  lines and the inside of areas. Agreement counts distinct gazetteer names, so one name read twice counts once.
+  Chance is the most names any placement elsewhere (more than a sheet diagonal away) agrees on.
+- **water_refine**: the names placement against OSM's water (the `basemap_agreement` comparison). Whole-sheet shifts
+  until within 100 m, then the quadrants that agree with the whole (within 150 m) fit scale and rotation. The water
+  may move the sheet only 4 names-RMS: a lock farther away is another river.
+
+*Errors found and fixed on the development sets, each as a rule, not a case:*
+- Tiles repeat their neighbours' labels; each name had dozens of identical candidates and no seed survived. Features
+  are deduplicated.
+- A fuzzy word match at 0.83 let "Beadens Cr" match "Beadles Cemetery"; now 0.88 (one letter more or less).
+- A 99 km wrong placement agreed on "der" (an article), "Fabr." (a lone abbreviation) and "Nauhof"/"Naunhof" (one
+  village read twice). A name now needs a written-out word of four letters or two words, and agreement counts
+  gazetteer names, not label texts.
+- Quadrant shifts alone made a placement worse (one quadrant locked 630 m away on another river): coarse first, then
+  only quadrants that agree with the whole.
+- One water lock moved a placement 1.1 km onto the wrong river; now bounded by the names' own uncertainty.
+
+*Development results* (seen data; the policy was fitted here):
+
+| set | tier | accepted right | accepted wrong | review | abstain | placed within 1 km |
+|---|---|---|---|---|---|---|
+| dev_usgs (40) | none | 2 | 0 | 17 | 21 | 19 |
+| | region | 2 | 0 | 17 | 21 | 19 |
+| | title | 1 | 0 | 15 | 24 | 16 |
+| dev_slub (20) | none | 0 | 0 | 16 | 4 | 16 |
+| | region | 0 | 0 | 14 | 6 | 14 |
+| | title | 0 | 0 | 14 | 6 | 14 |
+
+- Baseline on the same runs was 0 placed. Every placement is within 1 km; the median of the medians is 270–350 m,
+  about the length of a label on the ground. The accepted five are within 28 m at their worst point.
+- Where the water locks in every quadrant, names + water reach 12–30 m (u017 288 → 17 m, u019 183 → 12 m, u038
+  390 → 30 m). On the German sheets the water moves placements but never locks in every quadrant (hachured
+  1870s–90s sheets, faint water), so none is accepted.
+- Windows that abstain mostly carry names OSM does not hold: rural schools ("Webster Sch"), section numbers, generic
+  "Spring", "Fork", or too few names.
+- The hint does not help: the title tier places fewer USGS windows (16 against 19). A likely cause, not yet checked:
+  the search bounded to 60 km around the title place loses names whose entry lies outside it.
+
+## 2026-11-10: coordinate-free held-out v1, run once on frozen code
+
+Code frozen and pushed at a8db174 (policy above), then `coordfree_heldout_v1` was read (two Sonnet readings per
+window) and run once, three tiers. Nobody looked at its windows before the run. Results as they came out:
+
+| tier | accepted right | accepted wrong | review | abstain | placed | within 1 km | within 10 km | median of medians |
+|---|---|---|---|---|---|---|---|---|
+| none | 0 | 0 | 41 | 59 | 41 | 40 | 41 | 438 m |
+| region | 0 | 0 | 46 | 54 | 46 | 44 | 45 | 448 m |
+| title | 0 | 0 | 45 | 55 | 45 | 44 | 45 | 449 m |
+
+- **Placement by names generalises**: 41–46 % of unseen windows placed (development: 48 % USGS), almost all within
+  1 km. No gazetteer errors, no network failures.
+- **Acceptance does not**: 0 accepted. Of the 41 placed windows (tier none) the water gave no clear correlation on 32,
+  correlated but did not settle on 6, and locked over the whole sheet on 3 without every quadrant agreeing. Where it
+  locked it still improved the placement (h012 270 → 117 m, h086 254 → 163 m, h085 254 → 180 m). The five accepts
+  on the development sets were the rare windows with plenty of water; the rule is right to refuse, but the
+  water-in-every-quadrant check is too rare to carry acceptance on its own.
+- **One wrong review placement, 3,550 km off** (h035, region tier): "Washington, United States" was looked up as the
+  first Nominatim answer, which is Washington, D.C., so every name was searched inside the wrong area and four
+  matched there. The same window placed within 1 km with no hint. A hint must be looked up as the kind of thing it is
+  (a region as an administrative area), and a hint that leaves fewer names agreeing than no hint should lose.
+- **Where it abstains**: 46 of 100 windows (tier none) found no fit at all (fewer than three names located together),
+  13 found two or three names. The commonest causes on development data were names OSM does not hold (schools,
+  small features) and windows with few names.
+- The held-out set is now seen; any change made after this is measured on a fresh draw.
+
+Next capabilities, in order of what the held-out run shows: (1) a stronger second family for acceptance than water in
+every quadrant (content-following: many control points from water and roads, checked out of sample); (2) hint lookup
+by kind; (3) more names located (Overpass or GNIS-class sources for small natural features, tried on fresh data).

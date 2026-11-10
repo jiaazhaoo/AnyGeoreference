@@ -157,18 +157,39 @@ own.
 |---|---|---|---|
 | `coordfree_dev_usgs` | 40 quadrangles of USGS v4 (seen) | 40 × 3 tiers | development |
 | `coordfree_dev_slub` | 20 sheets of SLUB v2 (seen) | 20 × 3 tiers | development |
-| `coordfree_heldout_v1` | 100 fresh USGS quadrangles (seed 20261123, every earlier draw excluded), one scan each (seed 20261124) | 100 × 3 tiers | held out, not built or run yet |
+| `coordfree_heldout_v1` | 100 fresh USGS quadrangles (seed 20261123, every earlier draw excluded), one scan each (seed 20261124) | 100 × 3 tiers | held out; run once on frozen code (a8db174) |
 
 **Baseline, development sets (2026-11-09):** the existing coordinate-free recipe (`street_map`: read names, look
 them up, fit roads, check places) placed **0 of 180** runs. The reader is not the problem: it read 6–40 place and
 landmark names in every window (median 18 on USGS, 22.5 on German sheets). Every later step failed. The place lookup
 is bound to Ordnance Survey Open Names, which covers Great Britain only and is not in this repository. The road
 matchers import a module that is not public. So the public system cannot place a map without coordinates anywhere
-outside Britain. That is the starting point the next capability is measured from. The held-out set is untouched.
+outside Britain. That is the starting point the next capability is measured from.
+
+**World gazetteer (`named_map`, 2026-11-09).** The names are now looked up in OpenStreetMap, fetched per sheet:
+Nominatim finds where the sheet's different names occur together, worldwide or inside the hint; the named features
+of that area come from the pinned OpenStreetMap vector tiles. Two named points on the sheet and two features of the
+same names give a similarity; the one that puts the most other names on their features wins. Then the sheet's water
+is matched to OpenStreetMap's water to move it onto the ground and fix scale and rotation. A placement is accepted
+only when at least five names agree, clearly more than any placement elsewhere, and the water agrees over the whole
+sheet and in every quadrant; with four names or more it is offered for review. Rules and thresholds were fitted on
+the development sets, then frozen and run once on the held-out set:
+
+| set | tier | accepted right | accepted wrong | review | abstain | placed within 1 km |
+|---|---|---|---|---|---|---|
+| dev_usgs (40, seen) | none / region / title | 2 / 2 / 1 | 0 / 0 / 0 | 17 / 17 / 15 | 21 / 21 / 24 | 19 / 19 / 16 |
+| dev_slub (20, seen) | none / region / title | 0 / 0 / 0 | 0 / 0 / 0 | 16 / 14 / 14 | 4 / 6 / 6 | 16 / 14 / 14 |
+| **heldout_v1 (100)** | none / region / title | **0 / 0 / 0** | **0 / 0 / 0** | 41 / 46 / 45 | 59 / 54 / 55 | **40 / 44 / 44** |
+
+From 0 placed to about four in ten windows placed within 1 km on unseen maps, with no hint at all; the median
+placement is 440 m off, about the length of a label on the ground. Nothing was accepted on the held-out set: the
+water agreed in every quadrant on none of its windows (on the development sets it did on five, all within 30 m).
+One held-out review placement is 3,500 km off: the region hint "Washington, United States" was looked up as the city,
+not the state. Details and the failures in `docs/FINDINGS.md`.
 
 ```bash
 python benchmarks/coordfree.py build benchmarks/coordfree_dev_usgs.json      # windows + truth under benchmarks/data/coordfree/
-python benchmarks/run_coordfree.py benchmarks/coordfree_dev_usgs.json --kind street_map --out benchmarks/results/coordfree_dev_usgs_street_map
+python benchmarks/run_coordfree.py benchmarks/coordfree_dev_usgs.json --kind named_map --out benchmarks/results/coordfree_dev_usgs_named_map
 python benchmarks/coordfree.py score benchmarks/coordfree_dev_usgs.json my_results.json
 ```
 
@@ -193,7 +214,7 @@ The name is a direction, not a claim: generality comes from the tool and knowled
 | L2 recipe, per kind of map | how do sheets of this kind get placed at all | profile the samples, compose from a primitive library, generate the adapter, pilot with truth, freeze (`docs/RECIPE.md`) |
 | L3 production, per batch | how to place thousands without an accident | a control layer: budget, caps, sentinel, rollback |
 
-Four kinds are placed today: planning drawings, historical survey sheets, unlabelled rasters (synthetic so far) and street maps with names. A user who brings another kind goes through L2.
+Five kinds are placed today: planning drawings, historical survey sheets, unlabelled rasters (synthetic so far), street maps with names (Britain) and any map carrying place names without coordinates (`named_map`, world). A user who brings another kind goes through L2.
 
 ## The loop
 
