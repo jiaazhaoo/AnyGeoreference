@@ -157,7 +157,8 @@ own.
 |---|---|---|---|
 | `coordfree_dev_usgs` | 40 quadrangles of USGS v4 (seen) | 40 × 3 tiers | development |
 | `coordfree_dev_slub` | 20 sheets of SLUB v2 (seen) | 20 × 3 tiers | development |
-| `coordfree_heldout_v1` | 100 fresh USGS quadrangles (seed 20261123, every earlier draw excluded), one scan each (seed 20261124) | 100 × 3 tiers | held out; run once on frozen code (a8db174) |
+| `coordfree_heldout_v1` | 100 fresh USGS quadrangles (seed 20261123, every earlier draw excluded), one scan each (seed 20261124) | 100 × 3 tiers | run once on frozen code (a8db174); now seen |
+| `coordfree_heldout_v2` | 100 fresh USGS quadrangles (seed 20261125, every earlier draw excluded), one scan each (seed 20261126), drawn before any build (02d6516) | 100 × 3 tiers | held out; run once on frozen code (a922e95); now seen |
 
 **Baseline, development sets (2026-11-09):** the existing coordinate-free recipe (`street_map`: read names, look
 them up, fit roads, check places) placed **0 of 180** runs. The reader is not the problem: it read 6–40 place and
@@ -186,6 +187,27 @@ placement is 440 m off, about the length of a label on the ground. Nothing was a
 water agreed in every quadrant on none of its windows (on the development sets it did on five, all within 30 m).
 One held-out review placement is 3,500 km off: the region hint "Washington, United States" was looked up as the city,
 not the state. Details and the failures in `docs/FINDINGS.md`.
+
+**Content placement with an out-of-sample check (2026-11-17).** The water-in-every-quadrant check was too rare to
+carry acceptance. It is replaced by many control points: the sheet's water and dark line work are matched to
+OpenStreetMap's water and roads in nine overlapping half-sheet windows (normalised cross-correlation, sub-pixel
+peaks), a robust similarity or affine is fitted to the windows that agree, and each window is left out in turn and
+predicted from the rest. A placement is accepted when at least five names agree (two more than anywhere else), seven
+windows agree over all rows and columns, the left-out windows are predicted within 20 m, and the content's move stays
+within the names' own uncertainty. 20 m was the last threshold with nothing wrong on the seen data (25 m: 3 wrong of
+62; 30 m: 7 of 79). Frozen at a922e95, then a fresh held-out set was run once:
+
+| set | tier | accepted right | accepted wrong | review | abstain | placed | within 100 m | median of medians |
+|---|---|---|---|---|---|---|---|---|
+| dev_usgs + dev_slub (60, seen) | none | 5 | 0 | 30 | 25 | 35 | 16 | 49 m |
+| heldout_v1 (100, seen) | none / region / title | 7 / 10 / 9 | 0 / 0 / 0 | 34 / 36 / 36 | 59 / 54 / 55 | 41 / 46 / 45 | 16 / 23 / 21 | 174 / 52 / 70 m |
+| **heldout_v2 (100)** | none / region / title | **10 / 8 / 9** | **0 / 0 / 0** | 31 / 24 / 32 | 59 / 68 / 59 | 41 / 32 / 41 | **21 / 17 / 20** | 44 / 39 / 317 m |
+
+On unseen maps with no coordinates and no hint, one window in ten is now placed and accepted, worst point 68 m, and
+none is accepted wrong (v1 with names + water: none accepted). Where content made a fit it beat the names placement
+on all 27 such windows (median 411 m → 20 m). The region hint costs placements: "Washington" and "New York" are still
+looked up as cities, not states. Content that sits off its own sheet frame (some old sheets, 110–160 m) is the error no
+internal check can see.
 
 ```bash
 python benchmarks/coordfree.py build benchmarks/coordfree_dev_usgs.json      # windows + truth under benchmarks/data/coordfree/

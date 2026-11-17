@@ -580,3 +580,85 @@ window) and run once, three tiers. Nobody looked at its windows before the run. 
 Next capabilities, in order of what the held-out run shows: (1) a stronger second family for acceptance than water in
 every quadrant (content-following: many control points from water and roads, checked out of sample); (2) hint lookup
 by kind; (3) more names located (Overpass or GNIS-class sources for small natural features, tried on fresh data).
+
+## 2026-11-17: content placement with an out-of-sample check; held-out v2, run once
+
+*What was added* (`ga/primitives/content.py`, verification `content_fit` in recipe `named_map`, which replaces
+`water_refine`):
+- **Two layers of the sheet against two of the ground.** The sheet gives its water outlines and its dark, colourless
+  line work (roads, tracks, railways, buildings); the reference gives OpenStreetMap water and roads rendered from
+  z13 tiles at 20 m a pixel. A diagnosis on seen windows moved 360 m off their truth showed the whole-sheet
+  comparison finds the shift back on 36 of 40 USGS, 17 of 20 SLUB and 27 of 34 held-out-v1 windows, and that roads
+  carry about as much of it as water.
+- **Many control points.** Nine overlapping half-sheet windows (a 3 × 3 lattice) plus the whole sheet are each
+  matched by normalised cross-correlation, with the peak refined to sub-pixel. Search is coarse to fine (1,000, 200,
+  100 m). Each matched window is one control point; a robust similarity (scale 0.8–1.25, rotation ≤ 10°) rejects the
+  windows that locked elsewhere.
+- **Checked out of sample.** Each window is left out in turn and predicted from the others; the median miss is
+  `content_loo_m`. The same number chooses similarity or affine. Facts left for the policy: windows that agree,
+  whether they span all rows and columns, the leave-one-out miss, how far content moved the placement, and whether
+  that move is within the names' own uncertainty.
+- **Accept** = at least five names agree, two more than any placement elsewhere, at least seven windows agree over all
+  three rows and columns, leave-one-out ≤ 20 m, and the move within the names' uncertainty. Four names or more is
+  still review.
+
+*Errors found and fixed on the seen data, each as a rule:*
+- Phase correlation on windows smaller than the sheet locked to zero shift; template matching does not.
+- Integer peaks quantised every miss to 20 m, so leave-one-out read 0.0 on many sheets; sub-pixel peaks fixed it.
+- Refusing a content move larger than the names' uncertainty blocked correct moves (names placements are often
+  400 m off); the content placement is now always kept as a hypothesis and "within the names" is a policy fact.
+
+*Threshold choice, on seen data only* (170 runs that had a content fit):
+
+| leave-one-out at most | accepted | right | wrong |
+|---|---|---|---|
+| 20 m (frozen) | 40 | 40 | 0 |
+| 25 m | 62 | 59 | 3 (one Saxon sheet, 119 m) |
+| 30 m | 79 | 72 | 7 |
+
+The wrong ones are not visible from inside: some old sheets' content sits 110–160 m from their own frame (the frame
+is the truth here), and Saxon sheets are distorted inside. 20 m was frozen because it was the last value with none
+wrong.
+
+*Seen data under the frozen policy* (the same runs, decisions recomputed from their own facts;
+`benchmarks/results/coordfree_*_named_map_content.json`):
+
+| set | tier | accepted right | accepted wrong | review | abstain | placed | within 100 m | median of medians |
+|---|---|---|---|---|---|---|---|---|
+| dev_usgs (40) | none / region / title | 4 / 3 / 4 | 0 / 0 / 0 | 15 / 16 / 12 | 21 / 21 / 24 | 19 / 19 / 16 | 10 / 10 / 9 | 49 / 49 / 41 m |
+| dev_slub (20) | none / region / title | 1 / 1 / 1 | 0 / 0 / 0 | 15 / 13 / 13 | 4 / 6 / 6 | 16 / 14 / 14 | 6 / 4 / 7 | 50 / 83 / 37 m |
+| heldout_v1 (100, seen) | none / region / title | 7 / 10 / 9 | 0 / 0 / 0 | 34 / 36 / 36 | 59 / 54 / 55 | 41 / 46 / 45 | 16 / 23 / 21 | 174 / 52 / 70 m |
+
+Content beat the names placement on 50 of the 52 seen windows (tier none) where both exist.
+
+### Held-out v2, run once
+
+`coordfree_heldout_v2`: 100 fresh USGS quadrangles (source draw seed 20261125 excluding every earlier USGS and
+coordinate-free draw; windows seed 20261126). The draw was committed at 02d6516 before any window was built; code and
+policy frozen and pushed at a922e95; then read and run once, three tiers. Nobody looked at its windows. Results as
+they came out:
+
+| tier | accepted right | accepted wrong | review | abstain | placed | within 100 m | within 1 km | within 10 km | median of medians |
+|---|---|---|---|---|---|---|---|---|---|
+| none | **10** | **0** | 31 | 59 | 41 | 21 | 37 | 41 | 44 m |
+| region | **8** | **0** | 24 | 68 | 32 | 17 | 29 | 32 | 39 m |
+| title | **9** | **0** | 32 | 59 | 41 | 20 | 37 | 41 | 317 m |
+
+- **Acceptance now generalises.** Held-out v1 accepted nothing with names + water; v2 accepts 8–10 of 100 per tier,
+  none wrong. The worst point of any accepted window is 68 m; the accepted windows' worst points have a median of
+  34 m.
+- **Content placement generalises too.** Where content made a fit (27 windows, tier none), it beat the names
+  placement on all 27: median 411 m → 20 m. Half of all placed windows are now right (worst point within 100 m),
+  against none from names alone.
+- **The rest.** 31 reviews (tier none): 12 within 60 m by their median, the others are names placements content
+  could not confirm (317 m – 2.1 km). No placement is more than 10 km off. 59 windows found no placement, the same
+  share as held-out v1: locating names is now the limit on how much is placed.
+- **The region hint hurt, measurably.** The region tier placed 32 where no hint placed 41: it lost ten windows and
+  gained one. All ten had the hint "Washington, United States" or "New York, United States", looked up as the city
+  (the v1 finding, not yet fixed). Two of them were accepted with no hint. A hint must be looked up as the kind of thing it is, and a hint
+  that leaves fewer names agreeing than no hint should lose.
+- The held-out v2 set is now seen.
+
+Next capabilities, in the order the runs show: (1) hint lookup by kind; (2) more names located (the abstentions);
+(3) sheet content that sits off its own frame, which no internal check sees, needs a second reference for the frame
+itself.
