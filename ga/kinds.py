@@ -121,20 +121,22 @@ NAMED_MAP = Recipe(
     cues=("place", "landmark", "road", "text"),
     references=("gazetteer", "basemap"),
     matchers=("name_fit",),
-    verifications=("water_refine",),
+    verifications=("content_fit",),
     policy_rules=(
-        # fitted on the coordinate-free development sets (2026-11-09, docs/FINDINGS.md). Names alone place a sheet to
-        # about a label's length (a label sits beside its feature): 250-700 m, offered for review. The sheet's water
-        # against OpenStreetMap's (a second family) moves it onto the ground; accepted only when the whole sheet and
-        # every comparable quadrant agree with the water after the move (scale and rotation confirmed, not only the
-        # shift) and the names clearly beat any placement elsewhere
+        # fitted on the coordinate-free development data (dev_usgs, dev_slub and the seen held-out v1; 2026-11-17,
+        # docs/FINDINGS.md). Names alone place a sheet to about a label's length (250-700 m): review. The sheet's water
+        # and dark line work against OpenStreetMap's water and roads, in nine overlapping windows, move it onto the
+        # ground; accepted only when the names clearly beat any placement elsewhere, at least seven windows agree and
+        # span every row and column of the lattice, each window is predicted from the others within 20 m, and the
+        # content placement lies within the names' own uncertainty (two families agree)
         {"id": "too_few_names", "when": "(names_agree or 0) < 4", "to": "abstain"},
         {"id": "names_agree", "when": "(names_agree or 0) >= 4", "to": "review"},
-        {"id": "names_and_water", "when": "(names_agree or 0) >= 5 and (names_agree or 0) >= (names_agree_elsewhere or 0) + 2 "
-                                          "and water_locked == True and water_local_agree == True", "to": "accept"},
+        {"id": "names_and_content", "when": "(names_agree or 0) >= 5 and (names_agree or 0) >= (names_agree_elsewhere or 0) + 2 "
+                                            "and (content_windows or 0) >= 7 and (content_rows_cols or 0) >= 3 "
+                                            "and content_loo_m is not None and content_loo_m <= 20 and content_within_names == True", "to": "accept"},
     ),
-    expected_accuracy_m=(20.0, 700.0), expected_cost_per_sheet=0.0,
-    note="world gazetteer (OpenStreetMap, fetched per sheet) for the names, OpenStreetMap water for the ground; accept needs both")
+    expected_accuracy_m=(10.0, 700.0), expected_cost_per_sheet=0.0,
+    note="world gazetteer (OpenStreetMap, fetched per sheet) for the names, OpenStreetMap water and roads for the ground; accept needs both")
 
 KINDS = {r.name: r for r in (PLANS_GB, SOI_1INCH, UNLABELLED_RASTER, STREET_MAP, SURVEY_GRATICULE, NAMED_MAP)}
 
@@ -153,7 +155,7 @@ SPECS = {
                                                         Step("residual_check", {"bound": 30.0, "geographic": True}), Step("basemap_agreement"),
                                                         Step("edition_agreement")),
                                     SURVEY_GRATICULE.policy_rules, "lib-v0"),
-    "named_map": AdapterSpec("named_map", (Step("claude_read", {"headless": True}), Step("name_search_area"), Step("name_fit"), Step("water_refine")),
+    "named_map": AdapterSpec("named_map", (Step("claude_read", {"headless": True}), Step("name_search_area"), Step("name_fit"), Step("content_fit")),
                              NAMED_MAP.policy_rules, "lib-v0"),
     "unlabelled_raster": AdapterSpec("unlabelled_raster", (Step("hint_area"), Step("edge_structure"), Step("reference_render"),
                                                           Step("structure_match_orb"), Step("overlay_agreement")), UNLABELLED_RASTER.policy_rules, "lib-v0"),
