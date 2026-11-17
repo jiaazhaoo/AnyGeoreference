@@ -61,26 +61,36 @@ def _box_wkt(b) -> str:
 
 
 # -- area ---------------------------------------------------------------------------------------------------------
+def _search_areas(state) -> list:
+    """Where to search the sheet's names: the world (None), then every area the record's hint may name."""
+    from .. import gazetteer as gz
+    hint = (state.sheet.record.get("hint") or "").strip()
+    return [None] + (gz.areas_of(hint) if hint else [])
+
+
 def name_search_area(state, cluster_m: float = 25000.0, margin_m: float = 8000.0, max_extent_m: float = 30000.0,
                      limit: int = 40, max_names: int = 40, keep: int = 3):
     """Candidate areas (EPSG:4326 boxes) for the sheet: where the sheet's different names cluster in the gazetteer,
-    searched worldwide, or inside the area the record's hint names (a region; country around a named town)."""
+    searched worldwide and inside every area the record's hint may name (a region; country around a named town),
+    pooled: a hint adds answers a worldwide search crowds out, but never removes one, so a misread hint cannot leave
+    fewer names than no hint."""
     from .. import gazetteer as gz
-    hint = (state.sheet.record.get("hint") or "").strip()
-    area = gz.area_of(hint) if hint else None
+    areas = _search_areas(state)
     names = list(dict.fromkeys(t for t, _, _ in _names(state)))[:max_names]
     if not names:
         return []
-    hits, saturated = [], []
-    for nm in names:
-        res = gz.search(nm, area=area, limit=limit)
-        if len(res) >= limit:                            # a name found everywhere says nothing about where
-            saturated.append(nm); continue
-        for p in res:
-            if gz.matches(nm, p) and p.extent_m() <= max_extent_m:
-                hits.append((nm, p.lon, p.lat))
+    hits, saturated = set(), set()
+    for area in areas:
+        for nm in names:
+            res = gz.search(nm, area=area, limit=limit)
+            if len(res) >= limit:                        # a name found everywhere says nothing about where
+                saturated.add(nm); continue
+            for p in res:
+                if gz.matches(nm, p) and p.extent_m() <= max_extent_m:
+                    hits.add((nm, round(p.lon, 6), round(p.lat, 6)))
+    hits = sorted(hits)
     state.evidence.append(Evidence("names_searched", len(names), "deterministic", "gazetteer",
-                                   note=f"{len({h[0] for h in hits})} found, {len(saturated)} too common; area {'hint ' + hint if area else 'world'}"))
+                                   note=f"{len({h[0] for h in hits})} found, {len(saturated)} too common in some area; areas: world + {len(areas) - 1} from the hint"))
     if not hits:
         return []
     P = np.array([[h[1], h[2]] for h in hits])
@@ -148,10 +158,10 @@ def name_fit(state, tol_frac: float = 0.03, max_rot_deg: float = 15.0, scale_ran
         box = shapely.wkt.loads(cand.area_wkt).bounds
         feats = gz.features(box, texts)
         # the name search's own answers inside the box are gazetteer entries too (cached: no new request)
-        hint = (state.sheet.record.get("hint") or "").strip()
-        area = gz.area_of(hint) if hint else None
-        for t in texts[:40]:
-            feats += [p for p in gz.search(t, area=area) if box[0] <= p.lon <= box[2] and box[1] <= p.lat <= box[3]]
+        for area in _search_areas(state):
+            for t in texts[:40]:
+                feats += [p for p in gz.search(t, area=area) if box[0] <= p.lon <= box[2] and box[1] <= p.lat <= box[3]]
+        feats = list(dict.fromkeys(feats))              # the same entry found from the world and from a hint area
         cx, cy = (box[0] + box[2]) / 2, (box[1] + box[3]) / 2
         crs = _utm(cx, cy)
         to_xy = Transformer.from_crs("EPSG:4326", crs, always_xy=True)

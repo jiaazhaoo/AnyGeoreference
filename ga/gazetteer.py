@@ -121,7 +121,7 @@ def matches(read: str, place: Place) -> bool:
 
 
 # -- Nominatim ----------------------------------------------------------------------------------------------------
-def _get(url: str, cache_name: str, retries: int = 4, pace: float = 0.0, data: bytes | None = None, timeout: int = 120):
+def _get(url: str, cache_name: str, retries: int = 7, pace: float = 0.0, data: bytes | None = None, timeout: int = 120):
     path = CACHE / cache_name
     if path.exists():
         return json.loads(path.read_text())
@@ -143,7 +143,7 @@ def _get(url: str, cache_name: str, retries: int = 4, pace: float = 0.0, data: b
             return out
         except Exception as e:                                       # noqa: BLE001  busy server: back off, retry
             last = e
-            time.sleep(min(60, 5 * (i + 1)))
+            time.sleep(min(90, 5 * 2 ** i))                         # 5 s .. 90 s: a public server may refuse for a minute or two
     raise RuntimeError(f"gazetteer unavailable: {last}")
 
 
@@ -166,17 +166,33 @@ def search(name: str, area: tuple | None = None, limit: int = 40) -> list[Place]
     return [_place_from_nominatim(r) for r in _get(url, f"nominatim/{key}.json", pace=1.1) if r.get("boundingbox")]
 
 
-def area_of(text: str, min_half_m: float = 60000.0) -> tuple | None:
-    """The area a place name in the record stands for, (west, south, east, north): its outline's box, at least
-    min_half_m either side of it (a map named after a town covers country around the town)."""
-    hits = search(text, limit=1)
-    if not hits:
-        return None
-    p = hits[0]
+def _padded(p: Place, min_half_m: float) -> tuple:
     w, s, e, n = p.bbox
     dlat = min_half_m / 110574
     dlon = min_half_m / (111320 * math.cos(math.radians(p.lat)))
     return (min(w, p.lon - dlon), min(s, p.lat - dlat), max(e, p.lon + dlon), max(n, p.lat + dlat))
+
+
+def areas_of(text: str, min_half_m: float = 60000.0, limit: int = 5, keep: int = 3) -> list[tuple]:
+    """Every area a place name in the record may stand for, (west, south, east, north) each: its outline's box, at
+    least min_half_m either side of it (a map named after a town covers country around the town). A name is often
+    ambiguous ("Washington, United States": the city or the state; "Albion, New York": two towns), and the geocoder's
+    first answer is not the one a record means more often than the others, so the first `keep` different answers
+    are all kept; an answer inside an area already kept adds nothing. The sheet's own names decide among them."""
+    out: list[tuple] = []
+    for p in search(text, limit=limit):
+        if any(a[0] <= p.lon <= a[2] and a[1] <= p.lat <= a[3] for a in out):
+            continue
+        out.append(_padded(p, min_half_m))
+        if len(out) >= keep:
+            break
+    return out
+
+
+def area_of(text: str, min_half_m: float = 60000.0) -> tuple | None:
+    """The geocoder's first reading of a place name in the record (see areas_of for all of them)."""
+    a = areas_of(text, min_half_m, keep=1)
+    return a[0] if a else None
 
 
 def box_side_m(bbox) -> float:

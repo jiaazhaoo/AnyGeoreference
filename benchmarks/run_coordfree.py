@@ -69,10 +69,11 @@ def main() -> int:
     ap.add_argument("--kind", default="street_map")
     ap.add_argument("--out", required=True)
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--tiers", nargs="*", default=list(cf.TIERS), help="run only these tiers (the others score as abstain)")
     a = ap.parse_args()
     data = ROOT / "benchmarks" / "data" / "coordfree" / Path(a.cases).stem
     reads = data / "reads"
-    items = list(cf.inputs(a.cases, data))
+    items = [it for it in cf.inputs(a.cases, data) if it[1] in a.tiers]
     # read every window once first (the tiers share it), then run the tiers
     first = [it for it in items if it[1] == "none"]
     rest = [it for it in items if it[1] != "none"]
@@ -85,6 +86,8 @@ def main() -> int:
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     score = cf.score(a.cases, results, data)
+    score["rows"] = [r for r in score["rows"] if r["tier"] in a.tiers]
+    score["tally"] = {t: v for t, v in score["tally"].items() if t in a.tiers}
     for r in score["rows"]:
         ans = results[r["id"]][r["tier"]]
         r.update(cues=ans["cues"], errors=ans["errors"], facts=ans.get("facts", {}))

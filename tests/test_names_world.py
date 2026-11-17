@@ -138,3 +138,39 @@ def test_water_refine_corrects_shift_and_scale(monkeypatch):
     for x, y in ((0, 0), (W, H), (W, 0)):
         err = math.hypot(a * x + b * y + c - (truth[0] * x + truth[2]), d * x + e * y + f - (truth[4] * y + truth[5]))
         assert err < 30, err
+
+
+def test_areas_of_keeps_every_reading_of_an_ambiguous_hint(monkeypatch):
+    city = gz.Place("Washington", ("Washington",), -77.04, 38.9, (-77.1, 38.8, -76.9, 39.0), "place=city")
+    state = gz.Place("Washington", ("Washington",), -120.2, 47.3, (-124.8, 45.5, -116.9, 49.0), "boundary=administrative")
+    inside = gz.Place("Olympia", ("Olympia",), -122.9, 47.0, (-123.0, 46.9, -122.8, 47.1), "place=city")
+    monkeypatch.setattr(gz, "search", lambda name, area=None, limit=40: [city, state, inside])
+    areas = gz.areas_of("Washington, United States")
+    assert len(areas) == 2                                  # the city and the state; a place inside the state adds nothing
+    assert any(a[0] <= -120.2 <= a[2] and a[1] <= 47.3 <= a[3] for a in areas)
+    assert gz.area_of("Washington, United States") == areas[0]
+
+
+def test_a_misread_hint_does_not_lose_the_names(monkeypatch):
+    """The hint names an area far from the sheet; the worldwide search still finds the sheet's names together."""
+    from ga.loop import State
+    from ga.primitives.names_world import name_search_area
+    sheet, cues, feats, _ = _sheet_and_world()
+    sheet.record["hint"] = "Elsewhere"
+    by = {}
+    for p in feats:
+        by.setdefault(p.name, []).append(p)
+    wrong = (-80.0, 35.0, -79.0, 36.0)
+
+    def search(name, area=None, limit=40):
+        if name == "Elsewhere":
+            return [gz.Place("Elsewhere", ("Elsewhere",), -79.5, 35.5, wrong, "place=city")]
+        if area is None:
+            return by.get(name, [])
+        return [p for p in by.get(name, []) if area[0] <= p.lon <= area[2] and area[1] <= p.lat <= area[3]]
+
+    monkeypatch.setattr(gz, "search", search)
+    st = State(sheet)
+    st.cues.extend(cues)
+    out = name_search_area(st)
+    assert out and len(out[0].answers) == 8
