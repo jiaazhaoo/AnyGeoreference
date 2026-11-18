@@ -662,3 +662,47 @@ they came out:
 Next capabilities, in the order the runs show: (1) hint lookup by kind; (2) more names located (the abstentions);
 (3) sheet content that sits off its own frame, which no internal check sees, needs a second reference for the frame
 itself.
+
+## 2026-11-18: a hint looked up as every place it may name; held-out v3, run once
+
+*What changed* (`ga/gazetteer.py` `areas_of`, `ga/primitives/names_world.py`): a hint went to the geocoder's first
+answer, and "Washington, United States" or "New York, United States" came back as the city. Now every different answer
+(up to three; an answer inside an area already kept adds nothing) is a search area, the worldwide search always runs as
+well, and the answers are pooled: a hint can add names a worldwide search crowds out, but never remove one. The sheet's
+names decide between the areas. Gazetteer retries back off longer (5–90 s), because a public server that refuses for a
+minute would otherwise turn into an abstention. Policy unchanged from a922e95.
+
+*Checked on seen v2* (region and title tiers re-run; `coordfree_heldout_v2_named_map_hintkind.json`): region placed
+32 → 41 (the no-hint tier placed 41), accepted 8 → 9, within 100 m 17 → 20; title placed 41 → 42; no window lost,
+none accepted wrong. A first attempt at this check crashed while writing its results and also showed windows lost; run
+again they placed as before, so the losses were most likely refused requests, which that run did not record.
+
+### Held-out v3, run once
+
+`coordfree_heldout_v3`: 100 fresh USGS quadrangles (source seed 20261127, excluding every earlier USGS and
+coordinate-free draw; windows seed 20261128). Drawn and committed at 6bfb1bc before any window was built; code frozen
+and pushed at 200fb5e; then read and run once, three tiers. Nobody looked at its windows. Results as they came out:
+
+| tier | accepted right | accepted wrong | review | abstain | placed | within 100 m | within 1 km | within 10 km | median of medians |
+|---|---|---|---|---|---|---|---|---|---|
+| none | **10** | **0** | 38 | 52 | 48 | 23 | 43 | 48 | 61 m |
+| region | **10** | **0** | 40 | 50 | 50 | 25 | 45 | 50 | 49 m |
+| title | **11** | **0** | 38 | 51 | 49 | 24 | 44 | 49 | 51 m |
+
+- **Acceptance holds on a second fresh set.** 10–11 of 100 accepted per tier, none wrong; the worst point of any
+  accepted window is 68 m. Across v2 and v3, 58 acceptances on unseen windows, none wrong.
+- **Content still beats names wherever it fits**: 31 of 31 windows (tier none), median 372 m → 26 m.
+- **The hint no longer costs placements.** Region placed 50 against 48 with no hint, and lost none; title placed 49
+  and lost one (m037: the title area's extra answers led the fit to a cluster where only two names agree). Both
+  hinted tiers gained the same two windows whose names were not found worldwide.
+- **No placement is more than 10 km off.** Reviews range from 7 m to 3.2 km by their median.
+- **One window was not read** (m092, every tier): the model API declined the reading request, so the window abstains.
+  It is counted as an abstention, as it came out.
+- **The out-of-sample check is not exactly repeatable.** m037 had the same names placement with no hint and with the
+  region hint, but its leave-one-out miss came out 19.4 m once and 20.7 m the other time, so it was accepted once and
+  sent to review once. The 20 m threshold is sharp against a number that moves by about a metre between runs.
+- About half the windows still find no placement: locating names remains the main limit.
+- The held-out v3 set is now seen.
+
+Next: make the content check deterministic (or decide on a margin around the threshold measured on seen data), more
+names located, and content that sits off its own sheet frame.

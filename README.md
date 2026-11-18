@@ -158,7 +158,8 @@ own.
 | `coordfree_dev_usgs` | 40 quadrangles of USGS v4 (seen) | 40 × 3 tiers | development |
 | `coordfree_dev_slub` | 20 sheets of SLUB v2 (seen) | 20 × 3 tiers | development |
 | `coordfree_heldout_v1` | 100 fresh USGS quadrangles (seed 20261123, every earlier draw excluded), one scan each (seed 20261124) | 100 × 3 tiers | run once on frozen code (a8db174); now seen |
-| `coordfree_heldout_v2` | 100 fresh USGS quadrangles (seed 20261125, every earlier draw excluded), one scan each (seed 20261126), drawn before any build (02d6516) | 100 × 3 tiers | held out; run once on frozen code (a922e95); now seen |
+| `coordfree_heldout_v2` | 100 fresh USGS quadrangles (seed 20261125, every earlier draw excluded), one scan each (seed 20261126), drawn before any build (02d6516) | 100 × 3 tiers | run once on frozen code (a922e95); now seen |
+| `coordfree_heldout_v3` | 100 fresh USGS quadrangles (seed 20261127, every earlier draw excluded), one scan each (seed 20261128), drawn before any build (6bfb1bc) | 100 × 3 tiers | held out; run once on frozen code (200fb5e); now seen |
 
 **Baseline, development sets (2026-11-09):** the existing coordinate-free recipe (`street_map`: read names, look
 them up, fit roads, check places) placed **0 of 180** runs. The reader is not the problem: it read 6–40 place and
@@ -201,13 +202,16 @@ within the names' own uncertainty. 20 m was the last threshold with nothing wron
 |---|---|---|---|---|---|---|---|---|
 | dev_usgs + dev_slub (60, seen) | none | 5 | 0 | 30 | 25 | 35 | 16 | 49 m |
 | heldout_v1 (100, seen) | none / region / title | 7 / 10 / 9 | 0 / 0 / 0 | 34 / 36 / 36 | 59 / 54 / 55 | 41 / 46 / 45 | 16 / 23 / 21 | 174 / 52 / 70 m |
-| **heldout_v2 (100)** | none / region / title | **10 / 8 / 9** | **0 / 0 / 0** | 31 / 24 / 32 | 59 / 68 / 59 | 41 / 32 / 41 | **21 / 17 / 20** | 44 / 39 / 317 m |
+| heldout_v2 (100, seen) | none / region / title | **10 / 8 / 9** | **0 / 0 / 0** | 31 / 24 / 32 | 59 / 68 / 59 | 41 / 32 / 41 | **21 / 17 / 20** | 44 / 39 / 317 m |
+| **heldout_v3 (100), hint fixed** | none / region / title | **10 / 10 / 11** | **0 / 0 / 0** | 38 / 40 / 38 | 52 / 50 / 51 | 48 / 50 / 49 | **23 / 25 / 24** | 61 / 49 / 51 m |
 
 On unseen maps with no coordinates and no hint, one window in ten is now placed and accepted, worst point 68 m, and
 none is accepted wrong (v1 with names + water: none accepted). Where content made a fit it beat the names placement
-on all 27 such windows (median 411 m → 20 m). The region hint costs placements: "Washington" and "New York" are still
-looked up as cities, not states. Content that sits off its own sheet frame (some old sheets, 110–160 m) is the error no
-internal check can see.
+on all 27 such windows (median 411 m → 20 m). On v2 the region hint cost placements ("Washington" and "New York"
+looked up as cities). A hint is now looked up as every place it may name and pooled with the worldwide search, frozen
+at 200fb5e, and a second fresh set (v3) was run once: 10–11 accepted per tier, none wrong, and the hinted tiers place
+as many windows as no hint or more. Across v2 and v3, 58 acceptances on unseen windows, none wrong. Content that sits
+off its own sheet frame (some old sheets, 110–160 m) is the error no internal check can see.
 
 ```bash
 python benchmarks/coordfree.py build benchmarks/coordfree_dev_usgs.json      # windows + truth under benchmarks/data/coordfree/
